@@ -10,15 +10,15 @@ class LightTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: AppColors.lightP1,
       brightness: Brightness.light,
     ),
-    scaffoldBackgroundColor: AppColors.bgLight,
+    scaffoldBackgroundColor: AppColors.lightBackground,
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
-      backgroundColor: AppColors.bgLight,
-      foregroundColor: AppColors.grey900,
+      backgroundColor: AppColors.lightBackground,
+      foregroundColor: AppColors.lightMainText,
     ),
   );
 }
