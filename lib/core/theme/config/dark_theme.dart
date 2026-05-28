@@ -10,15 +10,15 @@ class DarkTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: AppColors.darkP1,
       brightness: Brightness.dark,
     ),
-    scaffoldBackgroundColor: AppColors.bgDark,
+    scaffoldBackgroundColor: AppColors.darkBackground,
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
-      backgroundColor: AppColors.bgDark,
-      foregroundColor: AppColors.white,
+      backgroundColor: AppColors.darkBackground,
+      foregroundColor: AppColors.darkMainText,
     ),
   );
 }

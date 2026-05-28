@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 
-/// 앱 색상 팔레트
+/// 앱 색상 팔레트 (Figma 디자인 토큰 기준)
 class AppColors {
   AppColors._();
 
-  // Primary
-  static const Color primary = Color(0xFF1A73E8);
-  static const Color primaryDark = Color(0xFF1557B0);
+  // Common
+  static const Color negative = Color(0xFFE43620);
 
-  // Secondary
-  static const Color secondary = Color(0xFF03DAC6);
-  static const Color secondaryDark = Color(0xFF018786);
+  // Light mode
+  static const Color lightBackground = Color(0xFFF7F7F9);
+  static const Color lightBgSurface = Color(0xFFFDFDFD);
+  static const Color lightP1 = Color(0xFF6F7AEC);
+  static const Color lightP2 = Color(0xFFEEF0FD);
+  static const Color lightP3 = Color(0xFFC5CAF7);
+  static const Color lightSub1 = Color(0xFF656B80);
+  static const Color lightSub2 = Color(0xFFBBBBCC);
+  static const Color lightSub3 = Color(0xFFE2E2EE);
+  static const Color lightSub4 = Color(0xFFF2F2F4);
+  static const Color lightMainText = Color(0xFF292E3D);
 
-  // Semantic
-  static const Color error = Color(0xFFB00020);
-  static const Color success = Color(0xFF388E3C);
-  static const Color warning = Color(0xFFF9A825);
-  static const Color info = Color(0xFF1565C0);
-
-  // Neutral
-  static const Color black = Color(0xFF000000);
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color grey100 = Color(0xFFF5F5F5);
-  static const Color grey300 = Color(0xFFE0E0E0);
-  static const Color grey500 = Color(0xFF9E9E9E);
-  static const Color grey700 = Color(0xFF616161);
-  static const Color grey900 = Color(0xFF212121);
-
-  // Background
-  static const Color bgLight = Color(0xFFFFFFFF);
-  static const Color bgDark = Color(0xFF121212);
+  // Dark mode
+  static const Color darkBackground = Color(0xFF1F1E2B);
+  static const Color darkBgSurface = Color(0xFF17161F);
+  static const Color darkP1 = Color(0xFF5966E9);
+  static const Color darkP2 = Color(0xFF1D2136);
+  static const Color darkP3 = Color(0xFF24295D);
+  static const Color darkSub1 = Color(0xFF818198);
+  static const Color darkSub2 = Color(0xFF626274);
+  static const Color darkSub3 = Color(0xFF292930);
+  static const Color darkSub4 = Color(0xFF1E1E26);
+  static const Color darkMainText = Color(0xFFCDCDD5);
 }
