@@ -32,6 +32,14 @@ class PrimaryActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final background = enabled ? AppColors.lightP1 : AppColors.lightP3;
 
+    Widget content = Text(
+      label,
+      style: AppFont.caption1.copyWith(color: AppColors.lightSub4),
+    );
+    if (expand) {
+      content = Center(child: content);
+    }
+
     final button = Material(
       color: background,
       borderRadius: BorderRadius.circular(borderRadius),
@@ -43,12 +51,7 @@ class PrimaryActionButton extends StatelessWidget {
             horizontal: horizontalPadding,
             vertical: verticalPadding,
           ),
-          child: Center(
-            child: Text(
-              label,
-              style: AppFont.caption1.copyWith(color: AppColors.lightSub4),
-            ),
-          ),
+          child: content,
         ),
       ),
     );
