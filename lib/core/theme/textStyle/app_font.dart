@@ -6,54 +6,58 @@ class AppFont {
 
   static const String _fontFamily = 'SUIT';
 
+  static const FontWeight medium = FontWeight.w500;
+  static const FontWeight semiBold = FontWeight.w600;
+  static const FontWeight bold = FontWeight.w700;
+
   // Title
   static const TextStyle title1 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 24,
-    fontWeight: FontWeight.w700, // Bold
+    fontWeight: bold, // Bold
   );
   static const TextStyle title2 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 20,
-    fontWeight: FontWeight.w600, // SemiBold
+    fontWeight: semiBold, // SemiBold
   );
   static const TextStyle title3 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 18,
-    fontWeight: FontWeight.w600, // SemiBold
+    fontWeight: semiBold, // SemiBold
   );
 
   // Text
   static const TextStyle text1 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 16,
-    fontWeight: FontWeight.w600, // SemiBold
+    fontWeight: semiBold, // SemiBold
   );
   static const TextStyle text2 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 16,
-    fontWeight: FontWeight.w500, // Medium
+    fontWeight: medium, // Medium
   );
   static const TextStyle text3 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 15,
-    fontWeight: FontWeight.w500, // Medium
+    fontWeight: medium, // Medium
   );
 
   // Caption
   static const TextStyle caption1 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 14,
-    fontWeight: FontWeight.w500, // Medium
+    fontWeight: medium, // Medium
   );
   static const TextStyle caption2 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 13,
-    fontWeight: FontWeight.w500, // Medium
+    fontWeight: medium, // Medium
   );
   static const TextStyle caption3 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
-    fontWeight: FontWeight.w500, // Medium
+    fontWeight: medium, // Medium
   );
 }
