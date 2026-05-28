@@ -32,12 +32,22 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      floatingActionButton: const Padding(
-        padding: EdgeInsets.only(
+      onMenuTap: () {
+        // Todo: 메뉴 열기 기능 구현
+      },
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(
           right: AppSpacing.s8,
           bottom: AppSpacing.s24,
         ),
-        child: HomeFloatingActions(),
+        child: HomeFloatingActions(
+          onAiTap: () {
+            // Todo: AI 기능 구현
+          },
+          onChatTap: () {
+            // Todo: 챗봇 기능 구현
+          },
+        ),
       ),
       body: SafeArea(
         top: false,
@@ -56,18 +66,36 @@ class _HomePageState extends State<HomePage> {
                 teacher: '이주원',
               ),
               const SizedBox(height: AppSpacing.s16),
-              const _RequestCountCard(
+              _RequestCountCard(
                 iconPath: AppIcon.book,
                 title: '자습신청',
                 current: 4,
                 total: 50,
+                onWarningPressed: () {
+                  // Todo: 자습신청 안내 기능 구현
+                },
+                onSeeAllPressed: () {
+                  // Todo: 자습신청 전체보기 기능 구현
+                },
+                onActionPressed: () {
+                  // Todo: 자습신청 기능 구현
+                },
               ),
               const SizedBox(height: AppSpacing.s16),
-              const _RequestCountCard(
+              _RequestCountCard(
                 iconPath: AppIcon.chair,
                 title: '안마의자 신청',
                 current: 4,
                 total: 5,
+                onWarningPressed: () {
+                  // Todo: 안마의자 신청 안내 기능 구현
+                },
+                onSeeAllPressed: () {
+                  // Todo: 안마의자 신청 전체보기 기능 구현
+                },
+                onActionPressed: () {
+                  // Todo: 안마의자 신청 기능 구현
+                },
               ),
               const SizedBox(height: AppSpacing.s16),
               _WakeMusicCard(
@@ -143,12 +171,18 @@ class _RequestCountCard extends StatelessWidget {
     required this.title,
     required this.current,
     required this.total,
+    required this.onWarningPressed,
+    required this.onSeeAllPressed,
+    required this.onActionPressed,
   });
 
   final String iconPath;
   final String title;
   final int current;
   final int total;
+  final VoidCallback onWarningPressed;
+  final VoidCallback onSeeAllPressed;
+  final VoidCallback onActionPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -160,9 +194,15 @@ class _RequestCountCard extends StatelessWidget {
             children: [
               CardHeader(iconPath: iconPath, title: title),
               const SizedBox(width: AppSpacing.s6),
-              AppIcon.asset(AppIcon.warning, size: AppSize.s18),
+              IconButton(
+                onPressed: onWarningPressed,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                splashRadius: AppSize.s18,
+                icon: AppIcon.asset(AppIcon.warning, size: AppSize.s18),
+              ),
               const Spacer(),
-              const _SeeAllLink(),
+              _SeeAllLink(onPressed: onSeeAllPressed),
             ],
           ),
           const SizedBox(height: AppSpacing.s8),
@@ -175,9 +215,13 @@ class _RequestCountCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.s8),
           AppProgressBar(current: current, total: total),
           const SizedBox(height: AppSpacing.s8),
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
-            child: PrimaryActionButton(label: '신청 불가', enabled: false),
+            child: PrimaryActionButton(
+              label: '신청 불가',
+              enabled: false,
+              onPressed: onActionPressed,
+            ),
           ),
         ],
       ),
@@ -267,7 +311,9 @@ class _WakeMusicCard extends StatelessWidget {
 }
 
 class _SeeAllLink extends StatelessWidget {
-  const _SeeAllLink();
+  const _SeeAllLink({required this.onPressed});
+
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -279,10 +325,16 @@ class _SeeAllLink extends StatelessWidget {
           style: AppFont.caption1.copyWith(color: AppColors.lightSub2),
         ),
         const SizedBox(width: AppSpacing.s4),
-        AppIcon.asset(
-          AppIcon.chevronRight,
-          size: AppSize.s14,
-          color: AppColors.lightSub2,
+        IconButton(
+          onPressed: onPressed,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          splashRadius: AppSize.s14,
+          icon: AppIcon.asset(
+            AppIcon.chevronRight,
+            size: AppSize.s14,
+            color: AppColors.lightSub2,
+          ),
         ),
       ],
     );
