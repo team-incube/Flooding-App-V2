@@ -18,7 +18,7 @@ class AppIcon {
   static const String chair = '$_base/chair.svg';
   static const String speaker = '$_base/speaker.svg';
   static const String warning = '$_base/warning.svg';
-  static const String backArrow = '$_base/back_arrow.svg';
+  static const String chevronRight = '$_base/chevron_right.svg';
   static const String dehaze = '$_base/dehaze.svg';
   static const String sparkle = '$_base/sparkle.svg';
   static const String chatBot = '$_base/chat_bot.svg';

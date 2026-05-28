@@ -280,7 +280,7 @@ class _SeeAllLink extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.s4),
         AppIcon.asset(
-          AppIcon.backArrow,
+          AppIcon.chevronRight,
           size: AppSize.s14,
           color: AppColors.lightSub2,
         ),
