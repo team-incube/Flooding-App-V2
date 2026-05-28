@@ -54,7 +54,7 @@ class _CircleAction extends StatelessWidget {
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
-        child: Container(
+        child: Ink(
           width: AppSize.s60,
           height: AppSize.s60,
           decoration: const BoxDecoration(
@@ -67,8 +67,10 @@ class _CircleAction extends StatelessWidget {
             ],
             color: AppColors.lightBgSurface,
           ),
-          alignment: Alignment.center,
-          child: AppIcon.asset(iconPath, size: 39),
+          child: Align(
+            alignment: Alignment.center,
+            child: AppIcon.asset(iconPath, size: 39),
+          ),
         ),
       ),
     );
