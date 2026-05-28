@@ -20,8 +20,8 @@ jobs:
           if [ -f ".fvm/fvm_config.json" ]; then
             FLUTTER_VERSION=$(jq -r '.flutterSdkVersion' .fvm/fvm_config.json)
           else
-            FLUTTER_VERSION="stable"
-            echo "::notice::FVM 설정 파일 없음, stable 채널 사용"
+            FLUTTER_VERSION=""
+            echo "::notice::FVM 설정 파일 없음, stable 채널 최신 버전 사용"
           fi
           echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
 
@@ -52,6 +52,7 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Run tests
+        if: hashFiles('test/**/*_test.dart') != ''
         run: flutter test
 
       - name: Build Android APK
