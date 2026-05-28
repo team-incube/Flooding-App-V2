@@ -19,41 +19,38 @@ class AppProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ratio = total <= 0 ? 0.0 : (current / total).clamp(0.0, 1.0);
     final radius = BorderRadius.circular(AppRadius.s8);
+    final filledFlex = total <= 0 ? 0 : current.clamp(0, total);
+    final emptyFlex = total <= 0 ? 1 : total - filledFlex;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final filledWidth = constraints.maxWidth * ratio;
-        final emptyWidth = constraints.maxWidth - filledWidth;
-
-        return SizedBox(
-          height: AppSpacing.s32,
-          child: Row(
-            children: [
-              if (filledWidth > 0)
-                Container(
-                  width: filledWidth,
-                  decoration: BoxDecoration(
-                    color: AppColors.lightP1,
-                    borderRadius: radius,
-                  ),
+    return SizedBox(
+      height: AppSpacing.s32,
+      child: Row(
+        children: [
+          if (filledFlex > 0)
+            Expanded(
+              flex: filledFlex,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.lightP1,
+                  borderRadius: radius,
                 ),
-              if (filledWidth > 0 && emptyWidth > 0)
-                const SizedBox(width: AppSpacing.s2),
-              if (emptyWidth > 0)
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.lightSub4,
-                      borderRadius: radius,
-                    ),
-                  ),
+              ),
+            ),
+          if (filledFlex > 0 && emptyFlex > 0)
+            const SizedBox(width: AppSpacing.s2),
+          if (emptyFlex > 0)
+            Expanded(
+              flex: emptyFlex,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.lightSub4,
+                  borderRadius: radius,
                 ),
-            ],
-          ),
-        );
-      },
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
