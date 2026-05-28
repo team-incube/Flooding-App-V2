@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_setting/core/theme/app_theme.dart';
+import 'package:flooding_v2/core/theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
