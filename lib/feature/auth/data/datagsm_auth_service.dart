@@ -34,6 +34,7 @@ class DatagsmAuthService {
     Dio? authDio,
     Dio? resourceDio,
     TokenStorage? tokenStorage,
+    SessionInvalidator? onSessionExpired,
   }) {
     final storage = tokenStorage ?? TokenStorage();
 
@@ -49,7 +50,9 @@ class DatagsmAuthService {
       AuthInterceptor(
         accessTokenProvider: storage.readAccessToken,
         refreshTokenProvider: storage.readRefreshToken,
-        onSessionExpired: storage.clear,
+        // 세션 만료 시 토큰 제거는 기본 동작이고, 주입 시 인증 상태 갱신 등
+        // 추가 처리(예: 로그인 화면 전환)를 위임할 수 있다.
+        onSessionExpired: onSessionExpired ?? storage.clear,
         retryClient: resourceClient,
         onRefresh: (refreshToken) async {
           final token = await _refresh(authApi, refreshToken);
