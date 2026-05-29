@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_size.dart';
-import '../../../../core/constants/app_spcing.dart';
+import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_radius.dart';
-import '../constants/app_spcing.dart';
+import '../constants/app_spacing.dart';
 import '../theme/color/app_colors.dart';
 
 /// 라운드 + 그림자가 적용된 공통 카드 컨테이너.
