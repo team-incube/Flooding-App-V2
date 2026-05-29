@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_radius.dart';
-import '../constants/app_spcing.dart';
+import '../constants/app_spacing.dart';
 import '../theme/color/app_colors.dart';
 
 /// 진행률을 보여주는 막대 위젯.

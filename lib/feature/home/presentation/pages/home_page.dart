@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_size.dart';
-import '../../../../core/constants/app_spcing.dart';
+import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
-import '../../../../core/theme/textStyle/app_font.dart';
+import '../../../../core/theme/text_style/app_font.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
 import '../../../../core/widgets/base_scaffold.dart';
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
         ),
         child: HomeFloatingActions(
           onAiTap: () {
-            // Todo: AI 기능 구현
+            // Todo: 노래 추천 기능 구현
           },
           onChatTap: () {
             // Todo: 챗봇 기능 구현
