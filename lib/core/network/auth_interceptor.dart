@@ -16,8 +16,11 @@ typedef SessionInvalidator = Future<void> Function();
 ///
 /// 특정 도메인(DataGSM 등)에 의존하지 않도록 토큰 입출력은 콜백으로 주입받는다.
 /// 갱신이 실패하면 [onSessionExpired] 로 세션을 종료한다.
-/// 동시 401 을 직렬화하기 위해 [QueuedInterceptor] 를 사용한다.
-class AuthInterceptor extends QueuedInterceptor {
+///
+/// 동시에 여러 요청이 401 을 받아도 갱신은 single-flight 로 1회만 수행한다 —
+/// 진행 중인 refresh [Future] 를 공유해 후속 요청은 그 결과를 기다린 뒤 재시도한다.
+/// 이는 refresh token 회전(rotation) 시 옛 토큰으로 중복 갱신해 실패하는 것을 막는다.
+class AuthInterceptor extends Interceptor {
   AuthInterceptor({
     required TokenProvider accessTokenProvider,
     required TokenProvider refreshTokenProvider,
@@ -37,6 +40,9 @@ class AuthInterceptor extends QueuedInterceptor {
   final Dio _retryClient;
 
   static const String _retriedFlag = 'auth_retried';
+
+  /// 진행 중인 갱신 작업. null 이 아니면 이미 갱신이 진행 중이다(single-flight).
+  Future<String>? _refreshing;
 
   @override
   void onRequest(
@@ -64,7 +70,7 @@ class AuthInterceptor extends QueuedInterceptor {
     }
 
     try {
-      final newAccessToken = await _onRefresh(refreshToken);
+      final newAccessToken = await _refreshOnce(refreshToken);
 
       final retryOptions = err.requestOptions
         ..extra[_retriedFlag] = true
@@ -76,5 +82,15 @@ class AuthInterceptor extends QueuedInterceptor {
       await _onSessionExpired();
       return handler.next(err);
     }
+  }
+
+  /// 갱신을 single-flight 로 수행한다.
+  ///
+  /// 이미 진행 중인 갱신이 있으면 그 [Future] 를 그대로 반환해 동시 요청이
+  /// 동일한 refresh 결과를 공유하도록 한다. 완료(성공/실패) 시 캐시를 비워
+  /// 다음 만료 때 다시 갱신할 수 있게 한다.
+  Future<String> _refreshOnce(String refreshToken) {
+    return _refreshing ??=
+        _onRefresh(refreshToken).whenComplete(() => _refreshing = null);
   }
 }
