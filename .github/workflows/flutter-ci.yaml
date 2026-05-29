@@ -48,6 +48,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # freezed/json_serializable/retrofit 생성물(*.g.dart, *.freezed.dart)은
+      # 커밋하지 않으므로(.gitignore) CI에서 매번 생성한다.
+      # build_runner 가 의존성에 있을 때만 실행한다.
+      - name: Generate code
+        run: |
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build
+          else
+            echo "::notice::build_runner 미사용, 코드 생성 건너뜀"
+          fi
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
