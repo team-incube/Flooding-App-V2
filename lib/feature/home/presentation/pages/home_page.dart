@@ -12,6 +12,7 @@ import '../../../../core/widgets/base_scaffold.dart';
 import '../../../../core/widgets/primary_action_button.dart';
 import '../widgets/card_header.dart';
 import '../widgets/home_floating_actions.dart';
+import '../widgets/menu_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,9 +33,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      onMenuTap: () {
-        // Todo: 메뉴 열기 기능 구현
-      },
+      endDrawer: MenuDrawer(
+        userName: '민솔',
+        studentId: '2403',
+        onProfileEdit: () {
+          // Todo: 프로필 편집 기능 구현
+        },
+        onHomeTap: () {
+          // Todo: 홈 이동 기능 구현
+        },
+        onDormitoryTap: () {
+          // Todo: 기숙사 이동 기능 구현
+        },
+        onLogout: () {
+          // Todo: 로그아웃 기능 구현
+        },
+        onWithdraw: () {
+          // Todo: 회원탈퇴 기능 구현
+        },
+      ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(
           right: AppSpacing.s8,
@@ -153,8 +170,7 @@ class _ScheduleCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.s4),
                 Text(
                   teacher,
-                  style:
-                      AppFont.caption1.copyWith(color: AppColors.lightSub2),
+                  style: AppFont.caption1.copyWith(color: AppColors.lightSub2),
                 ),
               ],
             ),
@@ -260,13 +276,15 @@ class _WakeMusicCard extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: '$requestedCount',
-                      style: AppFont.caption1
-                          .copyWith(color: AppColors.lightP1),
+                      style: AppFont.caption1.copyWith(
+                        color: AppColors.lightP1,
+                      ),
                     ),
                     TextSpan(
                       text: '개',
-                      style: AppFont.caption1
-                          .copyWith(color: AppColors.lightSub1),
+                      style: AppFont.caption1.copyWith(
+                        color: AppColors.lightSub1,
+                      ),
                     ),
                   ],
                 ),
@@ -290,8 +308,7 @@ class _WakeMusicCard extends StatelessWidget {
                 isCollapsed: true,
                 border: InputBorder.none,
                 hintText: 'URL을 입력해주세요',
-                hintStyle:
-                    AppFont.text3.copyWith(color: AppColors.lightSub2),
+                hintStyle: AppFont.text3.copyWith(color: AppColors.lightSub2),
               ),
             ),
           ),
@@ -340,4 +357,3 @@ class _SeeAllLink extends StatelessWidget {
     );
   }
 }
-

@@ -23,18 +23,24 @@ class AppIcon {
   static const String sparkle = '$_base/sparkle.svg';
   static const String chatBot = '$_base/chat_bot.svg';
 
+  // 메뉴 드로어
+  static const String navHome = '$_base/nav_home.svg';
+  static const String navDormitory = '$_base/nav_dormitory.svg';
+  static const String logout = '$_base/logout.svg';
+  static const String withdraw = '$_base/withdraw.svg';
+  static const String profileEdit = '$_base/profile_edit.svg';
+  static const String avatarBody = '$_base/avatar_body.svg';
+  static const String avatarHead = '$_base/avatar_head.svg';
+
   /// SVG 아이콘 위젯 생성 헬퍼.
-  static Widget asset(
-    String path, {
-    double size = AppSize.s24,
-    Color? color,
-  }) {
+  static Widget asset(String path, {double size = AppSize.s24, Color? color}) {
     return SvgPicture.asset(
       path,
       width: size,
       height: size,
-      colorFilter:
-          color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+      colorFilter: color == null
+          ? null
+          : ColorFilter.mode(color, BlendMode.srcIn),
     );
   }
 }
