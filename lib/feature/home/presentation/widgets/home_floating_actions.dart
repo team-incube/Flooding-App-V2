@@ -7,11 +7,7 @@ import '../../../../core/theme/icon/app_icon.dart';
 
 /// 우측 하단에 세로로 쌓인 두 개의 원형 액션 버튼.
 class HomeFloatingActions extends StatelessWidget {
-  const HomeFloatingActions({
-    super.key,
-    this.onAiTap,
-    this.onChatTap,
-  });
+  const HomeFloatingActions({super.key, this.onAiTap, this.onChatTap});
 
   final VoidCallback? onAiTap;
   final VoidCallback? onChatTap;
@@ -21,25 +17,16 @@ class HomeFloatingActions extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _CircleAction(
-          onTap: onAiTap,
-          iconPath: AppIcon.sparkle,
-        ),
+        _CircleAction(onTap: onAiTap, iconPath: AppIcon.sparkle),
         const SizedBox(height: AppSpacing.s12),
-        _CircleAction(
-          onTap: onChatTap,
-          iconPath: AppIcon.chatBot,
-        ),
+        _CircleAction(onTap: onChatTap, iconPath: AppIcon.chatBot),
       ],
     );
   }
 }
 
 class _CircleAction extends StatelessWidget {
-  const _CircleAction({
-    required this.iconPath,
-    this.onTap,
-  });
+  const _CircleAction({required this.iconPath, this.onTap});
 
   final String iconPath;
   final VoidCallback? onTap;
@@ -50,7 +37,6 @@ class _CircleAction extends StatelessWidget {
       color: AppColors.lightBgSurface,
       shape: const CircleBorder(),
       elevation: 0,
-      shadowColor: const Color(0x26050024),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
@@ -59,12 +45,6 @@ class _CircleAction extends StatelessWidget {
           height: AppSize.s60,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x26050024),
-                blurRadius: AppSpacing.s8,
-              ),
-            ],
             color: AppColors.lightBgSurface,
           ),
           child: Align(
