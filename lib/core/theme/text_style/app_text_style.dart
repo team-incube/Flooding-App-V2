@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// 앱 텍스트 스타일 (Figma Typography 가이드 기준, SUIT)
-class AppFont {
-  AppFont._();
+class AppTextStyle {
+  AppTextStyle._();
 
   static const String _fontFamily = 'SUIT';
 

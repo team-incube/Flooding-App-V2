@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
 import '../theme/color/app_colors.dart';
-import '../theme/text_style/app_font.dart';
+import '../theme/text_style/app_text_style.dart';
 
 /// 메인 컬러 톤의 액션 버튼.
 ///
@@ -34,7 +34,7 @@ class PrimaryActionButton extends StatelessWidget {
 
     Widget content = Text(
       label,
-      style: AppFont.caption1.copyWith(color: AppColors.lightSub4),
+      style: AppTextStyle.caption1.copyWith(color: AppColors.lightSub4),
     );
     if (expand) {
       content = Center(child: content);

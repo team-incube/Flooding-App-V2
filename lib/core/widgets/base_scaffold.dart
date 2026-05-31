@@ -76,7 +76,7 @@ class _FloodingLogoAppBar extends StatelessWidget
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleSpacing: AppSpacing.s24,
-      title: AppIcon.asset(AppIcon.logo, size: AppSize.s24),
+      title: AppIcon.logo(),
       actions: [
         IconButton(
           onPressed:
@@ -84,7 +84,7 @@ class _FloodingLogoAppBar extends StatelessWidget
               (hasEndDrawer
                   ? () => Scaffold.of(context).openEndDrawer()
                   : null),
-          icon: AppIcon.asset(AppIcon.dehaze, color: AppColors.lightMainText),
+          icon: AppIcon.dehaze(color: AppColors.lightMainText),
         ),
         const SizedBox(width: AppSpacing.s16),
       ],

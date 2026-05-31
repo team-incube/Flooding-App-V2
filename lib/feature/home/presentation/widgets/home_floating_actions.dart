@@ -17,18 +17,18 @@ class HomeFloatingActions extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _CircleAction(onTap: onAiTap, iconPath: AppIcon.sparkle),
+        _CircleAction(onTap: onAiTap, icon: AppIcon.sparkle),
         const SizedBox(height: AppSpacing.s12),
-        _CircleAction(onTap: onChatTap, iconPath: AppIcon.chatBot),
+        _CircleAction(onTap: onChatTap, icon: AppIcon.chatBot),
       ],
     );
   }
 }
 
 class _CircleAction extends StatelessWidget {
-  const _CircleAction({required this.iconPath, this.onTap});
+  const _CircleAction({required this.icon, this.onTap});
 
-  final String iconPath;
+  final AppIconBuilder icon;
   final VoidCallback? onTap;
 
   @override
@@ -49,7 +49,7 @@ class _CircleAction extends StatelessWidget {
           ),
           child: Align(
             alignment: Alignment.center,
-            child: AppIcon.asset(iconPath, size: 39),
+            child: icon(size: 39),
           ),
         ),
       ),
