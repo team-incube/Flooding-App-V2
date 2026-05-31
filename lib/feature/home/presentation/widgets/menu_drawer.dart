@@ -167,21 +167,23 @@ class _ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: _groupWidth,
-      height: _avatarSize,
-      child: Stack(
-        children: [
-          AppIcon.avatar(),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: GestureDetector(
-              onTap: onEdit,
+    // 아바타 영역 전체를 탭하면 편집 동작이 실행되도록 한다.
+    return GestureDetector(
+      onTap: onEdit,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: _groupWidth,
+        height: _avatarSize,
+        child: Stack(
+          children: [
+            AppIcon.avatar(),
+            Positioned(
+              right: 0,
+              bottom: 0,
               child: AppIcon.profileEdit(size: _badgeSize),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -245,8 +247,9 @@ class _BottomItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.s16,
