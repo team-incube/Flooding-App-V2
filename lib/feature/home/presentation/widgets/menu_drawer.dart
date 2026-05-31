@@ -36,8 +36,7 @@ class MenuDrawer extends StatelessWidget {
   final VoidCallback? onDormitoryTap;
   final VoidCallback? onLogout;
   final VoidCallback? onWithdraw;
-
-  // 디자인 고정 수치 (Figma node 3287-16554)
+  
   static const double _width = 301;
   static const double _cornerRadius = 20;
   static const double _verticalPadding = 40;
@@ -46,15 +45,16 @@ class MenuDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       width: _width,
-      backgroundColor: AppColors.lightBgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(
-          left: Radius.circular(_cornerRadius),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.lightBgSurface,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(_cornerRadius),
+          ),
         ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: _verticalPadding),
+        child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -64,7 +64,9 @@ class MenuDrawer extends StatelessWidget {
                 onEdit: onProfileEdit,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s24,
+                ),
                 child: Column(
                   children: [
                     _NavItem(

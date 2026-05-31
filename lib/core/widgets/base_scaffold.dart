@@ -49,8 +49,9 @@ class BaseScaffold extends StatelessWidget {
       appBar: resolvedAppBar,
       body: body,
       endDrawer: endDrawer,
-      // 드로어가 열려도 뒤의 홈 화면이 그대로 보이도록 딤(scrim) 제거.
-      drawerScrimColor: Colors.transparent,
+      // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용
+      // (디자인: BackGroundColor #F7F7F9 50%).
+      drawerScrimColor: const Color(0x80F7F7F9),
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
     );
