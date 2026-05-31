@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
@@ -43,13 +42,15 @@ class MenuDrawer extends StatelessWidget {
   final VoidCallback? onLogout;
   final VoidCallback? onWithdraw;
 
-  static const double _width = 301;
   static const double _cornerRadius = 20;
+
+  /// 드로어가 차지할 화면 너비 비율(화면의 3/4).
+  static const double _widthFactor = 0.75;
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: _width,
+      width: MediaQuery.sizeOf(context).width * _widthFactor,
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: Container(
@@ -213,24 +214,19 @@ class _NavItem extends StatelessWidget {
     final color = selected ? AppColors.lightP1 : AppColors.lightSub2;
     final iconBuilder = selected ? (selectedIcon ?? icon) : icon;
 
-    return Material(
-      color: selected ? AppColors.lightP2 : Colors.transparent,
-      borderRadius: BorderRadius.circular(AppRadius.s8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.s8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.s16,
-            vertical: AppSpacing.s12,
-          ),
-          child: Row(
-            children: [
-              iconBuilder(size: AppSize.s24, color: color),
-              const SizedBox(width: AppSpacing.s24),
-              Text(label, style: AppTextStyle.text2.copyWith(color: color)),
-            ],
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s16,
+          vertical: AppSpacing.s12,
+        ),
+        child: Row(
+          children: [
+            iconBuilder(size: AppSize.s24, color: color),
+            const SizedBox(width: AppSpacing.s24),
+            Text(label, style: AppTextStyle.text2.copyWith(color: color)),
+          ],
         ),
       ),
     );
