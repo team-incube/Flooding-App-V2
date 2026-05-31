@@ -1,0 +1,268 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_size.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/theme/icon/app_icon.dart';
+import '../../../../core/theme/text_style/app_text_style.dart';
+
+/// 드로어 네비게이션이 가리키는 화면 구분.
+enum MenuDestination { home, dormitory }
+
+/// 햄버거 버튼으로 우측에서 열리는 메뉴 사이드 드로어.
+///
+/// 프로필 영역(아바타·이름·학번), 네비게이션 항목(홈/기숙사),
+/// 하단 항목(로그아웃/회원탈퇴)으로 구성된다. 표시 데이터와 동작은
+/// 외부에서 주입하며, 디자인 고정 수치는 본문 상수로 둔다.
+class MenuDrawer extends StatelessWidget {
+  const MenuDrawer({
+    super.key,
+    required this.userName,
+    required this.studentId,
+    this.selected = MenuDestination.home,
+    this.onProfileEdit,
+    this.onHomeTap,
+    this.onDormitoryTap,
+    this.onLogout,
+    this.onWithdraw,
+  });
+
+  /// 인사말에 표시할 사용자 이름.
+  final String userName;
+
+  /// 프로필에 표시할 학번.
+  final String studentId;
+
+  /// 현재 선택된(강조 표시할) 네비게이션 항목.
+  final MenuDestination selected;
+
+  final VoidCallback? onProfileEdit;
+  final VoidCallback? onHomeTap;
+  final VoidCallback? onDormitoryTap;
+  final VoidCallback? onLogout;
+  final VoidCallback? onWithdraw;
+
+  static const double _cornerRadius = 20;
+
+  /// 드로어가 차지할 화면 너비 비율(화면의 3/4).
+  static const double _widthFactor = 0.75;
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      width: MediaQuery.sizeOf(context).width * _widthFactor,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.lightBgSurface,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(_cornerRadius),
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s24,
+              vertical: AppSpacing.s40,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ProfileCard(
+                  userName: userName,
+                  studentId: studentId,
+                  onEdit: onProfileEdit,
+                ),
+                const SizedBox(height: AppSpacing.s24),
+                Column(
+                  children: [
+                    _NavItem(
+                      icon: AppIcon.navHome,
+                      label: '홈',
+                      selected: selected == MenuDestination.home,
+                      onTap: onHomeTap,
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    _NavItem(
+                      icon: AppIcon.dormitoryOutline,
+                      selectedIcon: AppIcon.dormitoryFill,
+                      label: '기숙사',
+                      selected: selected == MenuDestination.dormitory,
+                      onTap: onDormitoryTap,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                _BottomItem(
+                  icon: AppIcon.logout,
+                  label: '로그아웃',
+                  onTap: onLogout,
+                ),
+                _BottomItem(
+                  icon: AppIcon.withdraw,
+                  label: '회원탈퇴',
+                  onTap: onWithdraw,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 프로필 카드: 아바타(편집 뱃지 포함) + 이름 + 학번.
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({
+    required this.userName,
+    required this.studentId,
+    this.onEdit,
+  });
+
+  final String userName;
+  final String studentId;
+  final VoidCallback? onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _ProfileAvatar(onEdit: onEdit),
+        const SizedBox(width: AppSpacing.s16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '안녕하세요! $userName님',
+                style: AppTextStyle.text2.copyWith(
+                  color: AppColors.lightMainText,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s4),
+              Text(
+                studentId,
+                style: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 기본 아바타(원형 실루엣) 위에 편집 뱃지를 겹친 위젯.
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar({this.onEdit});
+
+  final VoidCallback? onEdit;
+
+  // 디자인 고정 수치 (52px 아바타 + 우하단 24px 뱃지 오버랩)
+  static const double _avatarSize = 52;
+  static const double _badgeSize = 24;
+  static const double _groupWidth = 60;
+
+  @override
+  Widget build(BuildContext context) {
+    // 아바타 영역 전체를 탭하면 편집 동작이 실행되도록 한다.
+    return GestureDetector(
+      onTap: onEdit,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: _groupWidth,
+        height: _avatarSize,
+        child: Stack(
+          children: [
+            AppIcon.avatar(),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: AppIcon.profileEdit(size: _badgeSize),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 상단 네비게이션 항목(좌측 아이콘 + 라벨, 선택 시 배경 강조).
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    this.selectedIcon,
+    this.selected = false,
+    this.onTap,
+  });
+
+  /// 기본(비선택) 아이콘.
+  final AppIconBuilder icon;
+
+  /// 선택 시 사용할 아이콘. 미지정 시 [icon] 을 그대로 쓴다.
+  final AppIconBuilder? selectedIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? AppColors.lightP1 : AppColors.lightSub2;
+    final iconBuilder = selected ? (selectedIcon ?? icon) : icon;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s16,
+          vertical: AppSpacing.s12,
+        ),
+        child: Row(
+          children: [
+            iconBuilder(size: AppSize.s24, color: color),
+            const SizedBox(width: AppSpacing.s24),
+            Text(label, style: AppTextStyle.text2.copyWith(color: color)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 하단 항목(중앙 정렬 아이콘 + 라벨).
+class _BottomItem extends StatelessWidget {
+  const _BottomItem({required this.icon, required this.label, this.onTap});
+
+  final AppIconBuilder icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s16,
+          vertical: AppSpacing.s12,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon(size: AppSize.s24, color: AppColors.lightSub2),
+            const SizedBox(width: AppSpacing.s8),
+            Text(
+              label,
+              style: AppTextStyle.text2.copyWith(color: AppColors.lightSub2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -16,6 +16,7 @@ class BaseScaffold extends StatelessWidget {
     this.appBar,
     this.showDefaultAppBar = true,
     this.onMenuTap,
+    this.endDrawer,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.backgroundColor,
@@ -24,22 +25,33 @@ class BaseScaffold extends StatelessWidget {
   final Widget body;
   final PreferredSizeWidget? appBar;
   final bool showDefaultAppBar;
+
+  /// 햄버거 버튼 탭 동작. 미지정 시 [endDrawer] 가 있으면 해당 드로어를 연다.
   final VoidCallback? onMenuTap;
+  final Widget? endDrawer;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final resolvedAppBar = appBar ??
+    final resolvedAppBar =
+        appBar ??
         (showDefaultAppBar
-            ? _FloodingLogoAppBar(onMenuTap: onMenuTap)
+            ? _FloodingLogoAppBar(
+                onMenuTap: onMenuTap,
+                hasEndDrawer: endDrawer != null,
+              )
             : null);
 
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
       appBar: resolvedAppBar,
       body: body,
+      endDrawer: endDrawer,
+      // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용
+      // (디자인: BackGroundColor #F7F7F9 50%).
+      drawerScrimColor: const Color(0x80F7F7F9),
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
     );
@@ -48,9 +60,10 @@ class BaseScaffold extends StatelessWidget {
 
 class _FloodingLogoAppBar extends StatelessWidget
     implements PreferredSizeWidget {
-  const _FloodingLogoAppBar({this.onMenuTap});
+  const _FloodingLogoAppBar({this.onMenuTap, this.hasEndDrawer = false});
 
   final VoidCallback? onMenuTap;
+  final bool hasEndDrawer;
 
   @override
   Size get preferredSize => const Size.fromHeight(AppSize.s57);
@@ -63,14 +76,15 @@ class _FloodingLogoAppBar extends StatelessWidget
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleSpacing: AppSpacing.s24,
-      title: AppIcon.asset(AppIcon.logo, size: AppSize.s24),
+      title: AppIcon.logo(),
       actions: [
         IconButton(
-          onPressed: onMenuTap,
-          icon: AppIcon.asset(
-            AppIcon.dehaze,
-            color: AppColors.lightMainText,
-          ),
+          onPressed:
+              onMenuTap ??
+              (hasEndDrawer
+                  ? () => Scaffold.of(context).openEndDrawer()
+                  : null),
+          icon: AppIcon.dehaze(color: AppColors.lightMainText),
         ),
         const SizedBox(width: AppSpacing.s16),
       ],

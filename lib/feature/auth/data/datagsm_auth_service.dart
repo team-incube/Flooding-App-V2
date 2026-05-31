@@ -106,8 +106,11 @@ class DatagsmAuthService {
         ),
       );
     } on DioException catch (e) {
-      Logger.e('token 교환 실패: ${e.response?.statusCode} ${e.response?.data}',
-          tag: 'AUTH', error: e);
+      Logger.e(
+        'token 교환 실패: ${e.response?.statusCode} ${e.response?.data}',
+        tag: 'AUTH',
+        error: e,
+      );
       throw const AuthException('토큰 교환에 실패했습니다.');
     }
   }
@@ -128,8 +131,11 @@ class DatagsmAuthService {
         ),
       );
     } on DioException catch (e) {
-      Logger.e('token 갱신 실패: ${e.response?.statusCode} ${e.response?.data}',
-          tag: 'AUTH', error: e);
+      Logger.e(
+        'token 갱신 실패: ${e.response?.statusCode} ${e.response?.data}',
+        tag: 'AUTH',
+        error: e,
+      );
       throw const AuthException('세션이 만료되었습니다. 다시 로그인해 주세요.');
     }
   }
@@ -139,8 +145,11 @@ class DatagsmAuthService {
     try {
       return await _resourceApi.getUserInfo();
     } on DioException catch (e) {
-      Logger.e('userinfo 조회 실패: ${e.response?.statusCode} ${e.response?.data}',
-          tag: 'AUTH', error: e);
+      Logger.e(
+        'userinfo 조회 실패: ${e.response?.statusCode} ${e.response?.data}',
+        tag: 'AUTH',
+        error: e,
+      );
       throw const AuthException('사용자 정보 조회에 실패했습니다.');
     }
   }

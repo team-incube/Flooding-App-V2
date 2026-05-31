@@ -22,11 +22,10 @@ enum AuthStatus {
 /// 갱신 실패) 시에도 [DatagsmAuthService] 에 주입한 콜백으로 상태가 갱신돼
 /// 로그인 화면으로 되돌아간다.
 class AuthController extends ChangeNotifier {
-  AuthController({
-    DatagsmAuthService? authService,
-    TokenStorage? tokenStorage,
-  }) : _tokenStorage = tokenStorage ?? TokenStorage() {
-    _authService = authService ??
+  AuthController({DatagsmAuthService? authService, TokenStorage? tokenStorage})
+    : _tokenStorage = tokenStorage ?? TokenStorage() {
+    _authService =
+        authService ??
         DatagsmAuthService(
           tokenStorage: _tokenStorage,
           onSessionExpired: _onSessionExpired,

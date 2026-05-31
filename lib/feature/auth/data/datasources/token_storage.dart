@@ -5,7 +5,7 @@ import '../models/oauth_token.dart';
 /// access/refresh 토큰을 보안 저장소(Keychain/Keystore)에 보관한다.
 class TokenStorage {
   TokenStorage({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   final FlutterSecureStorage _storage;
 

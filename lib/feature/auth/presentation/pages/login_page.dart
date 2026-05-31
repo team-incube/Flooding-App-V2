@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/config/env.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
-import '../../../../core/theme/text_style/app_font.dart';
+import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/utils/pkce.dart';
 import '../../../../core/widgets/primary_action_button.dart';
 import '../auth_controller.dart';
@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
             Text(
               widget.controller.error ?? '로그인이 필요합니다.',
               textAlign: TextAlign.center,
-              style: AppFont.text2.copyWith(color: AppColors.lightSub1),
+              style: AppTextStyle.text2.copyWith(color: AppColors.lightSub1),
             ),
             const SizedBox(height: AppSpacing.s24),
             PrimaryActionButton(

@@ -7,7 +7,9 @@ part 'token_request.g.dart';
 @freezed
 abstract class TokenRequest with _$TokenRequest {
   const factory TokenRequest({
-    @JsonKey(name: 'grant_type') @Default('authorization_code') String grantType,
+    @JsonKey(name: 'grant_type')
+    @Default('authorization_code')
+    String grantType,
     required String code,
     @JsonKey(name: 'client_id') required String clientId,
     @JsonKey(name: 'redirect_uri') required String redirectUri,
