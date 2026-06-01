@@ -76,6 +76,7 @@ class MenuDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s24),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _NavItem(
                       icon: AppIcon.navHome,
@@ -216,6 +217,7 @@ class _NavItem extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.s16,
