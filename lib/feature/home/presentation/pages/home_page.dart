@@ -10,7 +10,9 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
 import '../../../../core/widgets/base_scaffold.dart';
 import '../../../../core/widgets/primary_action_button.dart';
+import '../../../../core/widgets/sheet/sheet.dart';
 import '../../../dormitory/presentation/widgets/dormitory_view.dart';
+import '../../../ai/presentation/widgets/song_recommendation_sheet.dart';
 import '../widgets/card_header.dart';
 import '../widgets/home_floating_actions.dart';
 import '../widgets/menu_drawer.dart';
@@ -48,6 +50,55 @@ class _HomePageState extends State<HomePage> {
     setState(() => _section = section);
   }
 
+  /// 플로팅 AI 버튼 → 오늘의 노래 추천 팝업.
+  Future<void> _openSongRecommendation() async {
+    // Todo: 추천 곡 목록을 서버에서 받아오도록 교체.
+    const songs = [
+      SongRecommendation(
+        title: 'Numb (Official Music Video) [4K UPGRADE] – Linkin Park',
+        duration: '3:08',
+      ),
+      SongRecommendation(title: 'Viva La Vida – Coldplay', duration: '4:02'),
+      SongRecommendation(title: 'Bohemian Rhapsody – Queen', duration: '5:55'),
+    ];
+    final song = await SongRecommendationSheet.show(context, songs: songs);
+    if (!mounted || song == null) return;
+    // Todo: 선택한 곡 신청 API 연동.
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('신청: ${song.title}')));
+  }
+
+  /// 드로어 로그아웃 → 확인 후 로그아웃.
+  Future<void> _confirmLogout() async {
+    final ok = await AppConfirmDialog.show(
+      context,
+      title: '로그아웃',
+      message: '정말로 로그아웃 하시겠습니까?',
+      confirmLabel: '로그아웃',
+    );
+    if (!mounted || ok != true) return;
+    // Todo: 로그아웃 처리.
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('로그아웃되었어요')));
+  }
+
+  /// 드로어 회원탈퇴 → 확인 후 탈퇴.
+  Future<void> _confirmWithdraw() async {
+    final ok = await AppConfirmDialog.show(
+      context,
+      title: '회원 탈퇴',
+      message: '정말로 회원을 탈퇴하시겠습니까?',
+      confirmLabel: '탈퇴 하기',
+    );
+    if (!mounted || ok != true) return;
+    // Todo: 회원탈퇴 처리.
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('회원탈퇴되었어요')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -60,12 +111,8 @@ class _HomePageState extends State<HomePage> {
         },
         onHomeTap: () => _selectSection(MenuDestination.home),
         onDormitoryTap: () => _selectSection(MenuDestination.dormitory),
-        onLogout: () {
-          // Todo: 로그아웃 기능 구현
-        },
-        onWithdraw: () {
-          // Todo: 회원탈퇴 기능 구현
-        },
+        onLogout: _confirmLogout,
+        onWithdraw: _confirmWithdraw,
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(
@@ -73,9 +120,7 @@ class _HomePageState extends State<HomePage> {
           bottom: AppSpacing.s24,
         ),
         child: HomeFloatingActions(
-          onAiTap: () {
-            // Todo: 노래 추천 기능 구현
-          },
+          onAiTap: _openSongRecommendation,
           onChatTap: () {
             // Todo: 챗봇 기능 구현
           },

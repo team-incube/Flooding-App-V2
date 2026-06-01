@@ -32,6 +32,12 @@ class AppIcon {
       _svg('warning.svg', size: size, color: color);
   static Widget chevronRight({double size = AppSize.s24, Color? color}) =>
       _svg('chevron_right.svg', size: size, color: color);
+  static Widget camera({double size = AppSize.s24, Color? color}) =>
+      _svg('camera.svg', size: size, color: color);
+  static Widget check({double size = AppSize.s24, Color? color}) =>
+      _svg('check.svg', size: size, color: color);
+  static Widget uncheck({double size = AppSize.s24, Color? color}) =>
+      _svg('non_check.svg', size: size, color: color);
   static Widget dehaze({double size = AppSize.s24, Color? color}) =>
       _svg('dehaze.svg', size: size, color: color);
   static Widget sparkle({double size = AppSize.s24, Color? color}) =>
