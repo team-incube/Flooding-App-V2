@@ -32,6 +32,8 @@ class AppIcon {
       _svg('warning.svg', size: size, color: color);
   static Widget chevronRight({double size = AppSize.s24, Color? color}) =>
       _svg('chevron_right.svg', size: size, color: color);
+  static Widget chevronLeft({double size = AppSize.s24, Color? color}) =>
+      _svg('chevron_left.svg', size: size, color: color);
   static Widget camera({double size = AppSize.s24, Color? color}) =>
       _svg('camera.svg', size: size, color: color);
   static Widget check({double size = AppSize.s24, Color? color}) =>

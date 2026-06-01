@@ -72,7 +72,7 @@ class _DatePickerSheetState extends State<DatePickerSheet> {
         AppSpacing.s12,
         0,
       ),
-      header: _MonthNavigator(
+      header: _DateNavigator(
         label: _headerLabel,
         onPrev: () => _stepDay(-1),
         onNext: () => _stepDay(1),
@@ -95,9 +95,9 @@ class _DatePickerSheetState extends State<DatePickerSheet> {
   }
 }
 
-/// 좌우 화살표 + 선택 날짜 라벨로 구성된 헤더 네비게이터.
-class _MonthNavigator extends StatelessWidget {
-  const _MonthNavigator({
+/// 좌우 화살표 + 선택 날짜 라벨로 구성된, 하루씩 이동하는 헤더 네비게이터.
+class _DateNavigator extends StatelessWidget {
+  const _DateNavigator({
     required this.label,
     required this.onPrev,
     required this.onNext,
@@ -112,7 +112,7 @@ class _MonthNavigator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _Chevron(onTap: onPrev, flip: true),
+        _Chevron(onTap: onPrev, pointsLeft: true),
         const SizedBox(width: AppSpacing.s8),
         Text(
           label,
@@ -125,19 +125,18 @@ class _MonthNavigator extends StatelessWidget {
   }
 }
 
-/// 방향 화살표(오른쪽 셰브론을 좌우 반전해 왼쪽으로도 쓴다).
+/// 방향 화살표(기본은 오른쪽, [pointsLeft]면 왼쪽 셰브론).
 class _Chevron extends StatelessWidget {
-  const _Chevron({required this.onTap, this.flip = false});
+  const _Chevron({required this.onTap, this.pointsLeft = false});
 
   final VoidCallback onTap;
-  final bool flip;
+  final bool pointsLeft;
 
   @override
   Widget build(BuildContext context) {
-    Widget icon = AppIcon.chevronRight(color: AppColors.lightSub2);
-    if (flip) {
-      icon = Transform.flip(flipX: true, child: icon);
-    }
+    final icon = pointsLeft
+        ? AppIcon.chevronLeft(color: AppColors.lightSub2)
+        : AppIcon.chevronRight(color: AppColors.lightSub2);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -192,14 +191,20 @@ class _CalendarGrid extends StatelessWidget {
     final firstDay = DateTime(month.year, month.month, 1);
     // 월요일을 0으로 두는 시작 오프셋.
     final leading = firstDay.weekday - 1;
-    final gridStart = firstDay.subtract(Duration(days: leading));
 
     // 6주(42칸)를 채워 달의 모든 날짜를 포함한다.
     final weeks = <Widget>[];
     for (var week = 0; week < 6; week++) {
       final cells = <Widget>[];
       for (var day = 0; day < 7; day++) {
-        final date = gridStart.add(Duration(days: week * 7 + day));
+        // DateTime 생성자가 범위를 벗어나는 day를 안전하게 이전/다음 달로
+        // 롤오버한다. Duration 가감산은 DST 전환 시 하루가 23/25시간이 되어
+        // 날짜가 밀릴 수 있어 쓰지 않는다.
+        final date = DateTime(
+          month.year,
+          month.month,
+          1 - leading + week * 7 + day,
+        );
         cells.add(
           _DayCell(
             date: date,
