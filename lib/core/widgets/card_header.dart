@@ -1,9 +1,10 @@
-import 'package:flooding_v2/core/constants/app_size.dart';
-import 'package:flooding_v2/core/constants/app_spacing.dart';
-import 'package:flooding_v2/core/theme/color/app_colors.dart';
-import 'package:flooding_v2/core/theme/icon/app_icon.dart';
-import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
 import 'package:flutter/material.dart';
+
+import '../constants/app_size.dart';
+import '../constants/app_spacing.dart';
+import '../theme/color/app_colors.dart';
+import '../theme/icon/app_icon.dart';
+import '../theme/text_style/app_text_style.dart';
 
 class CardHeader extends StatelessWidget {
   const CardHeader({

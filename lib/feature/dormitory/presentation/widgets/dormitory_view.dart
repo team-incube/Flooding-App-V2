@@ -1,6 +1,7 @@
-import 'package:flooding_v2/core/constants/app_spacing.dart';
-import 'package:flooding_v2/core/widgets/request_count_card.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/widgets/request_count_card.dart';
 
 /// 기숙사 섹션 본문.
 ///
@@ -13,7 +14,7 @@ class DormitoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsGeometry.symmetric(horizontal: AppSpacing.s24),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
       child: Column(
         children: [
           RequestCountCard.study(
