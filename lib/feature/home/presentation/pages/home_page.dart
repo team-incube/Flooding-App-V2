@@ -27,6 +27,10 @@ class _HomePageState extends State<HomePage> {
   /// 같은 화면(앱바·드로어 유지)에서 본문만 교체한다.
   MenuDestination _section = MenuDestination.home;
 
+  //TODO Controller 연결해 서버로부터 인원 수 불러오기
+  final int studyCount = 4;
+  final int massageCount = 4;
+
   /// 본문 섹션을 [section] 으로 교체한다. 드로어는 열린 채로 두고
   /// 뒤 본문만 바뀐다.
   void _selectSection(MenuDestination section) {
@@ -111,8 +115,14 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: switch (_section) {
-        MenuDestination.home => const HomeView(),
-        MenuDestination.dormitory => const DormitoryView(),
+        MenuDestination.home => HomeView(
+          studyCount: studyCount,
+          massageCount: massageCount,
+        ),
+        MenuDestination.dormitory => DormitoryView(
+          studyCount: studyCount,
+          massageCount: massageCount,
+        ),
       },
     );
   }

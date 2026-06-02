@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/color/app_colors.dart';
-import '../../../../core/theme/text_style/app_text_style.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/widgets/request_count_card.dart';
 
 /// 기숙사 섹션 본문.
 ///
@@ -9,14 +9,43 @@ import '../../../../core/theme/text_style/app_text_style.dart';
 /// TODO: 실제 기숙사 화면 구현으로 교체. 현재는 드로어 전환 연결용 임시
 /// 플레이스홀더다.
 class DormitoryView extends StatelessWidget {
-  const DormitoryView({super.key});
+  const DormitoryView({
+    super.key,
+    required this.studyCount,
+    required this.massageCount,
+  });
+
+  final int studyCount;
+  final int massageCount;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '기숙사',
-        style: AppTextStyle.title2.copyWith(color: AppColors.lightMainText),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            RequestCountCard.study(
+              current: studyCount,
+              onSeeAllPressed: () {
+                // Todo: 자습신청 전체보기 기능 구현
+              },
+              onActionPressed: () {
+                // Todo: 자습신청 기능 구현
+              },
+            ),
+            const SizedBox(height: AppSpacing.s16),
+            RequestCountCard.massage(
+              current: massageCount,
+              onSeeAllPressed: () {
+                // Todo: 안마의자 신청 전체보기 기능 구현
+              },
+              onActionPressed: () {
+                // Todo: 안마의자 신청 기능 구현
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

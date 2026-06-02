@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_size.dart';
-import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/theme/color/app_colors.dart';
-import '../../../../core/theme/icon/app_icon.dart';
-import '../../../../core/theme/text_style/app_text_style.dart';
+import '../constants/app_size.dart';
+import '../constants/app_spacing.dart';
+import '../theme/color/app_colors.dart';
+import '../theme/icon/app_icon.dart';
+import '../theme/text_style/app_text_style.dart';
 
-/// 홈 카드 상단의 공통 `{아이콘} {타이틀}` 묶음.
 class CardHeader extends StatelessWidget {
   const CardHeader({
     super.key,

@@ -7,16 +7,23 @@ import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_progress_bar.dart';
+import '../../../../core/widgets/card_header.dart';
 import '../../../../core/widgets/primary_action_button.dart';
-import 'card_header.dart';
+import '../../../../core/widgets/request_count_card.dart';
 
 /// 홈 섹션 본문(시간표·자습신청·안마의자·기상음악 카드).
 ///
 /// [HomePage] 본문에 드로어로 갈아끼워지는 섹션. 기상음악 URL 입력 컨트롤러를
 /// 직접 소유해, 호스트 페이지가 상태를 들고 있을 필요 없이 자기완결적으로 동작한다.
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  const HomeView({
+    super.key,
+    required this.studyCount,
+    required this.massageCount,
+  });
+
+  final int studyCount;
+  final int massageCount;
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -50,14 +57,8 @@ class _HomeViewState extends State<HomeView> {
               teacher: '이주원',
             ),
             const SizedBox(height: AppSpacing.s16),
-            _RequestCountCard(
-              icon: AppIcon.book,
-              title: '자습신청',
-              current: 4,
-              total: 50,
-              onWarningPressed: () {
-                // Todo: 자습신청 안내 기능 구현
-              },
+            RequestCountCard.study(
+              current: widget.studyCount,
               onSeeAllPressed: () {
                 // Todo: 자습신청 전체보기 기능 구현
               },
@@ -66,14 +67,8 @@ class _HomeViewState extends State<HomeView> {
               },
             ),
             const SizedBox(height: AppSpacing.s16),
-            _RequestCountCard(
-              icon: AppIcon.chair,
-              title: '안마의자 신청',
-              current: 4,
-              total: 5,
-              onWarningPressed: () {
-                // Todo: 안마의자 신청 안내 기능 구현
-              },
+            RequestCountCard.massage(
+              current: widget.massageCount,
               onSeeAllPressed: () {
                 // Todo: 안마의자 신청 전체보기 기능 구현
               },
@@ -142,72 +137,6 @@ class _ScheduleCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RequestCountCard extends StatelessWidget {
-  const _RequestCountCard({
-    required this.icon,
-    required this.title,
-    required this.current,
-    required this.total,
-    required this.onWarningPressed,
-    required this.onSeeAllPressed,
-    required this.onActionPressed,
-  });
-
-  final AppIconBuilder icon;
-  final String title;
-  final int current;
-  final int total;
-  final VoidCallback onWarningPressed;
-  final VoidCallback onSeeAllPressed;
-  final VoidCallback onActionPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CardHeader(icon: icon, title: title),
-              const SizedBox(width: AppSpacing.s6),
-              IconButton(
-                onPressed: onWarningPressed,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                splashRadius: AppSize.s18,
-                icon: AppIcon.warning(size: AppSize.s18),
-              ),
-              const Spacer(),
-              _SeeAllLink(onPressed: onSeeAllPressed),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          Center(
-            child: Text(
-              '$current/$total',
-              style: AppTextStyle.title1.copyWith(
-                color: AppColors.lightMainText,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          AppProgressBar(current: current, total: total),
-          const SizedBox(height: AppSpacing.s8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: PrimaryActionButton(
-              label: '신청 불가',
-              enabled: false,
-              onPressed: onActionPressed,
             ),
           ),
         ],
@@ -300,36 +229,6 @@ class _WakeMusicCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SeeAllLink extends StatelessWidget {
-  const _SeeAllLink({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '전체보기',
-          style: AppTextStyle.caption1.copyWith(color: AppColors.lightSub2),
-        ),
-        const SizedBox(width: AppSpacing.s4),
-        IconButton(
-          onPressed: onPressed,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-          splashRadius: AppSize.s14,
-          icon: AppIcon.chevronRight(
-            size: AppSize.s14,
-            color: AppColors.lightSub2,
-          ),
-        ),
-      ],
     );
   }
 }
