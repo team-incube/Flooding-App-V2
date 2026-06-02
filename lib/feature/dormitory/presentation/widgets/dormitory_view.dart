@@ -15,28 +15,30 @@ class DormitoryView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
-      child: Column(
-        children: [
-          RequestCountCard.study(
-            current: 4,
-            onSeeAllPressed: () {
-              // Todo: 자습신청 전체보기 기능 구현
-            },
-            onActionPressed: () {
-              // Todo: 자습신청 기능 구현
-            },
-          ),
-          const SizedBox(height: AppSpacing.s16),
-          RequestCountCard.massage(
-            current: 4,
-            onSeeAllPressed: () {
-              // Todo: 안마의자 신청 전체보기 기능 구현
-            },
-            onActionPressed: () {
-              // Todo: 안마의자 신청 기능 구현
-            },
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            RequestCountCard.study(
+              current: 4,
+              onSeeAllPressed: () {
+                // Todo: 자습신청 전체보기 기능 구현
+              },
+              onActionPressed: () {
+                // Todo: 자습신청 기능 구현
+              },
+            ),
+            const SizedBox(height: AppSpacing.s16),
+            RequestCountCard.massage(
+              current: 4,
+              onSeeAllPressed: () {
+                // Todo: 안마의자 신청 전체보기 기능 구현
+              },
+              onActionPressed: () {
+                // Todo: 안마의자 신청 기능 구현
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
