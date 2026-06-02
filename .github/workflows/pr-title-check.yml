@@ -1,0 +1,24 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PATTERN="^🔀 :: \(#[0-9]+\) - .+"
+          
+          if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then
+            echo "❌ PR 제목 형식이 올바르지 않습니다."
+            echo "현재: $PR_TITLE"
+            echo "형식: 🔀 :: (#{이슈번호}) - {pr 제목}"
+            echo "예시: 🔀 :: (#42) - 로그인 기능 추가"
+            exit 1
+          fi
+          
+          echo "✅ PR 제목 형식이 올바릅니다: $PR_TITLE"
