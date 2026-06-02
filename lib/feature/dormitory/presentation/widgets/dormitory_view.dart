@@ -9,7 +9,14 @@ import '../../../../core/widgets/request_count_card.dart';
 /// TODO: 실제 기숙사 화면 구현으로 교체. 현재는 드로어 전환 연결용 임시
 /// 플레이스홀더다.
 class DormitoryView extends StatelessWidget {
-  const DormitoryView({super.key});
+  const DormitoryView({
+    super.key,
+    required this.studyCount,
+    required this.massageCount,
+  });
+
+  final int studyCount;
+  final int massageCount;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +26,7 @@ class DormitoryView extends StatelessWidget {
         child: Column(
           children: [
             RequestCountCard.study(
-              current: 4,
+              current: studyCount,
               onSeeAllPressed: () {
                 // Todo: 자습신청 전체보기 기능 구현
               },
@@ -29,7 +36,7 @@ class DormitoryView extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
-              current: 4,
+              current: massageCount,
               onSeeAllPressed: () {
                 // Todo: 안마의자 신청 전체보기 기능 구현
               },

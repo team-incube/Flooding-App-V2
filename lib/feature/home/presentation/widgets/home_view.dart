@@ -16,7 +16,14 @@ import '../../../../core/widgets/request_count_card.dart';
 /// [HomePage] 본문에 드로어로 갈아끼워지는 섹션. 기상음악 URL 입력 컨트롤러를
 /// 직접 소유해, 호스트 페이지가 상태를 들고 있을 필요 없이 자기완결적으로 동작한다.
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  const HomeView({
+    super.key,
+    required this.studyCount,
+    required this.massageCount,
+  });
+
+  final int studyCount;
+  final int massageCount;
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -51,7 +58,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.study(
-              current: 4,
+              current: widget.studyCount,
               onSeeAllPressed: () {
                 // Todo: 자습신청 전체보기 기능 구현
               },
@@ -61,7 +68,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
-              current: 4,
+              current: widget.massageCount,
               onSeeAllPressed: () {
                 // Todo: 안마의자 신청 전체보기 기능 구현
               },
