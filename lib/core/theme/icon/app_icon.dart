@@ -46,6 +46,12 @@ class AppIcon {
       _svg('sparkle.svg', size: size, color: color);
   static Widget chatBot({double size = AppSize.s24, Color? color}) =>
       _svg('chat_bot.svg', size: size, color: color);
+  //TODO : male 아이콘 등록하기
+  static Widget female({double size = AppSize.s24, Color? color}) =>
+      _svg('female.svg', size: size, color: color);
+  static Widget filter({double size = AppSize.s24, Color? color}) =>
+      _svg('filter.svg', size: size, color: color);
+
 
   // 메뉴 드로어
   static Widget navHome({double size = AppSize.s24, Color? color}) =>
