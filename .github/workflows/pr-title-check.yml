@@ -5,13 +5,13 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 jobs:
-  check-pr-title:
+  pr-title-check:
     runs-on: ubuntu-latest
     steps:
       - name: Check PR title format
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
-          PATTERN="^🔀 :: \(#[0-9]+\) - .+"
+          PATTERN="^[^ ] :: \(#[0-9]+\) - .+"
           
           if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then
             echo "❌ PR 제목 형식이 올바르지 않습니다."
