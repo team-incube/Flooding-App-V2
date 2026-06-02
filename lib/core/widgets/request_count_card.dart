@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flooding_v2/core/widgets/primary_action_button.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/app_radius.dart';
@@ -8,6 +7,7 @@ import '../constants/app_spacing.dart';
 import '../theme/color/app_colors.dart';
 import '../theme/icon/app_icon.dart';
 import '../theme/text_style/app_text_style.dart';
+import 'primary_action_button.dart';
 import 'app_card.dart';
 import 'app_progress_bar.dart';
 import 'card_header.dart';
@@ -70,7 +70,10 @@ class _RequestCountCardState extends State<RequestCountCard> {
       _overlayController.show();
       // 연속 탭 시 이전 타이머를 취소해 카운트다운을 리셋한다.
       _timer?.cancel();
-      _timer = Timer(const Duration(seconds: 5), _overlayController.hide);
+      _timer = Timer(const Duration(seconds: 5), () {
+        _overlayController.hide();
+        isShowingInformation = false;
+      });
       isShowingInformation = true;
     }
   }
