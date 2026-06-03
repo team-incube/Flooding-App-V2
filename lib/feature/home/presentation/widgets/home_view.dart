@@ -59,9 +59,6 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.study(
               current: widget.studyCount,
-              onSeeAllPressed: () {
-                // Todo: 자습신청 전체보기 기능 구현
-              },
               onActionPressed: () {
                 // Todo: 자습신청 기능 구현
               },
@@ -69,9 +66,6 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
               current: widget.massageCount,
-              onSeeAllPressed: () {
-                // Todo: 안마의자 신청 전체보기 기능 구현
-              },
               onActionPressed: () {
                 // Todo: 안마의자 신청 기능 구현
               },

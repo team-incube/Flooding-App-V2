@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_size.dart';
-import '../constants/app_spacing.dart';
-import '../theme/color/app_colors.dart';
-import '../theme/icon/app_icon.dart';
+import '../../constants/app_size.dart';
+import '../../constants/app_spacing.dart';
+import '../../theme/color/app_colors.dart';
+import '../../theme/icon/app_icon.dart';
 
 /// 앱 전반에서 사용하는 기본 Scaffold.
 ///
@@ -37,12 +37,7 @@ class BaseScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final resolvedAppBar =
         appBar ??
-        (showDefaultAppBar
-            ? _FloodingLogoAppBar(
-                onMenuTap: onMenuTap,
-                hasEndDrawer: endDrawer != null,
-              )
-            : null);
+        (showDefaultAppBar ? _FloodingLogoAppBar(onMenuTap: onMenuTap) : null);
 
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
@@ -60,10 +55,9 @@ class BaseScaffold extends StatelessWidget {
 
 class _FloodingLogoAppBar extends StatelessWidget
     implements PreferredSizeWidget {
-  const _FloodingLogoAppBar({this.onMenuTap, this.hasEndDrawer = false});
+  const _FloodingLogoAppBar({this.onMenuTap});
 
   final VoidCallback? onMenuTap;
-  final bool hasEndDrawer;
 
   @override
   Size get preferredSize => const Size.fromHeight(AppSize.s57);
@@ -79,11 +73,7 @@ class _FloodingLogoAppBar extends StatelessWidget
       title: AppIcon.logo(),
       actions: [
         IconButton(
-          onPressed:
-              onMenuTap ??
-              (hasEndDrawer
-                  ? () => Scaffold.of(context).openEndDrawer()
-                  : null),
+          onPressed: onMenuTap ?? () => Scaffold.of(context).openEndDrawer(),
           icon: AppIcon.dehaze(color: AppColors.lightMainText),
         ),
         const SizedBox(width: AppSpacing.s16),
