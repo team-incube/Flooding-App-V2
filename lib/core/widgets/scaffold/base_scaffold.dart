@@ -1,11 +1,9 @@
-import 'package:flooding_v2/core/widgets/floating_button/floating_actions.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_size.dart';
 import '../../constants/app_spacing.dart';
 import '../../theme/color/app_colors.dart';
 import '../../theme/icon/app_icon.dart';
-import 'drawer/menu_drawer.dart';
 
 /// 앱 전반에서 사용하는 기본 Scaffold.
 ///
@@ -45,12 +43,11 @@ class BaseScaffold extends StatelessWidget {
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
       appBar: resolvedAppBar,
       body: body,
-                                    //TODO : BaseScaffold에서 접속 user 정보 불러오기
-      endDrawer: endDrawer ?? const MenuDrawer(userName: '', studentId: ''),
+      endDrawer: endDrawer,
       // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용
       // (디자인: BackGroundColor #F7F7F9 50%).
       drawerScrimColor: const Color(0x80F7F7F9),
-      floatingActionButton: floatingActionButton ?? const FloatingActions(),
+      floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
     );
   }

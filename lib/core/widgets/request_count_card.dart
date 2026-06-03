@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../constants/app_radius.dart';
 import '../constants/app_size.dart';
@@ -16,28 +18,40 @@ class RequestCountCard extends StatefulWidget {
   const RequestCountCard.study({
     super.key,
     required this.current,
-    required this.onSeeAllPressed,
+    this.onSeeAllPressed,
     required this.onActionPressed,
   }) : title = '자습신청',
        icon = AppIcon.book,
        total = 50,
        information = '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
-       // followerAnchor: 버블의 이 지점이 버튼 좌상단에 고정 (x: 좌측 65%, y: 하단)
+
+       /// followerAnchor: 버블의 이 지점이 버튼 좌상단에 고정 (x: 좌측 65%, y: 하단)
        bubbleAlignment = const Alignment(-.65, 1),
-       bubbleTailOffset = .2; // 꼬투리 위치 — 버블 폭의 20%
+       bubbleTailOffset = .2,
+
+       /// 꼬투리 위치 — 버블 폭의 20%
+       path = RoutePath.requestStudy;
+
+  /// 따로 action이 정의되어 있지 많으면 직접 이동
 
   const RequestCountCard.massage({
     super.key,
     required this.current,
-    required this.onSeeAllPressed,
+    this.onSeeAllPressed,
     required this.onActionPressed,
   }) : title = '안마의자 신청',
        icon = AppIcon.chair,
        total = 5,
        information = '안마 의자 신청 시간은 20:20 ~ 21:00에 신청이 가능해요',
-       // followerAnchor: 버블의 이 지점이 버튼 좌상단에 고정 (x: 좌측 31%, y: 하단)
+
+       /// followerAnchor: 버블의 이 지점이 버튼 좌상단에 고정 (x: 좌측 31%, y: 하단)
        bubbleAlignment = const Alignment(-.31, 1),
-       bubbleTailOffset = .37; // 꼬투리 위치 — 버블 폭의 37%
+       bubbleTailOffset = .37,
+
+       /// 꼬투리 위치 — 버블 폭의 37%
+       path = RoutePath.requestMassage;
+
+  /// 따로 action이 정의되어 있지 많으면 직접 이동
 
   final AppIconBuilder icon;
   final String title;
@@ -46,8 +60,9 @@ class RequestCountCard extends StatefulWidget {
   final String information;
   final Alignment bubbleAlignment;
   final double bubbleTailOffset;
-  final VoidCallback onSeeAllPressed;
+  final VoidCallback? onSeeAllPressed;
   final VoidCallback onActionPressed;
+  final String path;
 
   @override
   State<RequestCountCard> createState() => _RequestCountCardState();
@@ -123,7 +138,10 @@ class _RequestCountCardState extends State<RequestCountCard> {
                 ),
               ),
               const Spacer(),
-              _SeeAllLink(onPressed: widget.onSeeAllPressed),
+              _SeeAllLink(
+                onPressed:
+                    widget.onSeeAllPressed ?? () => context.go(widget.path),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.s8),

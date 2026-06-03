@@ -8,7 +8,24 @@ import '../../theme/icon/app_icon.dart';
 
 /// 우측 하단에 세로로 쌓인 두 개의 원형 액션 버튼.
 class FloatingActions extends StatefulWidget {
-  const FloatingActions({super.key});
+  const FloatingActions.aiChat({super.key})
+    : showAiChat = true,
+      showSongRecommend = false;
+
+  const FloatingActions.songRecommend({super.key})
+    : showAiChat = false,
+      showSongRecommend = true;
+
+  const FloatingActions.both({super.key})
+    : showAiChat = true,
+      showSongRecommend = true;
+
+  const FloatingActions.none({super.key})
+    : showAiChat = false,
+      showSongRecommend = false;
+
+  final bool showSongRecommend;
+  final bool showAiChat;
 
   @override
   State<FloatingActions> createState() => _FloatingActionsState();
@@ -42,9 +59,12 @@ class _FloatingActionsState extends State<FloatingActions> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _CircleAction(onTap: _openSongRecommendation, icon: AppIcon.sparkle),
-        const SizedBox(height: AppSpacing.s12),
-        _CircleAction(onTap: _openAiChat, icon: AppIcon.chatBot),
+        if (widget.showSongRecommend)
+          _CircleAction(onTap: _openSongRecommendation, icon: AppIcon.sparkle),
+        if (widget.showAiChat && widget.showSongRecommend)
+          const SizedBox(height: AppSpacing.s12),
+        if (widget.showAiChat)
+          _CircleAction(onTap: _openAiChat, icon: AppIcon.chatBot),
       ],
     );
   }

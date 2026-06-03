@@ -1,6 +1,7 @@
-import 'package:flooding_v2/core/widgets/scaffold/drawer/controller/navigation_controller.dart';
+import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../constants/app_size.dart';
 import '../../../constants/app_spacing.dart';
@@ -31,14 +32,6 @@ class MenuDrawer extends StatefulWidget {
 }
 
 class _MenuDrawerState extends State<MenuDrawer> {
-  void _navigate(BuildContext context, MenuDestination destination) {
-    navigationController.navigateTo(destination);
-    if (Navigator.of(context).canPop()) {
-      Navigator.popUntil(context, (route) => route.isFirst);
-    }
-    // HomePage에서는 body만 교체되므로 드로어를 닫지 않음
-  }
-
   /// 드로어 로그아웃 → 확인 후 로그아웃.
   Future<void> _confirmLogout() async {
     final ok = await AppConfirmDialog.show(
@@ -71,6 +64,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    /// 현재 경로를 불러와 비교
+    final location = GoRouterState.of(context).uri.path;
+
     return Drawer(
       width: MediaQuery.sizeOf(context).width * MenuDrawer._widthFactor,
       backgroundColor: Colors.transparent,
@@ -88,53 +84,46 @@ class _MenuDrawerState extends State<MenuDrawer> {
               horizontal: AppSpacing.s24,
               vertical: AppSpacing.s40,
             ),
-            child: ListenableBuilder(
-              listenable: navigationController,
-              builder: (context, child) => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _ProfileCard(
-                    userName: widget.userName,
-                    studentId: widget.studentId,
-                    onEdit: widget.onProfileEdit,
-                  ),
-                  const SizedBox(height: AppSpacing.s24),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _NavItem(
-                        icon: AppIcon.navHome,
-                        label: '홈',
-                        selected:
-                            navigationController.destination ==
-                            MenuDestination.home,
-                        onTap: () => _navigate(context, MenuDestination.home),
-                      ),
-                      const SizedBox(height: AppSpacing.s6),
-                      _NavItem(
-                        icon: AppIcon.dormitoryOutline,
-                        selectedIcon: AppIcon.dormitoryFill,
-                        label: '기숙사',
-                        selected:
-                            navigationController.destination ==
-                            MenuDestination.dormitory,
-                        onTap: () => _navigate(context, MenuDestination.dormitory),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  _BottomItem(
-                    icon: AppIcon.logout,
-                    label: '로그아웃',
-                    onTap: _confirmLogout,
-                  ),
-                  _BottomItem(
-                    icon: AppIcon.withdraw,
-                    label: '회원탈퇴',
-                    onTap: _confirmWithdraw,
-                  ),
-                ],
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ProfileCard(
+                  userName: widget.userName,
+                  studentId: widget.studentId,
+                  onEdit: widget.onProfileEdit,
+                ),
+                const SizedBox(height: AppSpacing.s24),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _NavItem(
+                      icon: AppIcon.navHome,
+                      label: '홈',
+                      selected: RoutePath.home == location,
+                      onTap: () => context.go(RoutePath.home),
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    _NavItem(
+                      icon: AppIcon.dormitoryOutline,
+                      selectedIcon: AppIcon.dormitoryFill,
+                      label: '기숙사',
+                      selected: RoutePath.dormitory == location,
+                      onTap: () => context.go(RoutePath.dormitory),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                _BottomItem(
+                  icon: AppIcon.logout,
+                  label: '로그아웃',
+                  onTap: _confirmLogout,
+                ),
+                _BottomItem(
+                  icon: AppIcon.withdraw,
+                  label: '회원탈퇴',
+                  onTap: _confirmWithdraw,
+                ),
+              ],
             ),
           ),
         ),
