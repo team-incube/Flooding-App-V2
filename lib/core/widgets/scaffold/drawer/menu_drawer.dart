@@ -1,46 +1,26 @@
+import 'package:flooding_v2/core/route/route_path.dart';
+import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_size.dart';
-import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/theme/color/app_colors.dart';
-import '../../../../core/theme/icon/app_icon.dart';
-import '../../../../core/theme/text_style/app_text_style.dart';
-
-/// 드로어 네비게이션이 가리키는 화면 구분.
-enum MenuDestination { home, dormitory }
+import '../../../constants/app_size.dart';
+import '../../../constants/app_spacing.dart';
+import '../../../theme/color/app_colors.dart';
+import '../../../theme/icon/app_icon.dart';
+import '../../../theme/text_style/app_text_style.dart';
 
 /// 햄버거 버튼으로 우측에서 열리는 메뉴 사이드 드로어.
-///
-/// 프로필 영역(아바타·이름·학번), 네비게이션 항목(홈/기숙사),
-/// 하단 항목(로그아웃/회원탈퇴)으로 구성된다. 표시 데이터와 동작은
-/// 외부에서 주입하며, 디자인 고정 수치는 본문 상수로 둔다.
-class MenuDrawer extends StatelessWidget {
+class MenuDrawer extends StatefulWidget {
   const MenuDrawer({
     super.key,
     required this.userName,
     required this.studentId,
-    this.selected = MenuDestination.home,
     this.onProfileEdit,
-    this.onHomeTap,
-    this.onDormitoryTap,
-    this.onLogout,
-    this.onWithdraw,
   });
 
-  /// 인사말에 표시할 사용자 이름.
   final String userName;
-
-  /// 프로필에 표시할 학번.
   final String studentId;
-
-  /// 현재 선택된(강조 표시할) 네비게이션 항목.
-  final MenuDestination selected;
-
   final VoidCallback? onProfileEdit;
-  final VoidCallback? onHomeTap;
-  final VoidCallback? onDormitoryTap;
-  final VoidCallback? onLogout;
-  final VoidCallback? onWithdraw;
 
   static const double _cornerRadius = 20;
 
@@ -48,16 +28,54 @@ class MenuDrawer extends StatelessWidget {
   static const double _widthFactor = 0.75;
 
   @override
+  State<MenuDrawer> createState() => _MenuDrawerState();
+}
+
+class _MenuDrawerState extends State<MenuDrawer> {
+  /// 드로어 로그아웃 → 확인 후 로그아웃.
+  Future<void> _confirmLogout() async {
+    final ok = await AppConfirmDialog.show(
+      context,
+      title: '로그아웃',
+      message: '정말로 로그아웃 하시겠습니까?',
+      confirmLabel: '로그아웃',
+    );
+    if (!mounted || ok != true) return;
+    // Todo: 로그아웃 처리.
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('로그아웃되었어요')));
+  }
+
+  /// 드로어 회원탈퇴 → 확인 후 탈퇴.
+  Future<void> _confirmWithdraw() async {
+    final ok = await AppConfirmDialog.show(
+      context,
+      title: '회원 탈퇴',
+      message: '정말로 회원을 탈퇴하시겠습니까?',
+      confirmLabel: '탈퇴 하기',
+    );
+    if (!mounted || ok != true) return;
+    // Todo: 회원탈퇴 처리.
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('회원탈퇴되었어요')));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    /// 현재 경로를 불러와 비교
+    final location = GoRouterState.of(context).uri.path;
+
     return Drawer(
-      width: MediaQuery.sizeOf(context).width * _widthFactor,
+      width: MediaQuery.sizeOf(context).width * MenuDrawer._widthFactor,
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: Container(
         decoration: const BoxDecoration(
           color: AppColors.lightBgSurface,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(_cornerRadius),
+            topLeft: Radius.circular(MenuDrawer._cornerRadius),
           ),
         ),
         child: SafeArea(
@@ -70,9 +88,9 @@ class MenuDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _ProfileCard(
-                  userName: userName,
-                  studentId: studentId,
-                  onEdit: onProfileEdit,
+                  userName: widget.userName,
+                  studentId: widget.studentId,
+                  onEdit: widget.onProfileEdit,
                 ),
                 const SizedBox(height: AppSpacing.s24),
                 Column(
@@ -81,16 +99,16 @@ class MenuDrawer extends StatelessWidget {
                     _NavItem(
                       icon: AppIcon.navHome,
                       label: '홈',
-                      selected: selected == MenuDestination.home,
-                      onTap: onHomeTap,
+                      selected: RoutePath.home == location,
+                      onTap: () => context.go(RoutePath.home),
                     ),
                     const SizedBox(height: AppSpacing.s6),
                     _NavItem(
                       icon: AppIcon.dormitoryOutline,
                       selectedIcon: AppIcon.dormitoryFill,
                       label: '기숙사',
-                      selected: selected == MenuDestination.dormitory,
-                      onTap: onDormitoryTap,
+                      selected: RoutePath.dormitory == location,
+                      onTap: () => context.go(RoutePath.dormitory),
                     ),
                   ],
                 ),
@@ -98,12 +116,12 @@ class MenuDrawer extends StatelessWidget {
                 _BottomItem(
                   icon: AppIcon.logout,
                   label: '로그아웃',
-                  onTap: onLogout,
+                  onTap: _confirmLogout,
                 ),
                 _BottomItem(
                   icon: AppIcon.withdraw,
                   label: '회원탈퇴',
-                  onTap: onWithdraw,
+                  onTap: _confirmWithdraw,
                 ),
               ],
             ),

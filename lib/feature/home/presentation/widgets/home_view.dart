@@ -1,4 +1,3 @@
-import 'package:flooding_v2/feature/study/presentation/pages/request_study_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_radius.dart';
@@ -60,14 +59,6 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.study(
               current: widget.studyCount,
-              onSeeAllPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RequestStudyView(),
-                  ),
-                );
-              },
               onActionPressed: () {
                 // Todo: 자습신청 기능 구현
               },
@@ -75,9 +66,6 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
               current: widget.massageCount,
-              onSeeAllPressed: () {
-                // Todo: 안마의자 신청 전체보기 기능 구현
-              },
               onActionPressed: () {
                 // Todo: 안마의자 신청 기능 구현
               },

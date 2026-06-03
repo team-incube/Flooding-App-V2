@@ -27,9 +27,6 @@ class DormitoryView extends StatelessWidget {
           children: [
             RequestCountCard.study(
               current: studyCount,
-              onSeeAllPressed: () {
-                // Todo: 자습신청 전체보기 기능 구현
-              },
               onActionPressed: () {
                 // Todo: 자습신청 기능 구현
               },
@@ -37,9 +34,6 @@ class DormitoryView extends StatelessWidget {
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
               current: massageCount,
-              onSeeAllPressed: () {
-                // Todo: 안마의자 신청 전체보기 기능 구현
-              },
               onActionPressed: () {
                 // Todo: 안마의자 신청 기능 구현
               },

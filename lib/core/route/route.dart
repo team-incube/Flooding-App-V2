@@ -1,9 +1,14 @@
+import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
+import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
+import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
+import '../widgets/floating_button/floating_actions.dart';
+import '../widgets/scaffold/drawer/menu_drawer.dart';
 import 'route_path.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
-import '../../feature/home/presentation/pages/home_page.dart';
 
 /// 인증 상태에 따라 라우팅을 가드하는 go_router 를 생성한다.
 ///
@@ -25,9 +30,50 @@ GoRouter createAppRouter(AuthController auth) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: RoutePath.home,
-        builder: (context, state) => const HomePage(),
+      ShellRoute(
+        routes: [
+          GoRoute(
+            path: RoutePath.home,
+            builder: (context, state) {
+              //TODO : controller로부터 현재 신청 인원 불러오기
+              return const HomeView(studyCount: 4, massageCount: 4);
+            },
+          ),
+          GoRoute(
+            path: RoutePath.dormitory,
+            builder: (context, state) {
+              //TODO : controller에서 현재 신청 인원 불러오기
+              return const DormitoryView(studyCount: 4, massageCount: 4);
+            },
+          ),
+          GoRoute(
+            path: RoutePath.requestStudy,
+            //TODO : 자습 신청 패이지 구현
+            builder: (context, state) => const Column(children: []),
+          ),
+          GoRoute(
+            path: RoutePath.requestMassage,
+            //TODO : 안마의자 신청 페이지 구현
+            builder: (context, state) => const Column(children: []),
+          ),
+        ],
+        builder: (context, state, child) {
+          final location = state.uri.path;
+
+          /// 현재 경로에 따른 floatingActions 분기
+          final floatingButton = switch (location) {
+            RoutePath.requestStudy ||
+            RoutePath.requestMassage => const FloatingActions.aiChat(),
+            _ => const FloatingActions.both(),
+          };
+
+          return BaseScaffold(
+            //TODO : controller에서 접속중인 유저 정보 불러오기
+            endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),
+            floatingActionButton: floatingButton,
+            body: child,
+          );
+        },
       ),
       GoRoute(
         path: RoutePath.login,
