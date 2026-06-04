@@ -43,31 +43,23 @@ class _RequestStudyViewState extends State<RequestStudyView> {
   }
 
   void _filteringMemberList(int? grade, int? classNb, Gender? gender) {
-    final gradeResult = [];
-    final classResult = [];
-    final genderResult = [];
+    Iterable<MemberViewModel> filtered = memberList;
 
     if (grade != null) {
-      gradeResult.addAll(
-        memberList.where((member) {
-          return grade == int.tryParse(member.schoolNb.toString()[0]);
-        }),
-      );
+      filtered = filtered.where((member) => grade == member.schoolNb ~/ 1000);
     }
     if (classNb != null) {
-      classResult.addAll(
-        memberList.where((member) {
-          return classNb == int.tryParse(member.schoolNb.toString()[1]);
-        }),
+      filtered = filtered.where(
+        (member) => classNb == (member.schoolNb ~/ 100) % 10,
       );
     }
     if (gender != null) {
-      gradeResult.addAll(memberList.where((member) => gender == member.gender));
+      filtered = filtered.where((member) => gender == member.gender);
     }
 
     setState(() {
       viewMemberList.clear();
-      viewMemberList.addAll({...gradeResult, ...classResult, ...genderResult});
+      viewMemberList.addAll(filtered);
     });
   }
 

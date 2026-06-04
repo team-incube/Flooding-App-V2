@@ -55,12 +55,7 @@ class RequestMemberListLayout extends StatelessWidget {
       actions: [
         iconButton(
           AppIcon.filter(),
-          () => MemberFilterDialog(
-            onSubmit: (grade, classNb, gender) {
-              filterAction(grade, classNb, gender);
-              context.pop();
-            },
-          ).show(context),
+          () => MemberFilterDialog(onSubmit: filterAction).show(context),
         ),
       ],
 

@@ -51,7 +51,7 @@ class AppIcon {
       _svg('female.svg', size: size, color: color);
   static Widget filter({double size = AppSize.s24, Color? color}) =>
       _svg('filter.svg', size: size, color: color);
-  static Widget graduationCap ({double size = AppSize.s24, Color? color}) =>
+  static Widget graduationCap({double size = AppSize.s24, Color? color}) =>
       _svg('graduation_cap.svg', size: size, color: color);
 
 

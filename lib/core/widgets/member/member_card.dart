@@ -1,3 +1,4 @@
+import 'package:flooding_v2/core/enum/gender.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_radius.dart';
@@ -18,6 +19,11 @@ class MemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //TODO : 남성 Icon 등록시 SizedBox 교체
+    final genderIcon = model.gender == Gender.female
+        ? AppIcon.female(size: AppSize.s12)
+        : const SizedBox.shrink();
+
     return Container(
       height: fixedSize.height,
       width: fixedSize.width,
@@ -54,7 +60,7 @@ class MemberCard extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(AppSpacing.s2),
-                        child: AppIcon.female(size: AppSize.s12),
+                        child: genderIcon,
                       ),
                     ],
                   ),

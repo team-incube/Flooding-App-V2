@@ -8,7 +8,7 @@ import '../../theme/color/app_colors.dart';
 import '../../theme/text_style/app_text_style.dart';
 import '../primary_action_button.dart';
 
-typedef OnTagChange<T> = void Function(T value);
+typedef OnTagChange<T> = void Function(T? value);
 typedef OnFilterSubmit =
     void Function(int? grade, int? classNb, Gender? gender);
 
@@ -95,6 +95,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                     horizontalPadding: AppSpacing.s32,
                     verticalPadding: AppSpacing.s14,
                     onPressed: () {
+                      context.pop();
                       widget.onSubmit.call(
                         grade,
                         classNb,
@@ -156,10 +157,11 @@ class _TagLineState<T> extends State<_TagLine<T>> {
 
       return InkWell(
         onTap: () {
+          final newValue = selectedValue == value ? null : value;
           setState(() {
-            selectedValue = value;
+            selectedValue = newValue;
           });
-          widget.onTagChange.call(value);
+          widget.onTagChange.call(newValue);
         },
         borderRadius: radius,
         child: Ink(
