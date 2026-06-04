@@ -1,6 +1,7 @@
 import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
 import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
+import 'package:flooding_v2/feature/study/presentation/pages/request_study_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,7 +50,7 @@ GoRouter createAppRouter(AuthController auth) {
           GoRoute(
             path: RoutePath.requestStudy,
             //TODO : 자습 신청 패이지 구현
-            builder: (context, state) => const Column(children: []),
+            builder: (context, state) => const RequestStudyView(),
           ),
           GoRoute(
             path: RoutePath.requestMassage,

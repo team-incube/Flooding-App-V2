@@ -1,12 +1,16 @@
-import 'package:flooding_v2/core/theme/color/app_colors.dart';
-import 'package:flooding_v2/core/theme/icon/app_icon.dart';
-import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
-import 'package:flooding_v2/core/widgets/search_text_field.dart';
+import 'package:flooding_v2/core/constants/app_size.dart';
+import 'package:flooding_v2/core/utils/logger.dart';
+import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
+import 'package:flooding_v2/feature/study/presentation/widgets/member_filter_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/enum/gender.dart';
-import '../../../../core/widgets/base_scaffold.dart';
+import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/theme/icon/app_icon.dart';
+import '../../../../core/theme/text_style/app_text_style.dart';
+import '../../../../core/widgets/search_text_field.dart';
 import '../view_models/study_member_view_model.dart';
 import '../widgets/member_card.dart';
 
@@ -26,6 +30,57 @@ class _RequestStudyViewState extends State<RequestStudyView> {
     StudyMemberViewModel(name: '김민솔', gender: Gender.female, schoolNb: 2403),
   );
 
+  final List<StudyMemberViewModel> viewMemberList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    viewMemberList.addAll(memberList);
+  }
+
+  void _filteringMemberList(BuildContext context) {
+    MemberFilterDialog(
+      onSubmit: (grade, classNb, gender) {
+        final gradeResult = [];
+        final classResult = [];
+        final genderResult = [];
+
+        if (grade != null) {
+          gradeResult.addAll(
+            memberList.where(
+              (member) => grade == int.tryParse(member.schoolNb.toString()[1]),
+            ),
+          );
+          Logger.d('grade 필터 조회 결과 : $gradeResult');
+        }
+        if (classNb != null) {
+          gradeResult.addAll(
+            memberList.where(
+              (member) =>
+                  classNb == int.tryParse(member.schoolNb.toString()[2]),
+            ),
+          );
+          Logger.d('classNb 필터 조회 결과 : $classResult');
+        }
+        if (gender != null) {
+          gradeResult.addAll(
+            memberList.where((member) => gender == member.gender),
+          );
+          Logger.d('gender 필터 조회 결과 : $genderResult');
+        }
+
+        setState(() {
+          viewMemberList.clear();
+          viewMemberList.addAll({
+            ...gradeResult,
+            ...classResult,
+            ...genderResult,
+          });
+        });
+      },
+    ).show(context);
+  }
+
   @override
   void dispose() {
     textEditingController.dispose();
@@ -44,50 +99,46 @@ class _RequestStudyViewState extends State<RequestStudyView> {
       icon: icon,
     );
 
-    final topLine = Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-      child: Row(
-        children: [
-          iconButton(AppIcon.chevronLeft(), () {}),
-          const SizedBox(width: AppSpacing.s4),
-          Text(
-            "자습신청",
-            style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),
-          ),
-          const Spacer(),
-          iconButton(AppIcon.filter(), () {}),
-        ],
+    final titleBar = SliverAppBar(
+      leading: iconButton(AppIcon.chevronLeft(), () {
+        context.pop();
+      }),
+      leadingWidth: AppSize.s24,
+      centerTitle: false,
+      titleSpacing: AppSpacing.s4,
+      title: Text(
+        "자습신청",
+        style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),
       ),
+      actions: [
+        iconButton(AppIcon.filter(), () => _filteringMemberList(context)),
+      ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(AppSize.s84),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+          child: SearchTextField(
+            textEditingController: textEditingController,
+            hintText: '학생 이름, 학번을 입력해주세요',
+          ),
+        ),
+      ),
+      toolbarHeight: AppSize.s32,
+      surfaceTintColor: Colors.transparent,
+      pinned: true,
+      floating: true,
+      snap: true,
     );
 
-    return BaseScaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
-        child: Column(
-          children: [
-            topLine,
-
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    title: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.s16,
-                      ),
-                      child: SearchTextField(
-                        textEditingController: textEditingController,
-                        hintText: '학생 이름, 학번을 입력해주세요',
-                      ),
-                    ),
-                  ),
-
-                  _MemberGridLayout(memberList: memberList),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+      child: CustomScrollView(
+        physics: const ClampingScrollPhysics(),
+        slivers: [
+          titleBar,
+          _MemberGridLayout(memberList: viewMemberList),
+          const SliverFillRemaining(),
+        ],
       ),
     );
   }

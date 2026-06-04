@@ -140,7 +140,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
               const Spacer(),
               _SeeAllLink(
                 onPressed:
-                    widget.onSeeAllPressed ?? () => context.go(widget.path),
+                    widget.onSeeAllPressed ?? () => context.push(widget.path),
               ),
             ],
           ),
