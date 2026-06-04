@@ -1,14 +1,15 @@
-import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
-import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../widgets/floating_button/floating_actions.dart';
+import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
+import '../../feature/home/presentation/widgets/home_view.dart';
+import '../../feature/study/presentation/widgets/request_study_view.dart';
+import '../widgets/scaffold/base_scaffold.dart';
 import '../widgets/scaffold/drawer/menu_drawer.dart';
-import 'route_path.dart';
+import '../widgets/scaffold/floating_button/floating_actions.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
+import 'route_path.dart';
 
 /// 인증 상태에 따라 라우팅을 가드하는 go_router 를 생성한다.
 ///
@@ -49,7 +50,7 @@ GoRouter createAppRouter(AuthController auth) {
           GoRoute(
             path: RoutePath.requestStudy,
             //TODO : 자습 신청 패이지 구현
-            builder: (context, state) => const Column(children: []),
+            builder: (context, state) => const RequestStudyView(),
           ),
           GoRoute(
             path: RoutePath.requestMassage,
