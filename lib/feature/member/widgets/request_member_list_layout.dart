@@ -84,8 +84,12 @@ class RequestMemberListLayout extends StatelessWidget {
         slivers: [
           titleBar,
           if (!isEmpty) ...{
-            _MemberGridLayout(memberList: memberList),
-            const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
+            if (memberList.isNotEmpty) ...{
+              _MemberGridLayout(memberList: memberList),
+              const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
+            } else
+              //TODO : 보여지는 리스트, (filtering 결과)가 없을 때 보여지는 화면 디자인 결정 나면 정의
+              ...{},
           } else ...{
             const SliverToBoxAdapter(child: SizedBox(height: _emptyTopPadding)),
             SliverFillRemaining(child: Center(child: emptyIcon)),
