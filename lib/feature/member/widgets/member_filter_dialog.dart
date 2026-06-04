@@ -8,7 +8,6 @@ import '../../../core/theme/color/app_colors.dart';
 import '../../../core/theme/text_style/app_text_style.dart';
 import '../../../core/widgets/primary_action_button.dart';
 
-
 typedef OnTagChange<T> = void Function(T? value);
 typedef OnFilterSubmit =
     void Function(int? grade, int? classNb, Gender? gender);
@@ -48,13 +47,41 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text('필터', style: AppTextStyle.title3)],
+              children: [
+                Text(
+                  '필터',
+                  style: AppTextStyle.title3.copyWith(
+                    color: AppColors.lightMainText,
+                  ),
+                ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      grade = null;
+                      classNb = null;
+                      gender = null;
+                    });
+                  },
+                  child: Text(
+                    '초기화',
+                    style: AppTextStyle.caption1.copyWith(
+                      color: AppColors.lightSub1,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.s24),
             _TagLine<int>(
               title: '학년',
+              initValue: grade,
               list: List.generate(3, (index) => index + 1),
               onTagChange: (value) {
                 grade = value;
@@ -63,6 +90,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
             const SizedBox(height: AppSpacing.s24),
             _TagLine<int>(
               title: '반',
+              initValue: classNb,
               list: List.generate(4, (index) => index + 1),
               onTagChange: (value) {
                 classNb = value;
@@ -71,6 +99,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
             const SizedBox(height: AppSpacing.s24),
             _TagLine<String>(
               title: '성별',
+              initValue: gender,
               list: Gender.values.map((e) => e.ko).toList(),
               onTagChange: (value) {
                 gender = value;
@@ -118,11 +147,13 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
 class _TagLine<T> extends StatefulWidget {
   const _TagLine({
     super.key,
+    this.initValue,
     required this.title,
     required this.list,
     required this.onTagChange,
   });
 
+  final T? initValue;
   final String title;
   final List<T> list;
   final OnTagChange<T> onTagChange;
@@ -133,6 +164,18 @@ class _TagLine<T> extends StatefulWidget {
 
 class _TagLineState<T> extends State<_TagLine<T>> {
   T? selectedValue;
+
+  @override
+  void initState() {
+    selectedValue = widget.initValue;
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TagLine<T> oldWidget) {
+    selectedValue = widget.initValue;
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {

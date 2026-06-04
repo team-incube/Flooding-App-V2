@@ -1,9 +1,10 @@
+import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
-import '../../feature/study/presentation/widgets/request_study_view.dart';
+import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
 import '../widgets/scaffold/drawer/menu_drawer.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
@@ -50,12 +51,12 @@ GoRouter createAppRouter(AuthController auth) {
           GoRoute(
             path: RoutePath.requestStudy,
             //TODO : 자습 신청 패이지 구현
-            builder: (context, state) => const RequestStudyView(),
+            builder: (context, state) => const StudyRequestView(),
           ),
           GoRoute(
             path: RoutePath.requestMassage,
             //TODO : 안마의자 신청 페이지 구현
-            builder: (context, state) => const Column(children: []),
+            builder: (context, state) => const MassageRequestView(),
           ),
         ],
         builder: (context, state, child) {

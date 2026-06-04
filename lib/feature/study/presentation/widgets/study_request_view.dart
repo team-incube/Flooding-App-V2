@@ -8,14 +8,14 @@ import '../../../member/widgets/no_member_icon.dart';
 import '../../../member/widgets/request_member_list_layout.dart';
 import '../../../member/view_models/member_view_model.dart';
 
-class RequestStudyView extends StatefulWidget {
-  const RequestStudyView({super.key});
+class StudyRequestView extends StatefulWidget {
+  const StudyRequestView({super.key});
 
   @override
-  State<RequestStudyView> createState() => _RequestStudyViewState();
+  State<StudyRequestView> createState() => _StudyRequestViewState();
 }
 
-class _RequestStudyViewState extends State<RequestStudyView> {
+class _StudyRequestViewState extends State<StudyRequestView> {
   final TextEditingController searchController = TextEditingController();
 
   //TODO Controlle에서 멤버 리스트 불러오기
@@ -78,6 +78,7 @@ class _RequestStudyViewState extends State<RequestStudyView> {
         subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
       ),
       memberList: viewMemberList,
+      isEmpty: memberList.isEmpty,
     );
   }
 }

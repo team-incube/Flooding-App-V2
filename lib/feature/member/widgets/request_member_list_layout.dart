@@ -18,6 +18,7 @@ class RequestMemberListLayout extends StatelessWidget {
     required this.filterAction,
     required this.emptyIcon,
     required this.memberList,
+    required this.isEmpty,
   });
 
   final Widget searchBar;
@@ -25,6 +26,7 @@ class RequestMemberListLayout extends StatelessWidget {
   final List<MemberViewModel> memberList;
   final OnFilterSubmit filterAction;
   final Widget emptyIcon;
+  final bool isEmpty;
 
   static const double _bottomPadding = 112;
   static const double _emptyTopPadding = 125;
@@ -76,12 +78,12 @@ class RequestMemberListLayout extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
       child: CustomScrollView(
-        physics: memberList.isNotEmpty
+        physics: !isEmpty
             ? const ClampingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
         slivers: [
           titleBar,
-          if (memberList.isNotEmpty) ...{
+          if (!isEmpty) ...{
             _MemberGridLayout(memberList: memberList),
             const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
           } else ...{
