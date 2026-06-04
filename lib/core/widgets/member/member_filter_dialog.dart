@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_radius.dart';
-import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/enum/gender.dart';
-import '../../../../core/theme/color/app_colors.dart';
-import '../../../../core/theme/text_style/app_text_style.dart';
-import '../../../../core/widgets/primary_action_button.dart';
+import '../../constants/app_radius.dart';
+import '../../constants/app_spacing.dart';
+import '../../enum/gender.dart';
+import '../../theme/color/app_colors.dart';
+import '../../theme/text_style/app_text_style.dart';
+import '../primary_action_button.dart';
 
 typedef OnTagChange<T> = void Function(T value);
 typedef OnFilterSubmit =
@@ -55,19 +55,25 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
             _TagLine<int>(
               title: '학년',
               list: List.generate(3, (index) => index + 1),
-              onTagChange: (value) {},
+              onTagChange: (value) {
+                grade = value;
+              },
             ),
             const SizedBox(height: AppSpacing.s24),
             _TagLine<int>(
               title: '반',
               list: List.generate(4, (index) => index + 1),
-              onTagChange: (value) {},
+              onTagChange: (value) {
+                classNb = value;
+              },
             ),
             const SizedBox(height: AppSpacing.s24),
             _TagLine<String>(
               title: '성별',
               list: Gender.values.map((e) => e.ko).toList(),
-              onTagChange: (value) {},
+              onTagChange: (value) {
+                gender = value;
+              },
             ),
             const SizedBox(height: AppSpacing.s24),
 
@@ -148,24 +154,21 @@ class _TagLineState<T> extends State<_TagLine<T>> {
             : AppColors.lightSub1,
       );
 
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              selectedValue = value;
-            });
-            widget.onTagChange.call(value);
-          },
-          borderRadius: radius,
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s16,
-              vertical: AppSpacing.s8,
-            ),
-            decoration: boxDecoration,
-            child: Text('$value', style: textStyle),
+      return InkWell(
+        onTap: () {
+          setState(() {
+            selectedValue = value;
+          });
+          widget.onTagChange.call(value);
+        },
+        borderRadius: radius,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s16,
+            vertical: AppSpacing.s8,
           ),
+          decoration: boxDecoration,
+          child: Text('$value', style: textStyle),
         ),
       );
     }

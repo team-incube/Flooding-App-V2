@@ -1,11 +1,11 @@
 import '../../../../core/enum/gender.dart';
 
-class StudyMemberViewModel {
+class MemberViewModel {
   final String name;
   final int schoolNb;
   final Gender gender;
 
-  StudyMemberViewModel({
+  MemberViewModel({
     required this.name,
     required this.schoolNb,
     required this.gender,

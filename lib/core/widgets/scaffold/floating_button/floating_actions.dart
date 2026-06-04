@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../feature/ai/presentation/widgets/song_recommendation_sheet.dart';
-import '../../constants/app_size.dart';
-import '../../constants/app_spacing.dart';
-import '../../theme/color/app_colors.dart';
-import '../../theme/icon/app_icon.dart';
+import '../../../../feature/ai/presentation/widgets/song_recommendation_sheet.dart';
+import '../../../constants/app_size.dart';
+import '../../../constants/app_spacing.dart';
+import '../../../theme/color/app_colors.dart';
+import '../../../theme/icon/app_icon.dart';
+
 
 /// 우측 하단에 세로로 쌓인 두 개의 원형 액션 버튼.
 class FloatingActions extends StatefulWidget {
