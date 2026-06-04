@@ -1,14 +1,14 @@
-import 'package:flooding_v2/core/widgets/member/view_models/member_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../constants/app_size.dart';
-import '../../constants/app_spacing.dart';
-import '../../theme/color/app_colors.dart';
-import '../../theme/icon/app_icon.dart';
-import '../../theme/text_style/app_text_style.dart';
+import '../../../core/constants/app_size.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/theme/color/app_colors.dart';
+import '../../../core/theme/icon/app_icon.dart';
+import '../../../core/theme/text_style/app_text_style.dart';
 import 'member_filter_dialog.dart';
 import 'member_card.dart';
+import 'package:flooding_v2/feature/member/view_models/member_view_model.dart';
 
 class RequestMemberListLayout extends StatelessWidget {
   const RequestMemberListLayout({

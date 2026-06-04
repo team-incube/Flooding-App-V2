@@ -1,12 +1,12 @@
-import 'package:flooding_v2/core/widgets/member/request_member_list_layout.dart';
-import 'package:flooding_v2/core/widgets/member/no_member_icon.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/enum/gender.dart';
 import '../../../../core/theme/icon/app_icon.dart';
-import '../../../../core/widgets/member/view_models/member_view_model.dart';
 import '../../../../core/widgets/search_text_field.dart';
+import '../../../member/widgets/no_member_icon.dart';
+import '../../../member/widgets/request_member_list_layout.dart';
+import '../../../member/view_models/member_view_model.dart';
 
 class RequestStudyView extends StatefulWidget {
   const RequestStudyView({super.key});
