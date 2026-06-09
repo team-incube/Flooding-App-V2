@@ -4,14 +4,17 @@ import '../models/chat_message.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
-
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(const ChatState()) {
-    on<ChatEvent>(_onMessageSent);
+    on<ChatEvent>((event, emit) {
+      event.when(
+        messageSent: (text) => _onMessageSent(text, emit),
+        messageReceived: (text) => _onMessageReceived(text, emit),
+      );
+    });
   }
 
-  void _onMessageSent(ChatEvent event, Emitter<ChatState> emit) {
-    final text = event.text.trim();
+  void _onMessageSent(String text, Emitter<ChatState> emit) {
     if (text.isEmpty) return;
 
     emit(
@@ -22,7 +25,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         ],
       ),
     );
+  }
 
-    // TODO: AI 응답 API 연동 후 받은 답변을 ChatRole.ai 메시지로 추가.
+  void _onMessageReceived(String text, Emitter<ChatState> emit) {
+    if (text.isEmpty) return;
+
+    emit(
+      state.copyWith(
+        messages: [
+          ...state.messages,
+          ChatMessage(role: ChatRole.ai, text: text),
+        ],
+      ),
+    );
   }
 }
