@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../feature/ai/presentation/widgets/song_recommendation_sheet.dart';
 import '../../../constants/app_size.dart';
 import '../../../constants/app_spacing.dart';
+import '../../../route/route_path.dart';
 import '../../../theme/color/app_colors.dart';
 import '../../../theme/icon/app_icon.dart';
 
@@ -52,8 +54,8 @@ class _FloatingActionsState extends State<FloatingActions> {
       ..showSnackBar(SnackBar(content: Text('신청: ${song.title}')));
   }
 
-  //TODO AI 채팅 기능 구현
-  Future<void> _openAiChat() async {}
+  /// 플로팅 챗봇 버튼 → AI 챗봇 대화 페이지로 이동.
+  void _openAiChat() => context.push(RoutePath.aiChat);
 
   @override
   Widget build(BuildContext context) {

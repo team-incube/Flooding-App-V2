@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
 import '../../feature/study/presentation/widgets/request_study_view.dart';
@@ -75,6 +76,10 @@ GoRouter createAppRouter(AuthController auth) {
             body: child,
           );
         },
+      ),
+      GoRoute(
+        path: RoutePath.aiChat,
+        builder: (context, state) => const AiChatPage(),
       ),
       GoRoute(
         path: RoutePath.login,
