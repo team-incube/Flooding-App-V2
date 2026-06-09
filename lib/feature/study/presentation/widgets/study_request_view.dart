@@ -1,12 +1,12 @@
+import 'package:flooding_v2/feature/member/presentation/models/member_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/enum/gender.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/widgets/search_text_field.dart';
-import '../../../member/widgets/no_member_icon.dart';
-import '../../../member/widgets/request_member_list_layout.dart';
-import '../../../member/view_models/member_view_model.dart';
+import '../../../member/presentation/widgets/request_member_list_layout.dart';
+import '../../../member/presentation/widgets/no_member_icon.dart';
 
 class StudyRequestView extends StatefulWidget {
   const StudyRequestView({super.key});
@@ -19,16 +19,16 @@ class _StudyRequestViewState extends State<StudyRequestView> {
   final TextEditingController searchController = TextEditingController();
 
   //TODO Controlle에서 멤버 리스트 불러오기
-  final List<MemberViewModel> memberList = List.generate(
+  final List<MemberModel> memberList = List.generate(
     12,
-    (index) => MemberViewModel(
+    (index) => MemberModel(
       name: '김민솔',
       gender: Gender.female,
       schoolNb: 2403 + index,
     ),
   );
 
-  final List<MemberViewModel> viewMemberList = [];
+  final List<MemberModel> viewMemberList = [];
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _StudyRequestViewState extends State<StudyRequestView> {
   }
 
   void _filteringMemberList(int? grade, int? classNb, Gender? gender) {
-    Iterable<MemberViewModel> filtered = memberList;
+    Iterable<MemberModel> filtered = memberList;
 
     if (grade != null) {
       filtered = filtered.where((member) => grade == member.schoolNb ~/ 1000);

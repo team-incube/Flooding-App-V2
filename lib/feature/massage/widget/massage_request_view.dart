@@ -4,9 +4,9 @@ import '../../../../core/constants/app_size.dart';
 import '../../../../core/enum/gender.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/widgets/search_text_field.dart';
-import '../../member/view_models/member_view_model.dart';
-import '../../member/widgets/no_member_icon.dart';
-import '../../member/widgets/request_member_list_layout.dart';
+import '../../member/presentation/models/member_model.dart';
+import '../../member/presentation/widgets/no_member_icon.dart';
+import '../../member/presentation/widgets/request_member_list_layout.dart';
 
 class MassageRequestView extends StatefulWidget {
   const MassageRequestView({super.key});
@@ -18,17 +18,18 @@ class MassageRequestView extends StatefulWidget {
 class _MassageRequestViewState extends State<MassageRequestView> {
   final TextEditingController searchController = TextEditingController();
 
-  //TODO Controlle에서 멤버 리스트 불러오기
-  final List<MemberViewModel> memberList = List.generate(
+  //TODO Controller에서 멤버 리스트 불러오기
+  final List<MemberModel> memberList = List.generate(
     12,
-    (index) => MemberViewModel(
-      name: '김민솔',
-      gender: Gender.female,
-      schoolNb: 2403 + index,
-    ),
+        (index) =>
+        MemberModel(
+          name: '김민솔',
+          gender: Gender.female,
+          schoolNb: 2403 + index,
+        ),
   );
 
-  final List<MemberViewModel> viewMemberList = [];
+  final List<MemberModel> viewMemberList = [];
 
   @override
   void initState() {
@@ -43,14 +44,14 @@ class _MassageRequestViewState extends State<MassageRequestView> {
   }
 
   void _filteringMemberList(int? grade, int? classNb, Gender? gender) {
-    Iterable<MemberViewModel> filtered = memberList;
+    Iterable<MemberModel> filtered = memberList;
 
     if (grade != null) {
       filtered = filtered.where((member) => grade == member.schoolNb ~/ 1000);
     }
     if (classNb != null) {
       filtered = filtered.where(
-        (member) => classNb == (member.schoolNb ~/ 100) % 10,
+            (member) => classNb == (member.schoolNb ~/ 100) % 10,
       );
     }
     if (gender != null) {
