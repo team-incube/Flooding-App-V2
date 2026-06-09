@@ -68,6 +68,7 @@ class _FloodingLogoAppBar extends StatelessWidget
       backgroundColor: AppColors.lightBackground,
       elevation: 0,
       scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
       centerTitle: false,
       titleSpacing: AppSpacing.s24,
       title: AppIcon.logo(),

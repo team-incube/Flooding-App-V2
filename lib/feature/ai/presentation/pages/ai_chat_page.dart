@@ -1,32 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/scaffold/base_scaffold.dart';
-import '../models/chat_message.dart';
+import '../bloc/chat_bloc.dart';
+import '../bloc/chat_event.dart';
+import '../bloc/chat_state.dart';
 import '../widgets/chat_empty_view.dart';
 import '../widgets/chat_input_bar.dart';
 import '../widgets/chat_message_bubble.dart';
 
 /// AI 챗봇 대화 페이지.
 ///
-/// 채팅 기록이 없으면 [ChatEmptyView]를 보여주고, 메시지가 있으면
-/// 말풍선 목록을 보여준다. 하단 입력 바로 메시지를 전송한다.
-class AiChatPage extends StatefulWidget {
+/// [ChatBloc] 을 제공하고, 대화 화면([_AiChatView])을 띄운다.
+class AiChatPage extends StatelessWidget {
   const AiChatPage({super.key});
 
   @override
-  State<AiChatPage> createState() => _AiChatPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(create: (_) => ChatBloc(), child: const _AiChatView());
+  }
 }
 
-class _AiChatPageState extends State<AiChatPage> {
+/// 대화 화면 본문.
+///
+/// 채팅 기록이 없으면 [ChatEmptyView]를 보여주고, 메시지가 있으면
+/// 말풍선 목록을 보여준다. 하단 입력 바로 메시지를 전송한다.
+class _AiChatView extends StatefulWidget {
+  const _AiChatView();
+
+  @override
+  State<_AiChatView> createState() => _AiChatViewState();
+}
+
+class _AiChatViewState extends State<_AiChatView> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<ChatMessage> _messages = [];
 
   @override
   void dispose() {
@@ -36,13 +49,9 @@ class _AiChatPageState extends State<AiChatPage> {
   }
 
   void _send(String text) {
-    setState(() {
-      _messages.add(ChatMessage(role: ChatRole.user, text: text));
-    });
+    context.read<ChatBloc>().add(ChatEvent.messageSent(text));
     _inputController.clear();
     _scrollToBottom();
-
-    // TODO: AI 응답 API 연동 후 받은 답변을 ChatRole.ai 메시지로 추가.
   }
 
   /// 새 메시지가 추가되면 목록 맨 아래로 스크롤한다.
@@ -60,22 +69,26 @@ class _AiChatPageState extends State<AiChatPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      showDefaultAppBar: false,
-      appBar: const _ChatAppBar(),
       body: Column(
         children: [
+          const _ChatHeader(),
           Expanded(
-            child: _messages.isEmpty
-                ? const ChatEmptyView()
-                : ListView.separated(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(AppSpacing.s16),
-                    itemCount: _messages.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: AppSpacing.s16),
-                    itemBuilder: (context, index) =>
-                        ChatMessageBubble(message: _messages[index]),
-                  ),
+            child: BlocBuilder<ChatBloc, ChatState>(
+              builder: (context, state) {
+                if (state.messages.isEmpty) {
+                  return const ChatEmptyView();
+                }
+                return ListView.separated(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(AppSpacing.s16),
+                  itemCount: state.messages.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSpacing.s16),
+                  itemBuilder: (context, index) =>
+                      ChatMessageBubble(message: state.messages[index]),
+                );
+              },
+            ),
           ),
           ChatInputBar(controller: _inputController, onSend: _send),
         ],
@@ -84,28 +97,32 @@ class _AiChatPageState extends State<AiChatPage> {
   }
 }
 
-/// 뒤로가기 + 타이틀로 구성된 채팅 상단 바.
-class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _ChatAppBar();
-
-  @override
-  Size get preferredSize => const Size.fromHeight(AppSize.s57);
+/// 뒤로가기 + 'AI챗봇' 타이틀로 구성된 페이지 서브 헤더.
+///
+/// 상단 `flooding` 로고 앱바(기본) 아래에 위치하며, 좌측 정렬이다.
+class _ChatHeader extends StatelessWidget {
+  const _ChatHeader();
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.lightBackground,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: true,
-      titleSpacing: 0,
-      leading: IconButton(
-        onPressed: () => context.pop(),
-        icon: AppIcon.chevronLeft(color: AppColors.lightMainText),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s24,
+        vertical: AppSpacing.s4,
       ),
-      title: Text(
-        'AI 챗봇',
-        style: AppTextStyle.title3.copyWith(color: AppColors.lightMainText),
+      child: Row(
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.pop(),
+            child: AppIcon.chevronLeft(color: AppColors.lightMainText),
+          ),
+          const SizedBox(width: AppSpacing.s4),
+          Text(
+            'AI챗봇',
+            style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),
+          ),
+        ],
       ),
     );
   }

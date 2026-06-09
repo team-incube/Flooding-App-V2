@@ -15,7 +15,7 @@ class ChatInputBar extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onSend,
-    this.hintText = '메시지를 입력해주세요',
+    this.hintText = '메시지를 입력하세요',
   });
 
   final TextEditingController controller;
@@ -28,15 +28,12 @@ class ChatInputBar extends StatelessWidget {
       top: false,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s16,
+          horizontal: AppSpacing.s24,
           vertical: AppSpacing.s12,
         ),
-        decoration: const BoxDecoration(
-          color: AppColors.lightBackground,
-          border: Border(top: BorderSide(color: AppColors.lightSub3)),
-        ),
+        color: AppColors.lightBackground,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(child: _InputField(controller: controller, hint: hintText)),
             const SizedBox(width: AppSpacing.s8),
@@ -63,8 +60,7 @@ class _InputField extends StatelessWidget {
         vertical: AppSpacing.s14,
       ),
       decoration: BoxDecoration(
-        color: AppColors.lightBgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.s12),
+        borderRadius: BorderRadius.circular(AppRadius.s8),
         border: Border.all(color: AppColors.lightSub2),
       ),
       child: TextField(
@@ -109,12 +105,12 @@ class _SendButton extends StatelessWidget {
             customBorder: const CircleBorder(),
             onTap: enabled ? () => onSend(value.text.trim()) : null,
             child: const SizedBox(
-              width: AppSize.s52,
-              height: AppSize.s52,
+              width: AppSize.s40,
+              height: AppSize.s40,
               child: Icon(
                 Icons.arrow_upward_rounded,
                 size: AppSize.s24,
-                color: AppColors.lightBgSurface,
+                color: AppColors.lightBackground,
               ),
             ),
           ),
