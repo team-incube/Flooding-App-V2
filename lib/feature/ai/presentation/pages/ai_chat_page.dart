@@ -51,7 +51,6 @@ class _AiChatViewState extends State<_AiChatView> {
   void _send(String text) {
     context.read<ChatBloc>().add(ChatEvent.messageSent(text));
     _inputController.clear();
-    _scrollToBottom();
   }
 
   /// 새 메시지가 추가되면 목록 맨 아래로 스크롤한다.
@@ -73,14 +72,16 @@ class _AiChatViewState extends State<_AiChatView> {
         children: [
           const _ChatHeader(),
           Expanded(
-            child: BlocBuilder<ChatBloc, ChatState>(
+            child: BlocConsumer<ChatBloc, ChatState>(
+              listenWhen: (previous, current) =>
+                  current.messages.length > previous.messages.length,
+              listener: (context, state) => _scrollToBottom(),
               builder: (context, state) {
                 if (state.messages.isEmpty) {
                   return const ChatEmptyView();
                 }
                 return ListView.separated(
                   controller: _scrollController,
-                  padding: const EdgeInsets.all(AppSpacing.s16),
                   itemCount: state.messages.length,
                   separatorBuilder: (_, _) =>
                       const SizedBox(height: AppSpacing.s16),
