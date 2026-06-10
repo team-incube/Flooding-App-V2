@@ -29,7 +29,7 @@ Repeat until all steps pass (max 5 iterations, then stop and report what's still
    flutter test
    ```
 4. **UI test (Appium)** — **required when the change touches publishing/UI work** (anything under `presentation/pages`, `presentation/widgets`, `core/widgets`, theme, or a `🐋 Type: Publish` issue); skip for pure logic/data/config changes:
-   run the `ui-test` skill (boots emulator if needed, rebuilds the test APK, runs `npm test` in `appium/`). Local-only — CI does not run this.
+   run the `ui-test` skill (boots emulator if needed, rebuilds the test APK, runs `npm test` in `appium/`). CI also runs this suite on an emulator (`.github/workflows/appium-ui.yml`) for PRs touching `lib/`, `integration_test/`, `appium/`, or `pubspec.yaml` — so a green local run keeps that check passing.
 5. If any step fails: read the error, fix the **root cause** in source (never silence lints with `// ignore` or delete tests to pass), then re-run from the failed step.
 
 ## Rules

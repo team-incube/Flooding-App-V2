@@ -15,7 +15,7 @@ flutter run
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
 - No FVM config in this repo; stable channel is used.
 
-### Appium UI tests (local-only, required for publishing/UI work)
+### Appium UI tests (required for publishing/UI work)
 
 ```bash
 cd appium
@@ -24,7 +24,7 @@ npm run build:app                       # APK with auth-bypass entrypoint (integ
 npm test                                # wdio + appium-flutter-integration-driver, default udid emulator-5554
 ```
 
-Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`flutterByValueKey$` locators). Android SDK lives at `%LOCALAPPDATA%\Android\Sdk` (not on PATH); AVDs: `flooding`, `goms`. See the `ui-test` skill and `appium/README.md`.
+Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`flutterByValueKey$` locators). Android SDK lives at `%LOCALAPPDATA%\Android\Sdk` (not on PATH); AVDs: `flooding`, `goms`. See the `ui-test` skill and `appium/README.md`. CI runs the same suite on an emulator (`.github/workflows/appium-ui.yml`) for PRs touching `lib/`, `integration_test/`, `appium/`, or `pubspec.yaml`.
 
 ## Architecture
 
