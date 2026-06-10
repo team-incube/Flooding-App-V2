@@ -12,7 +12,7 @@ Run the Appium UI suite in `appium/` against an Android emulator.
 1. **Emulator running:** `& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" devices` shows a `device` entry. If not, cold-boot one:
    `& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd flooding -no-snapshot-load` (background), then wait until `adb shell getprop sys.boot_completed` returns `1`. (A snapshot-restored boot can leave networking in a bad state — see the `emulator-internet-false-alarm` memory.)
 2. **npm deps:** `appium/node_modules` exists, else `npm install` in `appium/`. `postinstall` runs `patch-package`, which reapplies `patches/wdio-flutter-by-service+1.3.0.patch` (Windows ESM `pathToFileURL` fix — without it `flutterBy*$` throws `ERR_UNSUPPORTED_ESM_URL_SCHEME`).
-3. **Driver installed:** `npm run driver:list` shows `flutter-integration`, else `npm run driver:install` (needs Appium server v3).
+3. **Driver installed:** `npm run driver:list` shows `flutter-integration`, else `npm run driver:install` (needs Appium server v3). `driver:install` is idempotent — if already installed it falls back to `appium driver update`, so it never fails with "already installed".
 4. **Test APK up to date:** if any `lib/` or `integration_test/` file is newer than `build/app/outputs/flutter-apk/app-debug.apk`, rebuild:
    `npm run build:app` (= `flutter build apk --debug --target integration_test/appium_test.dart`). First build is slow (~10 min, compiles the integration_test + appium_flutter_server deps).
 
