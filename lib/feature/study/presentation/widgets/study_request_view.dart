@@ -1,12 +1,14 @@
-import 'package:flooding_v2/feature/member/presentation/models/member_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_size.dart';
-import '../../../../core/enum/gender.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/widgets/search_text_field.dart';
-import '../../../member/presentation/widgets/request_member_list_layout.dart';
+import '../../../member/presentation/blocs/member_list_bloc.dart';
+import '../../../member/presentation/blocs/member_list_event.dart';
+import '../../../member/presentation/blocs/member_list_state.dart';
 import '../../../member/presentation/widgets/no_member_icon.dart';
+import '../../../member/presentation/widgets/request_member_list_layout.dart';
 
 class StudyRequestView extends StatefulWidget {
   const StudyRequestView({super.key});
@@ -18,67 +20,44 @@ class StudyRequestView extends StatefulWidget {
 class _StudyRequestViewState extends State<StudyRequestView> {
   final TextEditingController searchController = TextEditingController();
 
-  //TODO Controlle에서 멤버 리스트 불러오기
-  final List<MemberModel> memberList = List.generate(
-    12,
-    (index) => MemberModel(
-      name: '김민솔',
-      gender: Gender.female,
-      schoolNb: 2403 + index,
-    ),
-  );
-
-  final List<MemberModel> viewMemberList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    viewMemberList.addAll(memberList);
-  }
-
   @override
   void dispose() {
     searchController.dispose();
     super.dispose();
   }
 
-  void _filteringMemberList(int? grade, int? classNb, Gender? gender) {
-    Iterable<MemberModel> filtered = memberList;
-
-    if (grade != null) {
-      filtered = filtered.where((member) => grade == member.schoolNb ~/ 1000);
-    }
-    if (classNb != null) {
-      filtered = filtered.where(
-        (member) => classNb == (member.schoolNb ~/ 100) % 10,
-      );
-    }
-    if (gender != null) {
-      filtered = filtered.where((member) => gender == member.gender);
-    }
-
-    setState(() {
-      viewMemberList.clear();
-      viewMemberList.addAll(filtered);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return RequestMemberListLayout(
-      title: '자습신청',
-      searchBar: SearchTextField(
-        textEditingController: searchController,
-        hintText: '학생 이름, 학번을 입력해주세요',
-      ),
-      filterAction: _filteringMemberList,
-      emptyIcon: NoMemberIcon(
-        icon: AppIcon.graduationCap(size: AppSize.s100),
-        title: '자습 신청한 인원이 없습니다.',
-        subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
-      ),
-      memberList: viewMemberList,
-      isEmpty: memberList.isEmpty,
+    return BlocBuilder<MemberListBloc, MemberListState>(
+      builder: (context, state) {
+        return RequestMemberListLayout(
+          title: '자습신청',
+          searchBar: SearchTextField(
+            textEditingController: searchController,
+            hintText: '학생 이름, 학번을 입력해주세요',
+          ),
+          filterAction: (grade, classNb, gender) {
+            context.read<MemberListBloc>().add(
+              MemberListEvent.filter(
+                grade: grade,
+                classNb: classNb,
+                gender: gender,
+              ),
+            );
+          },
+          emptyIcon: NoMemberIcon(
+            icon: AppIcon.graduationCap(size: AppSize.s100),
+            title: '자습 신청한 인원이 없습니다.',
+            subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
+          ),
+          memberList: state.whenOrNull(
+                loaded: (list) => list,
+                filtered: (list) => list,
+              ) ??
+              [],
+          isEmpty: state.whenOrNull(empty: () => true) ?? false,
+        );
+      },
     );
   }
 }

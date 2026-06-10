@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/enum/gender.dart';
+
 part 'member_list_event.freezed.dart';
 
 @freezed
@@ -8,5 +10,9 @@ class MemberListEvent with _$MemberListEvent {
 
   factory MemberListEvent.load() = _Load;
 
-  factory MemberListEvent.filter() = _Filter;
+  factory MemberListEvent.filter({
+    int? grade,
+    int? classNb,
+    Gender? gender,
+  }) = _Filter;
 }

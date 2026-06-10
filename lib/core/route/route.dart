@@ -1,4 +1,10 @@
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
+import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
+import 'package:flooding_v2/feature/member/domain/usecases/get_massage_members_usecase.dart';
+import 'package:flooding_v2/feature/member/domain/usecases/get_study_members_usecase.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
@@ -49,28 +55,42 @@ GoRouter createAppRouter(AuthController auth) {
           ),
           GoRoute(
             path: RoutePath.requestStudy,
-            //TODO : 자습 신청 패이지 구현
-            builder: (context, state) => const StudyRequestView(),
+            builder: (context, state) => BlocProvider(
+              create: (context) => MemberListBloc(
+                getMembers: GetStudyMembersUseCase(
+                  context.read<MemberRepository>(),
+                ),
+              )..add(MemberListEvent.load()),
+              child: const StudyRequestView(),
+            ),
           ),
           GoRoute(
             path: RoutePath.requestMassage,
-            //TODO : 안마의자 신청 페이지 구현
-            builder: (context, state) => const MassageRequestView(),
+            builder: (context, state) => BlocProvider(
+              create: (context) => MemberListBloc(
+                getMembers: GetMassageMembersUseCase(
+                  context.read<MemberRepository>(),
+                ),
+              )..add(MemberListEvent.load()),
+              child: const MassageRequestView(),
+            ),
           ),
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
 
-          /// 현재 경로에 따른 floatingActions 분기
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||
             RoutePath.requestMassage => const FloatingActions.aiChat(),
             _ => const FloatingActions.both(),
           };
 
-          return BaseScaffold(
-            floatingActionButton: floatingButton,
-            body: child,
+          return RepositoryProvider(
+            create: (_) => MemberRepository(),
+            child: BaseScaffold(
+              floatingActionButton: floatingButton,
+              body: child,
+            ),
           );
         },
       ),
