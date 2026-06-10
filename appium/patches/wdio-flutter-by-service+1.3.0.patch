@@ -1,0 +1,21 @@
+diff --git a/node_modules/wdio-flutter-by-service/build/utils.js b/node_modules/wdio-flutter-by-service/build/utils.js
+index e3de998..79a2f23 100644
+--- a/node_modules/wdio-flutter-by-service/build/utils.js
++++ b/node_modules/wdio-flutter-by-service/build/utils.js
+@@ -1,6 +1,7 @@
+ import { command } from 'webdriver';
+ import { browser } from '@wdio/globals';
+ import { createRequire } from 'module';
++import { pathToFileURL } from 'url';
+ import fs from 'fs';
+ const require = createRequire(import.meta.url);
+ let getElement;
+@@ -18,7 +19,7 @@ const constructElementObject = async function () {
+             });
+             fs.writeFileSync(fileUrl, fileContent, "utf8");
+         }
+-        getElement = (await import(fileUrl)).getElement;
++        getElement = (await import(pathToFileURL(fileUrl).href)).getElement;
+     }
+     return getElement;
+ };
