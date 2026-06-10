@@ -65,21 +65,33 @@ class _FloodingLogoAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.lightBackground,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      automaticallyImplyLeading: false,
-      centerTitle: false,
-      titleSpacing: AppSpacing.s24,
-      title: AppIcon.logo(),
-      actions: [
-        IconButton(
-          onPressed: onMenuTap ?? () => Scaffold.of(context).openEndDrawer(),
-          icon: AppIcon.dehaze(color: AppColors.lightMainText),
-        ),
-        const SizedBox(width: AppSpacing.s16),
-      ],
+    // body 와 동일하게 좌우 24 패딩을 적용한다. 로고는 titleSpacing 을 0 으로 두어
+    // 패딩 끝(24)에서 시작하고, 햄버거 아이콘은 우측 정렬해 글리프가 정확히 24 에
+    // 맞도록 한다(탭 영역은 기본 크기 유지).
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+      child: AppBar(
+        backgroundColor: AppColors.lightBackground,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: false,
+        titleSpacing: 0,
+        title: AppIcon.logo(),
+        actions: [
+          IconButton(
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.zero,
+            // 탭 시 리플/스플래시 이펙트 제거.
+            style: IconButton.styleFrom(
+              overlayColor: Colors.transparent,
+              splashFactory: NoSplash.splashFactory,
+            ),
+            onPressed: onMenuTap ?? () => Scaffold.of(context).openEndDrawer(),
+            icon: AppIcon.dehaze(color: AppColors.lightMainText),
+          ),
+        ],
+      ),
     );
   }
 }
