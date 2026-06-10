@@ -4,16 +4,29 @@ Flutter app (package `flooding_v2`) for GSM dormitory life — study requests, m
 
 ## Setup & Commands
 
+The Flutter SDK is pinned via FVM (`.fvmrc` → 3.44.0). Prefix Flutter/Dart commands with `fvm` so everyone uses the pinned SDK:
+
 ```bash
-flutter pub get
-dart run build_runner build          # generates *.g.dart / *.freezed.dart (not committed)
-flutter analyze --no-fatal-infos     # CI gate
-flutter test                         # CI runs only if test/ contains *_test.dart
-flutter run
+fvm install                          # after clone: download the pinned SDK (reads .fvmrc)
+fvm flutter pub get
+fvm dart run build_runner build      # generates *.g.dart / *.freezed.dart (not committed)
+fvm flutter analyze --no-fatal-infos # CI gate
+fvm flutter test                     # CI runs only if test/ contains *_test.dart
+fvm flutter run --dart-define=ENV=prod  # env defaults to dev; pass prod explicitly
 ```
 
+Convenience scripts in `scripts/` (PowerShell `.ps1` + Bash `.sh`):
+
+| Script | Does |
+|---|---|
+| `setup` | `fvm install` + `pub get` + `build_runner build` (post-clone) |
+| `run-prod` | `fvm flutter run --dart-define=ENV=prod` |
+| `run-profile` | `fvm flutter run --profile --dart-define=ENV=prod` |
+| `gen` | `fvm dart run build_runner build` (`--watch` to watch) |
+
+- Env is selected by `--dart-define=ENV={dev|prod}` (default `dev`), read in `lib/core/config/env.dart` as `Env.flavor` — not Android product flavors. `--profile` is a Flutter build mode (perf), orthogonal to env.
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
-- No FVM config in this repo; stable channel is used.
+- CI reads the pinned version from `.fvmrc` (`flutter-ci.yaml`, `appium-ui.yml`).
 
 ### Appium UI tests (required for publishing/UI work)
 
