@@ -15,14 +15,14 @@ fvm flutter test                     # CI runs only if test/ contains *_test.dar
 fvm flutter run --dart-define=ENV=prod  # env defaults to dev; pass prod explicitly
 ```
 
-Convenience scripts in `scripts/` (PowerShell `.ps1` + Bash `.sh`):
+Convenience scripts in `scripts/` (PowerShell `.ps1` + Bash `.sh`). Call them by path + extension — `.\scripts\setup.ps1` on Windows (PowerShell needs the `.\` prefix) or `./scripts/setup.sh` on macOS/Linux. **Don't type bare `setup`** — PowerShell's bundled Pester module exports a `Setup` function that shadows it.
 
 | Script | Does |
 |---|---|
-| `setup` | `fvm install` + `pub get` + `build_runner build` (post-clone) |
-| `run-prod` | `fvm flutter run --dart-define=ENV=prod` |
-| `run-profile` | `fvm flutter run --profile --dart-define=ENV=prod` |
-| `gen` | `fvm dart run build_runner build` (`--watch` to watch) |
+| `setup.ps1` / `setup.sh` | `fvm install` + `pub get` + `build_runner build` (post-clone) |
+| `run-prod.*` | `fvm flutter run --dart-define=ENV=prod` |
+| `run-profile.*` | `fvm flutter run --profile --dart-define=ENV=prod` |
+| `gen.*` | `fvm dart run build_runner build` (`--watch` to watch) |
 
 - Env is selected by `--dart-define=ENV={dev|prod}` (default `dev`), read in `lib/core/config/env.dart` as `Env.flavor` — not Android product flavors. `--profile` is a Flutter build mode (perf), orthogonal to env.
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
