@@ -47,8 +47,15 @@ Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`f
 
 ### Branches
 
-`{type}/{issue-number}-{kebab-case-slug}` off `develop`. Types in use: `feature`, `refactor`, `chore`.
-Example: `feature/23-publish-ai-chat-page`.
+`{type}/{issue-number}-{kebab-case-slug}` off `develop`. Types:
+
+| Type | Use | Usual commit emoji |
+|---|---|---|
+| `feature` | new pages, publishing (`🐋 Type: Publish`), new functionality | ✨ |
+| `refactor` | restructuring existing code without behavior change | ♻️ |
+| `chore` | tooling, CI, config, docs — anything outside product code | 🔧 |
+
+Example: `feature/23-publish-ai-chat-page`, `chore/25-setup-claude-harness`.
 
 ### Commits
 
