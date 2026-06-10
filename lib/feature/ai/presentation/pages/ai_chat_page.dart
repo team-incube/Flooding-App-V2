@@ -13,6 +13,7 @@ import '../bloc/chat_state.dart';
 import '../widgets/chat_empty_view.dart';
 import '../widgets/chat_input_bar.dart';
 import '../widgets/chat_message_bubble.dart';
+import '../widgets/chat_typing_indicator.dart';
 
 /// AI 챗봇 대화 페이지.
 ///
@@ -74,19 +75,35 @@ class _AiChatViewState extends State<_AiChatView> {
           Expanded(
             child: BlocConsumer<ChatBloc, ChatState>(
               listenWhen: (previous, current) =>
-                  current.messages.length > previous.messages.length,
+                  current.messages.length > previous.messages.length ||
+                  (current.isLoading && !previous.isLoading),
               listener: (context, state) => _scrollToBottom(),
               builder: (context, state) {
-                if (state.messages.isEmpty) {
+                if (state.messages.isEmpty && !state.isLoading) {
                   return const ChatEmptyView();
                 }
+                // 로딩 중이면 메시지 목록 끝에 타이핑 인디케이터를 한 칸 더 붙인다.
+                final itemCount =
+                    state.messages.length + (state.isLoading ? 1 : 0);
                 return ListView.separated(
                   controller: _scrollController,
-                  itemCount: state.messages.length,
+                  itemCount: itemCount,
                   separatorBuilder: (_, _) =>
                       const SizedBox(height: AppSpacing.s16),
-                  itemBuilder: (context, index) =>
-                      ChatMessageBubble(message: state.messages[index]),
+                  itemBuilder: (context, index) {
+                    if (state.isLoading && index == state.messages.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.s16,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: ChatTypingIndicator(),
+                        ),
+                      );
+                    }
+                    return ChatMessageBubble(message: state.messages[index]);
+                  },
                 );
               },
             ),

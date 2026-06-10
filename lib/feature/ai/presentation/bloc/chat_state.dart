@@ -8,5 +8,6 @@ part 'chat_state.freezed.dart';
 abstract class ChatState with _$ChatState {
   const factory ChatState({
     @Default(<ChatMessage>[]) List<ChatMessage> messages,
+    @Default(false) bool isLoading,
   }) = _ChatState;
 }

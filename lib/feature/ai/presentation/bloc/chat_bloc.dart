@@ -23,6 +23,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ...state.messages,
           ChatMessage(role: ChatRole.user, text: text),
         ],
+        // 응답이 올 때까지 로딩 인디케이터를 띄운다.
+        isLoading: true,
       ),
     );
   }
@@ -36,6 +38,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ...state.messages,
           ChatMessage(role: ChatRole.ai, text: text),
         ],
+        isLoading: false,
       ),
     );
   }
