@@ -33,7 +33,9 @@ jobs:
 
       - name: Read FVM config
         run: |
-          if [ -f ".fvm/fvm_config.json" ]; then
+          if [ -f ".fvmrc" ]; then
+            FLUTTER_VERSION=$(jq -r '.flutter' .fvmrc)
+          elif [ -f ".fvm/fvm_config.json" ]; then
             FLUTTER_VERSION=$(jq -r '.flutterSdkVersion' .fvm/fvm_config.json)
           else
             FLUTTER_VERSION=""
