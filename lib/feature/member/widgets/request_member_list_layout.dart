@@ -73,23 +73,20 @@ class RequestMemberListLayout extends StatelessWidget {
       snap: true,
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
-      child: CustomScrollView(
-        physics: memberList.isNotEmpty
-            ? const ClampingScrollPhysics()
-            : const NeverScrollableScrollPhysics(),
-        slivers: [
-          titleBar,
-          if (memberList.isNotEmpty) ...{
-            _MemberGridLayout(memberList: memberList),
-            const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
-          } else ...{
-            const SliverToBoxAdapter(child: SizedBox(height: _emptyTopPadding)),
-            SliverFillRemaining(child: Center(child: emptyIcon)),
-          },
-        ],
-      ),
+    return CustomScrollView(
+      physics: memberList.isNotEmpty
+          ? const ClampingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
+      slivers: [
+        titleBar,
+        if (memberList.isNotEmpty) ...{
+          _MemberGridLayout(memberList: memberList),
+          const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
+        } else ...{
+          const SliverToBoxAdapter(child: SizedBox(height: _emptyTopPadding)),
+          SliverFillRemaining(child: Center(child: emptyIcon)),
+        },
+      ],
     );
   }
 }

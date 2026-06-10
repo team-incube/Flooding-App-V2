@@ -4,6 +4,7 @@ import '../../constants/app_size.dart';
 import '../../constants/app_spacing.dart';
 import '../../theme/color/app_colors.dart';
 import '../../theme/icon/app_icon.dart';
+import 'drawer/menu_drawer.dart';
 
 /// 앱 전반에서 사용하는 기본 Scaffold.
 ///
@@ -16,7 +17,6 @@ class BaseScaffold extends StatelessWidget {
     this.appBar,
     this.showDefaultAppBar = true,
     this.onMenuTap,
-    this.endDrawer,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.backgroundColor,
@@ -26,9 +26,8 @@ class BaseScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final bool showDefaultAppBar;
 
-  /// 햄버거 버튼 탭 동작. 미지정 시 [endDrawer] 가 있으면 해당 드로어를 연다.
+  /// 햄버거 버튼 탭 동작. 미지정 시 [MenuDrawer] 를 연다.
   final VoidCallback? onMenuTap;
-  final Widget? endDrawer;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Color? backgroundColor;
@@ -42,11 +41,13 @@ class BaseScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
       appBar: resolvedAppBar,
-      body: body,
-      endDrawer: endDrawer,
+      body: Padding(padding: const EdgeInsets.all(AppSpacing.s24), child: body),
+      // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
+      // TODO: controller에서 접속 중인 유저 정보 불러오기
+      endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),
       // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용
       // (디자인: BackGroundColor #F7F7F9 50%).
-      drawerScrimColor: const Color(0x80F7F7F9),
+      drawerScrimColor: Colors.transparent,
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
     );

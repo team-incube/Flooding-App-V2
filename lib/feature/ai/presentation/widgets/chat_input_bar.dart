@@ -27,10 +27,7 @@ class ChatInputBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s24,
-          vertical: AppSpacing.s12,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s12),
         color: AppColors.lightBackground,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

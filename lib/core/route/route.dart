@@ -6,7 +6,6 @@ import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
 import '../../feature/study/presentation/widgets/request_study_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
-import '../widgets/scaffold/drawer/menu_drawer.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
@@ -70,8 +69,6 @@ GoRouter createAppRouter(AuthController auth) {
           };
 
           return BaseScaffold(
-            //TODO : controller에서 접속중인 유저 정보 불러오기
-            endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),
             floatingActionButton: floatingButton,
             body: child,
           );

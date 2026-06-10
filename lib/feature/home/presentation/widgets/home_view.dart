@@ -43,12 +43,6 @@ class _HomeViewState extends State<HomeView> {
     return SafeArea(
       top: false,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.s24,
-          0,
-          AppSpacing.s24,
-          AppSpacing.s24,
-        ),
         child: Column(
           children: [
             const _ScheduleCard(
