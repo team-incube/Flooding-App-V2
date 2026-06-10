@@ -21,6 +21,11 @@ Take the current branch from "code done" to "PR open" following repo conventions
    - Title (must match CI regex `^[^ ] :: \(#[0-9]+\) - .+`):
      `🔀 :: (#{N}) - {한국어 제목}`
    - Body: fill `.github/PULL_REQUEST_TEMPLATE.md` in Korean — 개요, `Closes #{N}`, 작업내용 (bulleted actual changes), 테스트 방법 (concrete steps), 스크린샷 (placeholder note if UI changed but no screenshot available), 질문사항, 체크리스트 (check only what was actually verified).
+   - **Korean body encoding (Windows/PowerShell):** never pipe a here-string into `gh ... --body-file -` — PowerShell 5.1 encodes native-command stdin in the system codepage and mangles Hangul into `?`. Write the body to a UTF-8 file first, then pass its path:
+     ```
+     gh pr create --base develop --title "🔀 :: (#{N}) - {제목}" --body-file pr_body.md
+     ```
+     (Same for `gh pr edit --body-file` and `gh issue create/edit --body-file`.) Use the `Write` tool to create the file (it writes UTF-8), then delete it after. The PR **title** via `--title "..."` is fine inline.
 6. **Update the issue label** to `🌟 Status: Reviewing`.
 7. Report the PR URL and the verification results.
 

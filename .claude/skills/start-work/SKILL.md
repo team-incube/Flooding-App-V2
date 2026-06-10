@@ -11,7 +11,7 @@ Turn a GitHub issue into a ready-to-work branch following repo conventions.
 
 1. **Resolve the issue.**
    - If an issue number was given: `gh issue view {N}` to confirm title/labels.
-   - If not: `gh issue list --state open` and ask the user which one (or, if they described new work, create an issue first: Korean plain title, body using the TODO template sections `## Describe` / `## Additional`, appropriate `Type:` label).
+   - If not: `gh issue list --state open` and ask the user which one (or, if they described new work, create an issue first: Korean plain title, body using the TODO template sections `## Describe` / `## Additional`, appropriate `Type:` label). On Windows, pass the Korean body via a UTF-8 `--body-file` (see `ship` skill), not an inline here-string — piped stdin mangles Hangul into `?`.
 2. **Pick the branch type** from the issue's nature:
    - `feature` — new pages, publishing (`🐋 Type: Publish`), new functionality
    - `refactor` — restructuring existing code
