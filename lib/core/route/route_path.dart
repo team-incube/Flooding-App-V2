@@ -10,6 +10,9 @@ abstract final class RoutePath {
   static const String requestStudy = '/request_study';
   static const String requestMassage = '/request_massage';
 
+  /// AI 챗봇 대화 화면.
+  static const String aiChat = '/ai_chat';
+
   /// DataGSM OAuth 로그인 화면.
   static const String login = '/login';
 }

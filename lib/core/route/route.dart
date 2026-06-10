@@ -1,11 +1,11 @@
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
 import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
-import '../widgets/scaffold/drawer/menu_drawer.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
@@ -69,12 +69,14 @@ GoRouter createAppRouter(AuthController auth) {
           };
 
           return BaseScaffold(
-            //TODO : controller에서 접속중인 유저 정보 불러오기
-            endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),
             floatingActionButton: floatingButton,
             body: child,
           );
         },
+      ),
+      GoRoute(
+        path: RoutePath.aiChat,
+        builder: (context, state) => const AiChatPage(),
       ),
       GoRoute(
         path: RoutePath.login,
