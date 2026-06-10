@@ -15,9 +15,20 @@ flutter run
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
 - No FVM config in this repo; stable channel is used.
 
+### Appium UI tests (local-only, required for publishing/UI work)
+
+```bash
+cd appium
+npm install && npm run driver:install   # one-time
+npm run build:app                       # APK with auth-bypass entrypoint (integration_test/appium_test.dart)
+npm test                                # wdio + appium-flutter-integration-driver, default udid emulator-5554
+```
+
+Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`flutterByValueKey$` locators). Android SDK lives at `%LOCALAPPDATA%\Android\Sdk` (not on PATH); AVDs: `flooding`, `goms`. See the `ui-test` skill and `appium/README.md`.
+
 ## Architecture
 
-- `lib/core/` — shared infrastructure: `config`, `constants` (AppSize, AppRadius...), `enum`, `network` (dio + retrofit), `route` (go_router, ShellRoute in `route.dart`, paths in `route_path.dart`), `theme` (color/text_style/icon tokens, SUIT font), `utils`, `widgets` (BaseScaffold, drawer, floating button, sheets).
+- `lib/core/` — shared infrastructure: `config`, `constants` (AppSize, AppSpacing, AppRadius...), `enum`, `network` (dio + retrofit), `route` (go_router, ShellRoute in `route.dart`, paths in `route_path.dart`), `theme` (color/text_style/icon tokens, SUIT font), `utils`, `widgets` (BaseScaffold, drawer, floating button, sheets).
 - `lib/feature/{domain}/` — feature modules (`ai`, `auth`, `dormitory`, `home`, `member`, `profile`, `study`):
   - `presentation/pages/` — route-level pages (`*_page.dart`)
   - `presentation/widgets/` — feature widgets; large page bodies are split into `*_view.dart`
@@ -36,7 +47,7 @@ flutter run
 
 ### Branches
 
-`{type}/{issue-number}-{kebab-case-slug}` off `develop`. Types in use: `feature/`, `refactor/`, `chore/`.
+`{type}/{issue-number}-{kebab-case-slug}` off `develop`. Types in use: `feature`, `refactor`, `chore`.
 Example: `feature/23-publish-ai-chat-page`.
 
 ### Commits
@@ -72,7 +83,8 @@ Adding `[CI]` to a push commit message triggers Flutter CI on push (PRs always r
 Project skills in `.claude/skills/`:
 
 - `/start-work [issue#]` — pick/confirm an issue, create the convention branch off fresh `develop`.
-- `/verify-loop` — codegen → analyze → test; fix and repeat until green (mirrors CI).
+- `/verify-loop` — codegen → analyze → test (+ Appium `ui-test` for publishing/UI changes); fix and repeat until green.
+- `/ui-test` — run the Appium UI suite on the emulator; mandatory for `🐋 Type: Publish` / UI changes.
 - `/ship` — commit remaining work, push, open a PR that passes the title check.
 - `/work-loop` — implement → verify → commit cycle on the current branch.
 - `/full-loop` — full cycle for one issue: start-work → work-loop → ship.
