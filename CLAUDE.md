@@ -26,6 +26,37 @@ Dev task runner at the repo root: `dev.ps1` (Windows) / `dev.sh` (macOS/Linux). 
 
 Extra flags pass through, e.g. `.\dev.ps1 prod -d emulator-5554`. Both scripts bail early if `fvm` isn't installed.
 
+Optional `flooding` shortcut (per-machine, not committed) — drop a shell function in your profile so you can run `flooding prod` from any directory instead of `.\dev.ps1 prod`. It walks up from the cwd to find `dev.ps1`/`dev.sh`, falling back to a hardcoded repo path.
+
+```powershell
+# PowerShell: add to $PROFILE
+function flooding {
+    $fallback = 'C:\path\to\Flooding-App-V2'   # your repo path
+    $dir = (Get-Location).Path; $script = $null
+    while ($dir) {
+        $c = Join-Path $dir 'dev.ps1'
+        if (Test-Path $c) { $script = $c; break }
+        $p = Split-Path $dir -Parent; if ($p -eq $dir) { break }; $dir = $p
+    }
+    if (-not $script) { $script = Join-Path $fallback 'dev.ps1' }
+    & $script @args
+}
+```
+
+```sh
+# zsh/bash: add to ~/.zshrc (or ~/.bashrc)
+flooding() {
+    local fallback="$HOME/path/to/Flooding-App-V2"   # your repo path
+    local dir="$PWD" script=""
+    while [ -n "$dir" ]; do
+        if [ -f "$dir/dev.sh" ]; then script="$dir/dev.sh"; break; fi
+        [ "$dir" = "/" ] && break; dir="$(dirname "$dir")"
+    done
+    [ -z "$script" ] && script="$fallback/dev.sh"
+    "$script" "$@"
+}
+```
+
 - Env is selected by `--dart-define=ENV={dev|prod}` (default `dev`), read in `lib/core/config/env.dart` as `Env.flavor` — not Android product flavors. `--profile` is a Flutter build mode (perf), orthogonal to env.
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
 - CI reads the pinned version from `.fvmrc` (`flutter-ci.yaml`, `appium-ui.yml`).
