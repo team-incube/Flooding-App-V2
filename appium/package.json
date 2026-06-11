@@ -6,7 +6,7 @@
     "postinstall": "patch-package",
     "driver:install": "appium driver install --source npm appium-flutter-integration-driver || appium driver update flutter-integration",
     "driver:list": "appium driver list --installed",
-    "build:app": "cd .. && flutter build apk --debug --target integration_test/appium_test.dart",
+    "build:app": "cd .. && flutter build apk --debug --flavor dev --target integration_test/appium_test.dart",
     "test": "wdio run ./wdio.conf.ts"
   },
   "overrides": {

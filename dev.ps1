@@ -1,8 +1,9 @@
 #!/usr/bin/env pwsh
-# Dev task runner. Usage: .\dev.ps1 <setup|prod|profile|gen> [extra args]
+# Dev task runner. Usage: .\dev.ps1 <setup|dev|prod|profile|gen> [extra args]
 #   setup    fvm install + pub get + build_runner (also seeds .env.* from .env.example)
-#   prod     run against prod env  (--dart-define=ENV=prod)
-#   profile  run in profile mode   (--profile --dart-define=ENV=prod)
+#   dev      run dev flavor       (--flavor dev   -> loads .env.dev)
+#   prod     run prod flavor      (--flavor prod  -> loads .env.prod)
+#   profile  run prod in profile  (--profile --flavor prod)
 #   gen      build_runner build    (`.\dev.ps1 gen --watch` to watch)
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
@@ -31,8 +32,9 @@ switch ($cmd) {
         fvm flutter pub get
         fvm dart run build_runner build --delete-conflicting-outputs
     }
-    'prod'    { fvm flutter run --dart-define=ENV=prod @rest }
-    'profile' { fvm flutter run --profile --dart-define=ENV=prod @rest }
+    'dev'     { fvm flutter run --flavor dev @rest }
+    'prod'    { fvm flutter run --flavor prod @rest }
+    'profile' { fvm flutter run --profile --flavor prod @rest }
     'gen' {
         if ($rest.Count -gt 0 -and $rest[0] -eq '--watch') {
             $watchArgs = if ($rest.Count -gt 1) { $rest[1..($rest.Count - 1)] } else { @() }
@@ -42,10 +44,11 @@ switch ($cmd) {
         }
     }
     default {
-        Write-Host 'Usage: .\dev.ps1 <setup|prod|profile|gen> [args]'
+        Write-Host 'Usage: .\dev.ps1 <setup|dev|prod|profile|gen> [args]'
         Write-Host '  setup    fvm install + pub get + build_runner (seeds .env.* from .env.example)'
-        Write-Host '  prod     run with --dart-define=ENV=prod'
-        Write-Host '  profile  run with --profile --dart-define=ENV=prod'
+        Write-Host '  dev      run with --flavor dev'
+        Write-Host '  prod     run with --flavor prod'
+        Write-Host '  profile  run with --profile --flavor prod'
         Write-Host '  gen      build_runner build (gen --watch to watch)'
         if ($cmd) { exit 1 }
     }

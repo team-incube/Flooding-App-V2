@@ -37,6 +37,24 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Build flavors: dev/prod. Select with `flutter run --flavor dev|prod`.
+    // The Dart side reads the active flavor via `appFlavor` (see lib/core/config/env.dart)
+    // to load `.env.dev` / `.env.prod`.
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            // Distinct applicationId so dev and prod can be installed side by side.
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "flooding Dev")
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "flooding")
+        }
+    }
 }
 
 flutter {

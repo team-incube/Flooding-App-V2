@@ -12,7 +12,7 @@ fvm flutter pub get
 fvm dart run build_runner build      # generates *.g.dart / *.freezed.dart (not committed)
 fvm flutter analyze --no-fatal-infos # CI gate
 fvm flutter test                     # CI runs only if test/ contains *_test.dart
-fvm flutter run --dart-define=ENV=prod  # env defaults to dev; pass prod explicitly
+fvm flutter run --flavor dev         # build flavor selects env; pass --flavor prod for prod
 ```
 
 Dev task runner at the repo root: `dev.ps1` (Windows) / `dev.sh` (macOS/Linux). Call by path with a subcommand — `.\dev.ps1 prod` or `./dev.sh prod` (PowerShell needs the `.\` prefix):
@@ -20,8 +20,9 @@ Dev task runner at the repo root: `dev.ps1` (Windows) / `dev.sh` (macOS/Linux). 
 | Subcommand | Does |
 |---|---|
 | `setup` | `fvm install` + `pub get` + `build_runner build`; seeds missing `.env.dev`/`.env.prod` from `.env.example` |
-| `prod` | `fvm flutter run --dart-define=ENV=prod` |
-| `profile` | `fvm flutter run --profile --dart-define=ENV=prod` |
+| `dev` | `fvm flutter run --flavor dev` |
+| `prod` | `fvm flutter run --flavor prod` |
+| `profile` | `fvm flutter run --profile --flavor prod` |
 | `gen` | `fvm dart run build_runner build` (`gen --watch` to watch) |
 
 Extra flags pass through, e.g. `.\dev.ps1 prod -d emulator-5554`. Both scripts bail early if `fvm` isn't installed.
@@ -57,7 +58,7 @@ flooding() {
 }
 ```
 
-- Env is selected by `--dart-define=ENV={dev|prod}` (default `dev`), read in `lib/core/config/env.dart` as `Env.flavor` — not Android product flavors. `--profile` is a Flutter build mode (perf), orthogonal to env.
+- Env is selected by the **build flavor** (`--flavor {dev|prod}`). `lib/core/config/env.dart` reads the active flavor via `appFlavor` (defaults to `dev` when none, e.g. `flutter test`) and loads `.env.{flavor}`. Android `productFlavors` live in `android/app/build.gradle.kts`; `dev` gets `applicationIdSuffix .dev` so dev/prod install side by side. Because flavors are defined, **every `flutter build`/`run` needs `--flavor`** (CI and the appium build pass it). `--profile` is a Flutter build mode (perf), orthogonal to flavor. (iOS flavor schemes are not yet configured — needs Xcode/macOS; tracked separately.)
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
 - CI reads the pinned version from `.fvmrc` (`flutter-ci.yaml`, `appium-ui.yml`).
 

@@ -18,7 +18,7 @@ const udid = process.env.ANDROID_UDID ?? 'emulator-5554';
 // 인증을 우회해 곧장 home 으로 진입하는 빌드다.
 const appPath = path.resolve(
   __dirname,
-  '../build/app/outputs/flutter-apk/app-debug.apk',
+  '../build/app/outputs/flutter-apk/app-dev-debug.apk',
 );
 
 export const config: WebdriverIO.Config = {

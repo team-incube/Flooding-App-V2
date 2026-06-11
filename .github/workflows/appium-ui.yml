@@ -64,7 +64,7 @@ jobs:
 
       # 인증 우회 엔트리포인트(integration_test/appium_test.dart)로 테스트용 APK 를 만든다.
       - name: Build test APK
-        run: flutter build apk --debug --target integration_test/appium_test.dart
+        run: flutter build apk --debug --flavor dev --target integration_test/appium_test.dart
 
       - name: Set up Node
         uses: actions/setup-node@v4
