@@ -10,7 +10,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Env {
   Env._();
 
-  static String get flavor => appFlavor ?? 'dev';
+  static String? _overrideFlavor;
+  static set overrideFlavor(String? value) => _overrideFlavor = value;
+  static String get flavor => _overrideFlavor ?? appFlavor ?? 'dev';
 
   /// `main` 에서 앱 시작 전 1회 호출한다.
   static Future<void> load() => dotenv.load(fileName: '.env.$flavor');
