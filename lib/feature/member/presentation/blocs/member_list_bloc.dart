@@ -27,11 +27,7 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
   Future<void> _onLoad(Emitter<MemberListState> emit) async {
     emit(const MemberListState.loading());
     _allMembers = await _getMembers();
-    if (_allMembers.isEmpty) {
-      emit(const MemberListState.empty());
-    } else {
-      emit(MemberListState.loaded(memberList: _allMembers));
-    }
+    emit(MemberListState.loaded(memberList: _allMembers));
   }
 
   void _onFilter(

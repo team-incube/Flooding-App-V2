@@ -12,8 +12,6 @@ class MemberListState with _$MemberListState {
 
   const factory MemberListState.loading() = _Loading;
 
-  const factory MemberListState.empty() = _Empty;
-
   const factory MemberListState.loaded({
     required List<MemberModel> memberList,
   }) = _Loaded;

@@ -18,7 +18,6 @@ class RequestMemberListLayout extends StatelessWidget {
     required this.filterAction,
     required this.emptyIcon,
     required this.memberList,
-    required this.isEmpty,
   });
 
   final Widget searchBar;
@@ -26,7 +25,6 @@ class RequestMemberListLayout extends StatelessWidget {
   final List<MemberModel> memberList;
   final OnFilterSubmit filterAction;
   final Widget emptyIcon;
-  final bool isEmpty;
 
   static const double _bottomPadding = 112;
   static const double _emptyTopPadding = 125;
@@ -75,18 +73,14 @@ class RequestMemberListLayout extends StatelessWidget {
     );
 
     return CustomScrollView(
-      physics: !isEmpty
+      physics: memberList.isNotEmpty
           ? const ClampingScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       slivers: [
         titleBar,
-        if (!isEmpty) ...{
-          if (memberList.isNotEmpty) ...{
-            _MemberGridLayout(memberList: memberList),
-            const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
-          } else
-            //TODO : 보여지는 리스트, (filtering 결과)가 없을 때 보여지는 화면 디자인 결정 나면 정의
-            ...{},
+        if (memberList.isNotEmpty) ...{
+          _MemberGridLayout(memberList: memberList),
+          const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
         } else ...{
           const SliverToBoxAdapter(child: SizedBox(height: _emptyTopPadding)),
           SliverFillRemaining(child: Center(child: emptyIcon)),

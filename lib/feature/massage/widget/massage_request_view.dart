@@ -51,12 +51,12 @@ class _MassageRequestViewState extends State<MassageRequestView> {
             subTitle: '안마 의자 신청 시간은 20:20 ~ 21:00에 신청이 가능해요',
             tipTitle: '※ 여학생의 경우 여자 사감선생님께 별도로 신청해주시기 바랍니다.',
           ),
-          memberList: state.whenOrNull(
+          memberList:
+              state.whenOrNull(
                 loaded: (list) => list,
                 filtered: (list) => list,
               ) ??
               [],
-          isEmpty: state.whenOrNull(empty: () => true) ?? false,
         );
       },
     );

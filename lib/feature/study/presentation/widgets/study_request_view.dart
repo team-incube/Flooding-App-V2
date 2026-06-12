@@ -50,12 +50,12 @@ class _StudyRequestViewState extends State<StudyRequestView> {
             title: '자습 신청한 인원이 없습니다.',
             subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
           ),
-          memberList: state.whenOrNull(
+          memberList:
+              state.whenOrNull(
                 loaded: (list) => list,
                 filtered: (list) => list,
               ) ??
               [],
-          isEmpty: state.whenOrNull(empty: () => true) ?? false,
         );
       },
     );
