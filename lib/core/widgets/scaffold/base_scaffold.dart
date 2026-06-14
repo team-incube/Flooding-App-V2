@@ -14,6 +14,7 @@ class BaseScaffold extends StatelessWidget {
   const BaseScaffold({
     super.key,
     required this.body,
+    this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
     this.appBar,
     this.showDefaultAppBar = true,
     this.onMenuTap,
@@ -23,6 +24,7 @@ class BaseScaffold extends StatelessWidget {
   });
 
   final Widget body;
+  final EdgeInsets padding;
   final PreferredSizeWidget? appBar;
   final bool showDefaultAppBar;
 
@@ -41,7 +43,7 @@ class BaseScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
       appBar: resolvedAppBar,
-      body: Padding(padding: const EdgeInsets.all(AppSpacing.s24), child: body),
+      body: Padding(padding: padding, child: body),
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
       // TODO: controller에서 접속 중인 유저 정보 불러오기
       endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),

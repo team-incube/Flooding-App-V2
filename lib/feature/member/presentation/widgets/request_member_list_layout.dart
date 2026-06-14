@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_size.dart';
-import '../../../core/constants/app_spacing.dart';
-import '../../../core/theme/color/app_colors.dart';
-import '../../../core/theme/icon/app_icon.dart';
-import '../../../core/theme/text_style/app_text_style.dart';
+import '../../../../core/constants/app_size.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/theme/icon/app_icon.dart';
+import '../../../../core/theme/text_style/app_text_style.dart';
+import '../models/member_model.dart';
 import 'member_filter_dialog.dart';
 import 'member_card.dart';
-import 'package:flooding_v2/feature/member/view_models/member_view_model.dart';
 
 class RequestMemberListLayout extends StatelessWidget {
   const RequestMemberListLayout({
@@ -22,7 +22,7 @@ class RequestMemberListLayout extends StatelessWidget {
 
   final Widget searchBar;
   final String title;
-  final List<MemberViewModel> memberList;
+  final List<MemberModel> memberList;
   final OnFilterSubmit filterAction;
   final Widget emptyIcon;
 
@@ -58,7 +58,6 @@ class RequestMemberListLayout extends StatelessWidget {
           () => MemberFilterDialog(onSubmit: filterAction).show(context),
         ),
       ],
-
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(AppSize.s84),
         child: Padding(
@@ -94,7 +93,7 @@ class RequestMemberListLayout extends StatelessWidget {
 class _MemberGridLayout extends StatelessWidget {
   const _MemberGridLayout({required this.memberList});
 
-  final List<MemberViewModel> memberList;
+  final List<MemberModel> memberList;
 
   @override
   Widget build(BuildContext context) {

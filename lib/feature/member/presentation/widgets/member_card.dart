@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_radius.dart';
-import '../../../core/constants/app_size.dart';
-import '../../../core/constants/app_spacing.dart';
-import '../../../core/theme/color/app_colors.dart';
-import '../../../core/theme/icon/app_icon.dart';
-import '../../../core/theme/text_style/app_text_style.dart';
+import '../../../../core/theme/icon/app_icon.dart';
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_size.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/theme/text_style/app_text_style.dart';
 import 'package:flooding_v2/core/enum/gender.dart';
-import 'package:flooding_v2/feature/member/view_models/member_view_model.dart';
+
+import '../models/member_model.dart';
 
 
 class MemberCard extends StatelessWidget {
@@ -16,7 +17,7 @@ class MemberCard extends StatelessWidget {
   static const Size fixedSize = Size(173, 165);
 
   final int number;
-  final MemberViewModel model;
+  final MemberModel model;
 
   @override
   Widget build(BuildContext context) {
