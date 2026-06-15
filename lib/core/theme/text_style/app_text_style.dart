@@ -16,47 +16,52 @@ class AppTextStyle {
   // Title
   static const TextStyle title1 = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: bold, // Bold
     height: _lineHeight,
   );
   static const TextStyle title2 = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 20,
-    fontWeight: semiBold, // SemiBold
+    fontSize: 24,
+    fontWeight: bold, // Bold
     height: _lineHeight,
   );
   static const TextStyle title3 = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: semiBold, // SemiBold
+    height: _lineHeight,
+  );
+  static const TextStyle title4 = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 20,
+    fontWeight: medium, // medium
     height: _lineHeight,
   );
 
   // Text
   static const TextStyle text1 = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: semiBold, // SemiBold
     height: _lineHeight,
   );
   static const TextStyle text2 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 16,
-    fontWeight: medium, // Medium
+    fontWeight: semiBold, // SemiBold
     height: _lineHeight,
   );
   static const TextStyle text3 = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
-
   static const TextStyle text4 = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 15,
-    fontWeight: medium,
+    fontWeight: medium, // Medium
     height: _lineHeight,
   );
 

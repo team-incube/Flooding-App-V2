@@ -1,3 +1,4 @@
+import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
 import 'package:flooding_v2/feature/member/domain/usecases/get_massage_members_usecase.dart';
@@ -74,6 +75,10 @@ GoRouter createAppRouter(AuthController auth) {
               )..add(MemberListEvent.load()),
               child: const MassageRequestView(),
             ),
+          ),
+          GoRoute(
+            path: RoutePath.songRequestDetail,
+            builder: (context, state) => const SongDetailView(),
           ),
         ],
         builder: (context, state, child) {

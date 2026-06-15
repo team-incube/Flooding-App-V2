@@ -53,6 +53,17 @@ class AppIcon {
       _svg('filter.svg', size: size, color: color);
   static Widget graduationCap({double size = AppSize.s24, Color? color}) =>
       _svg('graduation_cap.svg', size: size, color: color);
+  static Widget moreVertical({double size = AppSize.s24, Color? color}) =>
+      _svg('more_vertical.svg', size: size, color: color);
+  static Widget heart({double size = AppSize.s24, Color? color}) =>
+      _svg('heart.svg', size: size, color: color);
+  static Widget filledHeart({double size = AppSize.s24, Color? color}) =>
+      _svg('filled_heart.svg', size: size, color: color);
+  static Widget back({double size = AppSize.s24, Color? color}) =>
+      _svg('back.svg', size: size, color: color);
+  static Widget search({double size = AppSize.s24, Color? color}) =>
+      _svg('search.svg', size: size, color: color);
+
 
 
   // 메뉴 드로어
@@ -66,8 +77,8 @@ class AppIcon {
       _svg('logout.svg', size: size, color: color);
   static Widget withdraw({double size = AppSize.s24, Color? color}) =>
       _svg('withdraw.svg', size: size, color: color);
-  static Widget profileEdit({double size = AppSize.s24, Color? color}) =>
-      _svg('profile_edit.svg', size: size, color: color);
+  static Widget trash({double size = AppSize.s24, Color? color}) =>
+      _svg('trash.svg', size: size, color: color);
 
   /// 프로필 기본 아바타(52px, 풀컬러라 색 인자는 두지 않는다).
   static Widget avatar({double size = AppSize.s52}) =>

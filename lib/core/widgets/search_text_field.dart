@@ -11,10 +11,12 @@ class SearchTextField extends StatelessWidget {
     super.key,
     required this.textEditingController,
     required this.hintText,
+    this.onChanged,
   });
 
   final TextEditingController textEditingController;
   final String hintText;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,7 @@ class SearchTextField extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: TextField(
         controller: textEditingController,
+        onChanged: onChanged,
         style: AppTextStyle.text3.copyWith(color: AppColors.lightMainText),
         decoration: InputDecoration(
           isCollapsed: true,
