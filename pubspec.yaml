@@ -44,10 +44,15 @@ dependencies:
   json_annotation: ^4.12.0
   freezed_annotation: ^3.1.0
   go_router: ^17.2.3
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  # Appium UI 테스트 서버 (appium-flutter-integration-driver 연동)
+  appium_flutter_server: ^0.0.33
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

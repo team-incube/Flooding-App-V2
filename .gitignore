@@ -68,3 +68,7 @@ GoogleService-Info.plist
 
 # FVM (Flutter Version Management)
 .fvm/
+
+# oh-my-claudecode
+.omc/
+.omx/
