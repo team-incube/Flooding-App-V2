@@ -94,17 +94,18 @@ class _SongRequestCardState extends State<SongRequestCard> {
                     ),
                   ),
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Container(
-                    height: 41,
-                    width: 41,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.lightSub4,
-                      borderRadius: BorderRadius.circular(8),
+                Material(
+                  color: AppColors.lightSub4,
+                  borderRadius: BorderRadius.circular(8),
+
+                  child: InkWell(
+                    onTap: () {},
+                    child: Container(
+                      height: 41,
+                      width: 41,
+                      padding: const EdgeInsets.all(8),
+                      child: AppIcon.trash(),
                     ),
-                    child: AppIcon.trash(),
                   ),
                 ),
               ],
