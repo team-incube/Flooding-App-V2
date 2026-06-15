@@ -1,0 +1,109 @@
+name: Appium UI Test
+
+# 퍼블리싱/UI 관련 변경이 있는 PR 에서만 에뮬레이터를 띄워 Appium UI 테스트를 돌린다.
+# (에뮬레이터 부팅 + APK 빌드로 수 분 걸리므로 경로 필터로 불필요한 실행을 줄인다.)
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'lib/**'
+      - 'integration_test/**'
+      - 'appium/**'
+      - 'pubspec.yaml'
+      - '.github/workflows/appium-ui.yml'
+
+# 같은 PR 에 새 푸시가 오면 진행 중이던 실행을 취소한다.
+concurrency:
+  group: appium-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  appium-ui-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # .env.dev / .env.prod 는 gitignore 되어 러너에 없다. flutter-ci 와 동일하게
+      # .env.example 을 복사해 분석/빌드용 파일을 만든다(실 시크릿은 주입하지 않는다).
+      - name: Prepare env files
+        run: |
+          for f in .env.dev .env.prod; do
+            [ -f "$f" ] || cp .env.example "$f"
+          done
+
+      - name: Read FVM config
+        run: |
+          if [ -f ".fvmrc" ]; then
+            FLUTTER_VERSION=$(jq -r '.flutter' .fvmrc)
+          elif [ -f ".fvm/fvm_config.json" ]; then
+            FLUTTER_VERSION=$(jq -r '.flutterSdkVersion' .fvm/fvm_config.json)
+          else
+            FLUTTER_VERSION=""
+            echo "::notice::FVM 설정 파일 없음, stable 채널 최신 버전 사용"
+          fi
+          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # freezed/json_serializable/retrofit 생성물은 커밋하지 않으므로 매번 생성한다.
+      - name: Generate code
+        run: |
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          else
+            echo "::notice::build_runner 미사용, 코드 생성 건너뜀"
+          fi
+
+      # 인증 우회 엔트리포인트(integration_test/appium_test.dart)로 테스트용 APK 를 만든다.
+      - name: Build test APK
+        run: flutter build apk --debug --target integration_test/appium_test.dart
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: appium/package-lock.json
+
+      # npm ci 의 postinstall 이 patch-package 로 wdio-flutter-by-service 패치를 적용한다.
+      - name: Install Appium deps
+        working-directory: appium
+        run: |
+          npm ci
+          npm run driver:install
+
+      # 중첩 가상화(KVM) 를 켜야 x86_64 에뮬레이터가 부팅된다.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # 에뮬레이터(emulator-5554)를 띄운 뒤 script 를 실행한다.
+      # wdio.conf.ts 기본 udid 가 emulator-5554 라 별도 설정이 필요 없다.
+      - name: Run Appium UI tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          ram-size: 4096M
+          disable-animations: true
+          script: cd appium && npm test
+
+      - name: Upload wdio/appium logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-logs
+          path: appium/logs/
+          if-no-files-found: ignore
