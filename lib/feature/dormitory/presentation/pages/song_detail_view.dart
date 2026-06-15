@@ -2,11 +2,13 @@ import 'package:flooding_v2/core/constants/app_spacing.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
-import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
-import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_actions.dart';
 import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/song_request_card.dart';
 import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(home: Scaffold(body: SongDetailView())));
+}
 
 class SongDetailView extends StatefulWidget {
   const SongDetailView({super.key});
@@ -21,13 +23,15 @@ class _SongDetailViewState extends State<SongDetailView> {
 
   final _songs = [
     {
-      'song': '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
+      'song':
+          '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
       'grade': '2205',
       'name': '류수연',
       'requestedAt': DateTime.now(),
     },
     {
-      'song': '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
+      'song':
+          '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
       'grade': '2205',
       'name': '류수연',
       'requestedAt': DateTime.now(),
@@ -68,15 +72,15 @@ class _SongDetailViewState extends State<SongDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    final q = _query.toLowerCase();
+    final filterSongs = q.isEmpty
+        ? _songs
+        : _songs.where((song) {
+            return (song['song'] as String).toLowerCase().contains(q) ||
+                (song['name'] as String).toLowerCase().contains(q);
+          }).toList();
 
-    final filterSongs = _query.isEmpty ? _songs : _songs.where((song) {
-      final q = _query.toLowerCase();
-      return (song['song'] as String).toLowerCase().contains(q) || (song['name'] as String).toLowerCase().contains(q);
-    }).toList();
-    return BaseScaffold(
-      backgroundColor: AppColors.lightBackground,
-      showDefaultAppBar: true,
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
@@ -118,14 +122,13 @@ class _SongDetailViewState extends State<SongDetailView> {
                     requestedAt: song['requestedAt'] as DateTime,
                   );
                 },
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s16),
-                itemCount: filterSongs.length
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.s16),
+                itemCount: filterSongs.length,
               ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: const FloatingActions.both()
     );
   }
 }
