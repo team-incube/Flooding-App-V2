@@ -84,7 +84,10 @@ class _SongDetailViewState extends State<SongDetailView> {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
-                  AppIcon.back(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: AppIcon.back(),
+                  ),
                   const SizedBox(width: AppSpacing.s4),
                   Text(
                     '음악신청',
