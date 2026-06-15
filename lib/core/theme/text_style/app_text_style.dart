@@ -65,13 +65,6 @@ class AppTextStyle {
     height: _lineHeight,
   );
 
-  static const TextStyle text4 = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 15,
-    fontWeight: medium,
-    height: _lineHeight,
-  );
-
   // Caption
   static const TextStyle caption1 = TextStyle(
     fontFamily: _fontFamily,
