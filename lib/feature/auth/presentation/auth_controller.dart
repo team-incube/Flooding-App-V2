@@ -4,6 +4,7 @@ import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
 import '../data/datagsm_auth_service.dart';
 import '../data/datasources/token_storage.dart';
+import 'blocs/user_cubit.dart';
 import 'pages/oauth_webview_page.dart';
 
 /// 앱 전역 인증 상태.
@@ -22,8 +23,12 @@ enum AuthStatus {
 /// 갱신 실패) 시에도 [DatagsmAuthService] 에 주입한 콜백으로 상태가 갱신돼
 /// 로그인 화면으로 되돌아간다.
 class AuthController extends ChangeNotifier {
-  AuthController({DatagsmAuthService? authService, TokenStorage? tokenStorage})
-    : _tokenStorage = tokenStorage ?? TokenStorage() {
+  AuthController({
+    DatagsmAuthService? authService,
+    TokenStorage? tokenStorage,
+    UserCubit? userCubit,
+  }) : _tokenStorage = tokenStorage ?? TokenStorage(),
+       _userCubit = userCubit ?? UserCubit() {
     _authService =
         authService ??
         DatagsmAuthService(
@@ -33,7 +38,11 @@ class AuthController extends ChangeNotifier {
   }
 
   final TokenStorage _tokenStorage;
+  final UserCubit _userCubit;
   late final DatagsmAuthService _authService;
+
+  /// 현재 로그인 사용자 정보(이름·학번·역할)를 보관하는 cubit.
+  UserCubit get userCubit => _userCubit;
 
   // 초기값. 앱 시작 시 runApp 이전에 bootstrap() 으로 실제 상태가 채워진다.
   AuthStatus _status = AuthStatus.unauthenticated;
@@ -78,6 +87,7 @@ class AuthController extends ChangeNotifier {
 
       final user = await _authService.fetchUserInfo();
       Logger.d('로그인 성공: ${user.email}', tag: 'AUTH');
+      _userCubit.setUser(user);
 
       _set(AuthStatus.authenticated);
     } on AuthException catch (e) {
@@ -91,6 +101,7 @@ class AuthController extends ChangeNotifier {
   /// 세션 만료(토큰 갱신 실패) 시 저장 토큰을 비우고 미인증 상태로 되돌린다.
   Future<void> _onSessionExpired() async {
     await _tokenStorage.clear();
+    _userCubit.clear();
     _set(AuthStatus.unauthenticated);
   }
 
@@ -101,8 +112,15 @@ class AuthController extends ChangeNotifier {
   }
 
   void _fail(String message) {
+    _userCubit.clear();
     _error = message;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _userCubit.close();
+    super.dispose();
   }
 }

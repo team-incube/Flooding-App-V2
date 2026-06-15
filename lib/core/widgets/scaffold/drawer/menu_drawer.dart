@@ -19,7 +19,7 @@ class MenuDrawer extends StatefulWidget {
   });
 
   final String userName;
-  final String studentId;
+  final int studentId;
   final VoidCallback? onProfileEdit;
 
   static const double _cornerRadius = 20;
@@ -141,7 +141,7 @@ class _ProfileCard extends StatelessWidget {
   });
 
   final String userName;
-  final String studentId;
+  final int studentId;
   final VoidCallback? onEdit;
 
   @override
@@ -163,7 +163,7 @@ class _ProfileCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.s4),
               Text(
-                studentId,
+                '$studentId',
                 style: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
               ),
             ],

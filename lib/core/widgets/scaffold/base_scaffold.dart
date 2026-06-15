@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../feature/auth/presentation/blocs/user_cubit.dart';
 import '../../constants/app_size.dart';
 import '../../constants/app_spacing.dart';
 import '../../theme/color/app_colors.dart';
@@ -40,13 +42,16 @@ class BaseScaffold extends StatelessWidget {
         appBar ??
         (showDefaultAppBar ? _FloodingLogoAppBar(onMenuTap: onMenuTap) : null);
 
+    final userState = context.watch<UserCubit>().state;
+    final userName = userState.name ?? '';
+    final studentId = userState.studentId ?? 0;
+
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
       appBar: resolvedAppBar,
       body: Padding(padding: padding, child: body),
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
-      // TODO: controller에서 접속 중인 유저 정보 불러오기
-      endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),
+      endDrawer: MenuDrawer(userName: userName, studentId: studentId),
       // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용
       // (디자인: BackGroundColor #F7F7F9 50%).
       drawerScrimColor: Colors.transparent,

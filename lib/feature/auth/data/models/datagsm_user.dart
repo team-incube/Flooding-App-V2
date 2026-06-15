@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'student_role.dart';
+
 part 'datagsm_user.freezed.dart';
 part 'datagsm_user.g.dart';
 
@@ -33,7 +35,7 @@ abstract class DatagsmStudent with _$DatagsmStudent {
     String? specialty,
     int? dormitoryFloor,
     int? dormitoryRoom,
-    String? role,
+    @JsonKey(unknownEnumValue: StudentRole.genderalStudent) StudentRole? role,
     @JsonKey(name: 'isLeaveSchool') @Default(false) bool isLeaveSchool,
   }) = _DatagsmStudent;
 

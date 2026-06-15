@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/core/route/route.dart';
@@ -39,13 +40,16 @@ class _FloodingAppState extends State<FloodingApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'flooding_v2',
-      debugShowCheckedModeBanner: false,
-      theme: LightTheme.theme,
-      darkTheme: DarkTheme.theme,
-      themeMode: ThemeMode.system,
-      routerConfig: _router,
+    return BlocProvider.value(
+      value: widget.authController.userCubit,
+      child: MaterialApp.router(
+        title: 'flooding_v2',
+        debugShowCheckedModeBanner: false,
+        theme: LightTheme.theme,
+        darkTheme: DarkTheme.theme,
+        themeMode: ThemeMode.system,
+        routerConfig: _router,
+      ),
     );
   }
 }

@@ -1,0 +1,1 @@
+enum Role { genderalStudent, dormitoryManager }
