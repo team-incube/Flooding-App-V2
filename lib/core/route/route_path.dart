@@ -9,6 +9,7 @@ abstract final class RoutePath {
   static const String dormitory = '/dormitory';
   static const String requestStudy = '/request_study';
   static const String requestMassage = '/request_massage';
+  static const songRequestDetail = '/song_request_detail';
 
   /// AI 챗봇 대화 화면.
   static const String aiChat = '/ai_chat';
