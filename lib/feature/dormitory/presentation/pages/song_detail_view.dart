@@ -77,13 +77,9 @@ class _SongDetailViewState extends State<SongDetailView> {
                 (song['name'] as String).toLowerCase().contains(q);
           }).toList();
 
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
-        child: Column(
+    return Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              child: Row(
+            Row(
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -99,7 +95,6 @@ class _SongDetailViewState extends State<SongDetailView> {
                   const Spacer(flex: 1),
                   IconButton(onPressed: () {}, icon: AppIcon.calendar()),
                 ],
-              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -125,7 +120,6 @@ class _SongDetailViewState extends State<SongDetailView> {
               ),
             ),
           ],
-        ),
     );
   }
 }

@@ -1,4 +1,6 @@
+import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_size.dart';
@@ -175,6 +177,29 @@ class _WakeMusicCard extends StatelessWidget {
                       style: AppTextStyle.caption1.copyWith(
                         color: AppColors.lightSub1,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(flex: 1),
+              GestureDetector(
+                onTap: () {
+                  context.push(RoutePath.songRequestDetail);
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '전체보기',
+                      style: AppTextStyle.caption1.copyWith(
+                        color: AppColors.lightHintText,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.s4),
+                    AppIcon.chevronRight(
+                      size: AppSize.s14,
+                      color: AppColors.lightSub2,
                     ),
                   ],
                 ),
