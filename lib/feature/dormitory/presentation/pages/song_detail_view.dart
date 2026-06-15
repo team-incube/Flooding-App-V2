@@ -6,7 +6,6 @@ import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/song_request_card.dart';
 import 'package:flutter/material.dart';
 
-
 class SongDetailView extends StatefulWidget {
   const SongDetailView({super.key});
 
@@ -78,48 +77,81 @@ class _SongDetailViewState extends State<SongDetailView> {
           }).toList();
 
     return Column(
+      children: [
+        Row(
           children: [
-            Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: AppIcon.back(),
-                  ),
-                  const SizedBox(width: AppSpacing.s4),
-                  Text(
-                    '음악신청',
-                    style: AppTextStyle.text2.copyWith(
-                      color: AppColors.lightMainText,
-                    ),
-                  ),
-                  const Spacer(flex: 1),
-                  IconButton(onPressed: () {}, icon: AppIcon.calendar()),
-                ],
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: AppIcon.back(),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: SearchTextField(
-                textEditingController: _songSearchController,
-                hintText: '학생 이름, 노래 제목을 입력해주세요',
+            const SizedBox(width: AppSpacing.s4),
+            Text(
+              '음악신청',
+              style: AppTextStyle.text2.copyWith(
+                color: AppColors.lightMainText,
               ),
             ),
-            Expanded(
-              child: ListView.separated(
-                itemBuilder: (context, index) {
-                  final song = filterSongs[index];
-                  return SongRequestCard(
-                    song: song['song'] as String,
-                    grade: song['grade'] as String,
-                    name: song['name'] as String,
-                    requestedAt: song['requestedAt'] as DateTime,
-                  );
-                },
-                separatorBuilder: (_, __) =>
-                    const SizedBox(height: AppSpacing.s16),
-                itemCount: filterSongs.length,
-              ),
-            ),
+            const Spacer(flex: 1),
+            IconButton(onPressed: () {}, icon: AppIcon.calendar()),
           ],
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: SearchTextField(
+            textEditingController: _songSearchController,
+            hintText: '학생 이름, 노래 제목을 입력해주세요',
+          ),
+        ),
+        Expanded(
+          child: _songs.isEmpty
+              ? Align(
+            alignment: const Alignment(0, -0.5),
+                  child: Column(
+                    children: [
+                      AppIcon.speaker(size: 100),
+                      Text(
+                        '기상음악을 신청한 인원이 없습니다.',
+                        style: AppTextStyle.text2.copyWith(
+                          color: AppColors.lightSub2,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : filterSongs.isEmpty
+              ? Align(
+            alignment: const Alignment(0, -0.5),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppIcon.speaker(size: 100),
+                      const SizedBox(height: AppSpacing.s12),
+                      Text(
+                        '검색된 결과가 없습니다.',
+                        style: AppTextStyle.text2.copyWith(
+                          color: AppColors.lightSub2,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  itemBuilder: (context, index) {
+                    final song = filterSongs[index];
+                    return SongRequestCard(
+                      song: song['song'] as String,
+                      grade: song['grade'] as String,
+                      name: song['name'] as String,
+                      requestedAt: song['requestedAt'] as DateTime,
+                    );
+                  },
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: AppSpacing.s16),
+                  itemCount: filterSongs.length,
+                ),
+        ),
+      ],
     );
   }
 }
