@@ -16,19 +16,16 @@ class SongDetailView extends StatefulWidget {
 
 class _SongDetailViewState extends State<SongDetailView> {
   final _songSearchController = TextEditingController();
-  String _query = '';
 
   final _songs = [
     {
-      'song':
-          '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
+      'song': '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
       'grade': '2205',
       'name': '류수연',
       'requestedAt': DateTime.now(),
     },
     {
-      'song':
-          '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
+      'song': '06. 멋진헛간 (Wonderful Barn) – 오대천왕 (The 5 Emperor) (정형돈, 밴드 혁오) (Jeong Hyeong Don, hyukoh)',
       'grade': '2205',
       'name': '류수연',
       'requestedAt': DateTime.now(),
@@ -53,12 +50,13 @@ class _SongDetailViewState extends State<SongDetailView> {
     },
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _songSearchController.addListener(() {
-      setState(() => _query = _songSearchController.text);
-    });
+  List<Map<String, Object>> get _filteredSongs {
+    final q = _songSearchController.text.toLowerCase();
+    if (q.isEmpty) return _songs;
+    return _songs.where((song) {
+      return (song['song'] as String).toLowerCase().contains(q) ||
+          (song['name'] as String).toLowerCase().contains(q);
+    }).toList();
   }
 
   @override
@@ -69,14 +67,6 @@ class _SongDetailViewState extends State<SongDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    final q = _query.toLowerCase();
-    final filterSongs = q.isEmpty
-        ? _songs
-        : _songs.where((song) {
-            return (song['song'] as String).toLowerCase().contains(q) ||
-                (song['name'] as String).toLowerCase().contains(q);
-          }).toList();
-
     return Column(
       children: [
         Row(
@@ -101,56 +91,58 @@ class _SongDetailViewState extends State<SongDetailView> {
           child: SearchTextField(
             textEditingController: _songSearchController,
             hintText: '학생 이름, 노래 제목을 입력해주세요',
+            onChanged: (_) => setState(() {}),
           ),
         ),
         Expanded(
           child: _songs.isEmpty
               ? Align(
             alignment: const Alignment(0, -0.5),
-                  child: Column(
-                    children: [
-                      AppIcon.speaker(size: AppSize.s100),
-                      Text(
-                        '기상음악을 신청한 인원이 없습니다.',
-                        style: AppTextStyle.text2.copyWith(
-                          color: AppColors.lightSub2,
-                        ),
-                      ),
-                    ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIcon.speaker(size: AppSize.s100),
+                const SizedBox(height: AppSpacing.s12),
+                Text(
+                  '기상음악을 신청한 인원이 없습니다.',
+                  style: AppTextStyle.text2.copyWith(
+                    color: AppColors.lightSub2,
                   ),
-                )
-              : filterSongs.isEmpty
+                ),
+              ],
+            ),
+          )
+              : _filteredSongs.isEmpty
               ? Align(
             alignment: const Alignment(0, -0.5),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppIcon.speaker(size: AppSize.s100),
-                      const SizedBox(height: AppSpacing.s12),
-                      Text(
-                        '검색된 결과가 없습니다.',
-                        style: AppTextStyle.text2.copyWith(
-                          color: AppColors.lightSub2,
-                        ),
-                      ),
-                    ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIcon.speaker(size: AppSize.s100),
+                const SizedBox(height: AppSpacing.s12),
+                Text(
+                  '검색된 결과가 없습니다.',
+                  style: AppTextStyle.text2.copyWith(
+                    color: AppColors.lightSub2,
                   ),
-                )
-              : ListView.separated(
-                  itemBuilder: (context, index) {
-                    final song = filterSongs[index];
-                    return SongRequestCard(
-                      song: song['song'] as String,
-                      grade: song['grade'] as String,
-                      name: song['name'] as String,
-                      requestedAt: song['requestedAt'] as DateTime,
-                    );
-                  },
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AppSpacing.s16),
-                  itemCount: filterSongs.length,
                 ),
+              ],
+            ),
+          )
+              : ListView.separated(
+            itemBuilder: (context, index) {
+              final song = _filteredSongs[index];
+              return SongRequestCard(
+                song: song['song'] as String,
+                grade: song['grade'] as String,
+                name: song['name'] as String,
+                requestedAt: song['requestedAt'] as DateTime,
+              );
+            },
+            separatorBuilder: (_, __) =>
+            const SizedBox(height: AppSpacing.s16),
+            itemCount: _filteredSongs.length,
+          ),
         ),
       ],
     );
