@@ -58,7 +58,7 @@ app.*.map.json
 *.mocks.dart
 
 # Environment files
-.env
+.env.dev
 .env.*
 !.env.example
 
