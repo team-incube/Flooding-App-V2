@@ -6,9 +6,6 @@ import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/song_request_card.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MaterialApp(home: Scaffold(body: SongDetailView())));
-}
 
 class SongDetailView extends StatefulWidget {
   const SongDetailView({super.key});
@@ -81,11 +78,11 @@ class _SongDetailViewState extends State<SongDetailView> {
           }).toList();
 
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
               child: Row(
                 children: [
                   GestureDetector(
