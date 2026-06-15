@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
+import '../../feature/study/presentation/blocs/member_selection_cubit.dart';
 import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
@@ -56,14 +57,23 @@ GoRouter createAppRouter(AuthController auth) {
           ),
           GoRoute(
             path: RoutePath.requestStudy,
-            builder: (context, state) => BlocProvider(
-              create: (context) => MemberListBloc(
-                getMembers: GetStudyMembersUseCase(
-                  context.read<MemberRepository>(),
-                ),
-              )..add(MemberListEvent.load()),
-              child: const StudyRequestView(),
-            ),
+            builder: (context, state) {
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (context) => MemberListBloc(
+                      getMembers: GetStudyMembersUseCase(
+                        context.read<MemberRepository>(),
+                      ),
+                    )..add(MemberListEvent.load()),
+                  ),
+                  // 자치회 권한 사용자만 사용하지만, role 분기는 view 에서 하므로
+                  // 여기서는 항상 등록한다(lazy 라 미사용 시 인스턴스도 생성되지 않음).
+                  BlocProvider(create: (context) => MemberSelectionCubit()),
+                ],
+                child: const StudyRequestView(),
+              );
+            },
           ),
           GoRoute(
             path: RoutePath.requestMassage,
