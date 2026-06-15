@@ -97,14 +97,14 @@ class _SongRequestCardState extends State<SongRequestCard> {
                 ),
                 Material(
                   color: AppColors.lightSub4,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppRadius.s8),
 
                   child: InkWell(
                     onTap: () {},
                     child: Container(
                       height: 41,
                       width: 41,
-                      padding: const EdgeInsets.all(8),
+                      padding:  const EdgeInsets.all(AppSpacing.s8),
                       child: AppIcon.trash(),
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:flooding_v2/core/constants/app_size.dart';
 import 'package:flooding_v2/core/constants/app_spacing.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
@@ -96,7 +97,7 @@ class _SongDetailViewState extends State<SongDetailView> {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
           child: SearchTextField(
             textEditingController: _songSearchController,
             hintText: '학생 이름, 노래 제목을 입력해주세요',
@@ -108,7 +109,7 @@ class _SongDetailViewState extends State<SongDetailView> {
             alignment: const Alignment(0, -0.5),
                   child: Column(
                     children: [
-                      AppIcon.speaker(size: 100),
+                      AppIcon.speaker(size: AppSize.s100),
                       Text(
                         '기상음악을 신청한 인원이 없습니다.',
                         style: AppTextStyle.text2.copyWith(
@@ -125,7 +126,7 @@ class _SongDetailViewState extends State<SongDetailView> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AppIcon.speaker(size: 100),
+                      AppIcon.speaker(size: AppSize.s100),
                       const SizedBox(height: AppSpacing.s12),
                       Text(
                         '검색된 결과가 없습니다.',
