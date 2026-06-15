@@ -1,3 +1,4 @@
+import 'package:flooding_v2/core/constants/app_radius.dart';
 import 'package:flooding_v2/core/constants/app_spacing.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
@@ -40,7 +41,7 @@ class _SongRequestCardState extends State<SongRequestCard> {
                   width: 120,
                   decoration: BoxDecoration(
                     color: AppColors.lightSub4,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.s8),
                   ),
                   child: IconButton(
                     onPressed: () {
@@ -51,14 +52,14 @@ class _SongRequestCardState extends State<SongRequestCard> {
                     icon: Align(
                       alignment: Alignment.topLeft,
                         child: isLiked ? AppIcon.filledHeart() : AppIcon.heart()),
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(AppSpacing.s6),
                   ),
                 ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                      horizontal: 12,
+                      vertical: AppSpacing.s2,
+                      horizontal: AppSpacing.s12,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
