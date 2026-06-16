@@ -1,7 +1,8 @@
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/widgets/primary_action_button.dart';
 import 'package:flooding_v2/feature/auth/presentation/blocs/user_cubit.dart';
-import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_cubit.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_bloc.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_event.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,11 +79,11 @@ class RequestMemberListLayout extends StatelessWidget {
                   child: SizedBox(
                     height: 47,
                     child:
-                        BlocBuilder<MemberSelectionCubit, MemberSelectionState>(
+                        BlocBuilder<MemberSelectionBloc, MemberSelectionState>(
                           builder: (context, state) => PrimaryActionButton(
                             label: '출석 완료',
                             expand: true,
-                            enabled: state.selected.isNotEmpty,
+                            enabled: state.checkList.isNotEmpty,
                           ),
                         ),
                   ),
@@ -163,6 +164,9 @@ class _MemberGridLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDormManager = context.role == Role.dormitoryManager;
+    final selectedIds = isDormManager
+        ? context.watch<MemberSelectionBloc>().state.checkList
+        : const <int>{};
 
     return SliverGrid.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -174,21 +178,15 @@ class _MemberGridLayout extends StatelessWidget {
       itemCount: memberList.length,
       itemBuilder: (_, int index) {
         final member = memberList[index];
-        final number = index + 1;
-
-        if (isDormManager) {
-          final isSelected = context.select<MemberSelectionCubit, bool>(
-            (cubit) => cubit.state.selected.contains(member.schoolNb),
-          );
-          return MemberCard.button(
-            number: number,
-            model: member,
-            isSelected: isSelected,
-            onSelect: context.read<MemberSelectionCubit>().toggle,
-          );
-        } else {
-          return MemberCard(model: member, number: number);
-        }
+        if (!isDormManager) return MemberCard(model: member, number: index + 1);
+        return MemberCard.button(
+          number: index + 1,
+          model: member,
+          isSelected: selectedIds.contains(member.schoolNb),
+          onSelect: (schoolNb) => context.read<MemberSelectionBloc>().add(
+            MemberSelectionEvent.check(schoolNb: schoolNb),
+          ),
+        );
       },
     );
   }
