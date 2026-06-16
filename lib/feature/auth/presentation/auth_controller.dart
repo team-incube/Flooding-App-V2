@@ -104,6 +104,11 @@ class AuthController extends ChangeNotifier {
 
       // DataGSM 으로 받은 인가 코드를 Flooding 백엔드로 보내 토큰을 발급받는다.
       // (백엔드가 OAuth 코드 교환을 대신 수행하고 자체 토큰을 내려준다.)
+
+      if (callback.code == null) {
+        throw const AuthException('authCode가 누락되거나 유효하지 않습니다..');
+      }
+
       final tokens = await _floodingAuth.signin(
         authCode: callback.code!,
         redirectUri: Env.datagsmRedirectUri,
