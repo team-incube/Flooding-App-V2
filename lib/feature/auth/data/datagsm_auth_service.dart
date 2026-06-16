@@ -79,14 +79,17 @@ class DatagsmAuthService {
   static const String _resourceBase = 'https://oauth.resource.datagsm.kr';
 
   /// 웹뷰에 띄울 authorize URL 을 생성한다.
+  ///
+  /// 코드 교환은 Flooding 백엔드(`/auth/signin`)가 confidential 클라이언트로
+  /// 수행하므로, 앱은 PKCE(`code_challenge`)를 보내지 않는다. (PKCE 를 붙이면
+  /// 백엔드가 `code_verifier` 없이 교환하다 DataGSM 에 거부당한다.)
+  /// [pkce] 의 `state` 만 CSRF 방지용으로 사용한다.
   Uri buildAuthorizeUri(PkcePair pkce, {String? scope}) {
     return Uri.https(_authorizationHost, '/v1/oauth/authorize', {
       'client_id': Env.datagsmClientId,
       'redirect_uri': Env.datagsmRedirectUri,
       'response_type': 'code',
       'state': pkce.state,
-      'code_challenge': pkce.challenge,
-      'code_challenge_method': Pkce.challengeMethod,
       if (scope != null && scope.isNotEmpty) 'scope': scope,
     });
   }
