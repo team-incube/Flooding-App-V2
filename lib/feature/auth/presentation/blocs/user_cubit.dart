@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/enum/role.dart';
 import '../../data/models/datagsm_user.dart';
-import '../../data/models/student_role.dart';
 import 'user_state.dart';
 
 class UserCubit extends Cubit<UserState> {
@@ -11,15 +10,11 @@ class UserCubit extends Cubit<UserState> {
 
   void setUser(DatagsmUser user) {
     final student = user.student;
-    final role = switch (student?.role) {
-      StudentRole.dormitoryManager => Role.dormitoryManager,
-      _ => Role.generalStudent,
-    };
     emit(
       UserState(
         name: student?.name ?? '익명',
         studentId: student?.studentNumber ?? 0000,
-        role: role,
+        role: student?.role?.toRole,
       ),
     );
   }

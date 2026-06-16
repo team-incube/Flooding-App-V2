@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
-import '../../feature/member/presentation/blocs/member_selection_cubit.dart';
+import '../../feature/member/presentation/blocs/member_selection_bloc.dart';
 import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
 import '../widgets/scaffold/floating_button/floating_action_locations.dart';
@@ -70,7 +70,7 @@ GoRouter createAppRouter(AuthController auth) {
                       ),
                     )..add(MemberListEvent.load()),
                   ),
-                  BlocProvider(create: (context) => MemberSelectionCubit()),
+                  BlocProvider(create: (context) => MemberSelectionBloc()),
                 ],
                 child: const StudyRequestView(),
               );
@@ -78,12 +78,17 @@ GoRouter createAppRouter(AuthController auth) {
           ),
           GoRoute(
             path: RoutePath.requestMassage,
-            builder: (context, state) => BlocProvider(
-              create: (context) => MemberListBloc(
-                getMembers: GetMassageMembersUseCase(
-                  context.read<MemberRepository>(),
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => MemberListBloc(
+                    getMembers: GetMassageMembersUseCase(
+                      context.read<MemberRepository>(),
+                    ),
+                  )..add(MemberListEvent.load()),
                 ),
-              )..add(MemberListEvent.load()),
+                BlocProvider(create: (context) => MemberSelectionBloc()),
+              ],
               child: const MassageRequestView(),
             ),
           ),
