@@ -30,6 +30,13 @@ class _StudyRequestViewState extends State<StudyRequestView> {
   Widget build(BuildContext context) {
     return BlocBuilder<MemberListBloc, MemberListState>(
       builder: (context, state) {
+        final isLoading = state.maybeWhen(
+          initial: () => true,
+          loading: () => true,
+          orElse: () => false,
+        );
+        final errorMessage = state.whenOrNull(error: (message) => message);
+
         return RequestMemberListLayout(
           title: '자습신청',
           searchBar: SearchTextField(
@@ -45,11 +52,13 @@ class _StudyRequestViewState extends State<StudyRequestView> {
               ),
             );
           },
-          emptyIcon: NoMemberIcon(
-            icon: AppIcon.graduationCap(size: AppSize.s100),
-            title: '자습 신청한 인원이 없습니다.',
-            subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
-          ),
+          emptyIcon: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : NoMemberIcon(
+                  icon: AppIcon.graduationCap(size: AppSize.s100),
+                  title: errorMessage ?? '자습 신청한 인원이 없습니다.',
+                  subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
+                ),
           memberList:
               state.whenOrNull(
                 loaded: (list) => list,

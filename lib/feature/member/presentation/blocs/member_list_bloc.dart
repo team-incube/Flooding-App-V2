@@ -12,8 +12,8 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
   MemberListBloc({required GetMembersUseCase getMembers})
     : _getMembers = getMembers,
       super(const MemberListState.initial()) {
-    on<MemberListEvent>((event, emit) {
-      event.when<FutureOr<void>>(
+    on<MemberListEvent>((event, emit) async {
+      await event.when<FutureOr<void>>(
         load: () => _onLoad(emit),
         filter: (grade, classNb, gender) =>
             _onFilter(emit, grade, classNb, gender),
@@ -26,8 +26,21 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
 
   Future<void> _onLoad(Emitter<MemberListState> emit) async {
     emit(const MemberListState.loading());
-    _allMembers = await _getMembers();
-    emit(MemberListState.loaded(memberList: _allMembers));
+    try {
+      _allMembers = await _getMembers();
+      emit(MemberListState.loaded(memberList: _allMembers));
+    } on Exception catch (e) {
+      _allMembers = [];
+      emit(MemberListState.error(message: _messageOf(e)));
+    }
+  }
+
+  String _messageOf(Exception e) {
+    final raw = e.toString();
+    final stripped = raw.startsWith('Exception: ')
+        ? raw.substring('Exception: '.length)
+        : raw;
+    return stripped.isEmpty ? '목록을 불러오지 못했어요.' : stripped;
   }
 
   void _onFilter(

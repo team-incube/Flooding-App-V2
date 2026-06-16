@@ -2,9 +2,12 @@ import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_vie
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
 import 'package:flooding_v2/feature/member/domain/usecases/get_massage_members_usecase.dart';
-import 'package:flooding_v2/feature/member/domain/usecases/get_study_members_usecase.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
+import 'package:flooding_v2/feature/study/data/repositories/study_repository_impl.dart';
+import 'package:flooding_v2/feature/study/domain/study_repository.dart';
+import 'package:flooding_v2/feature/study/presentation/cubit/study_action_cubit.dart';
+import 'package:flooding_v2/feature/study/presentation/usecases/get_study_applicants_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -58,8 +61,8 @@ GoRouter createAppRouter(AuthController auth) {
             path: RoutePath.requestStudy,
             builder: (context, state) => BlocProvider(
               create: (context) => MemberListBloc(
-                getMembers: GetStudyMembersUseCase(
-                  context.read<MemberRepository>(),
+                getMembers: GetStudyApplicantsUseCase(
+                  context.read<StudyRepository>(),
                 ),
               )..add(MemberListEvent.load()),
               child: const StudyRequestView(),
@@ -90,11 +93,20 @@ GoRouter createAppRouter(AuthController auth) {
             _ => const FloatingActions.both(),
           };
 
-          return RepositoryProvider(
-            create: (_) => MemberRepository(),
-            child: BaseScaffold(
-              floatingActionButton: floatingButton,
-              body: child,
+          return MultiRepositoryProvider(
+            providers: [
+              RepositoryProvider(create: (_) => MemberRepository()),
+              RepositoryProvider<StudyRepository>(
+                create: (_) => StudyRepositoryImpl.create(),
+              ),
+            ],
+            child: BlocProvider(
+              create: (ctx) =>
+                  StudyActionCubit(repository: ctx.read<StudyRepository>()),
+              child: BaseScaffold(
+                floatingActionButton: floatingButton,
+                body: child,
+              ),
             ),
           );
         },

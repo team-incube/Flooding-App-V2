@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/widgets/request_count_card.dart';
+import '../../../study/presentation/widgets/study_count_card.dart';
 
 class DormitoryView extends StatelessWidget {
   const DormitoryView({
@@ -18,12 +19,7 @@ class DormitoryView extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          RequestCountCard.study(
-            current: studyCount,
-            onActionPressed: () {
-              // Todo: 자습신청 기능 구현
-            },
-          ),
+          StudyCountCard(current: studyCount),
           const SizedBox(height: AppSpacing.s16),
           RequestCountCard.massage(
             current: massageCount,
