@@ -53,8 +53,9 @@ class AppIcon {
       _svg('filter.svg', size: size, color: color);
   static Widget graduationCap({double size = AppSize.s24, Color? color}) =>
       _svg('graduation_cap.svg', size: size, color: color);
-  static Widget moreVertical({double size = AppSize.s24, Color? color}) =>
-      _svg('more_vertical.svg', size: size, color: color);
+  /// 프로필 편집 뱃지 아이콘.
+  static Widget profileEdit({double size = AppSize.s24, Color? color}) =>
+      _svg('profile_edit.svg', size: size, color: color);
   static Widget heart({double size = AppSize.s24, Color? color}) =>
       _svg('heart.svg', size: size, color: color);
   static Widget filledHeart({double size = AppSize.s24, Color? color}) =>
