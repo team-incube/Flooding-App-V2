@@ -2,9 +2,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 enum Major {
   @JsonValue('SW_DEVELOPMENT')
-  SW_DEVELOPMENT,
+  swDevelopment,
   @JsonValue('SMART_IOT')
-  SMART_IOT,
+  smartIot,
   @JsonValue('AI')
-  AI,
+  ai,
 }
