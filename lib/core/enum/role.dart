@@ -1,1 +1,1 @@
-enum Role { genderalStudent, dormitoryManager }
+enum Role { generalStudent, dormitoryManager }

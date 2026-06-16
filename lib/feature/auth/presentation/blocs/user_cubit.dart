@@ -13,7 +13,7 @@ class UserCubit extends Cubit<UserState> {
     final student = user.student;
     final role = switch (student?.role) {
       StudentRole.dormitoryManager => Role.dormitoryManager,
-      _ => Role.genderalStudent,
+      _ => Role.generalStudent,
     };
     emit(
       UserState(
@@ -28,5 +28,5 @@ class UserCubit extends Cubit<UserState> {
 }
 
 extension AccessRole on BuildContext {
-  Role get role => watch<UserCubit>().state.role ?? Role.genderalStudent;
+  Role get role => watch<UserCubit>().state.role ?? Role.generalStudent;
 }

@@ -68,28 +68,27 @@ class RequestMemberListLayout extends StatelessWidget {
     );
 
     return isDormManager
-        ? BlocBuilder<MemberSelectionCubit, MemberSelectionState>(
-            builder: (context, state) => Stack(
-              children: [
-                body,
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.s16,
-                    ),
-                    child: SizedBox(
-                      height: 47,
-                      child: PrimaryActionButton(
-                        label: '출석 완료',
-                        expand: true,
-                        enabled: state.selected.isNotEmpty,
-                      ),
-                    ),
+        ? Stack(
+            children: [
+              body,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+                  child: SizedBox(
+                    height: 47,
+                    child:
+                        BlocBuilder<MemberSelectionCubit, MemberSelectionState>(
+                          builder: (context, state) => PrimaryActionButton(
+                            label: '출석 완료',
+                            expand: true,
+                            enabled: state.selected.isNotEmpty,
+                          ),
+                        ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           )
         : body;
   }
@@ -178,14 +177,14 @@ class _MemberGridLayout extends StatelessWidget {
         final number = index + 1;
 
         if (isDormManager) {
-          final cubit = context.watch<MemberSelectionCubit>();
+          final isSelected = context.select<MemberSelectionCubit, bool>(
+            (cubit) => cubit.state.selected.contains(member.schoolNb),
+          );
           return MemberCard.button(
             number: number,
             model: member,
-            isSelected: cubit.state.selected.any(
-              (shN) => shN == member.schoolNb,
-            ),
-            onSelect: cubit.toggle,
+            isSelected: isSelected,
+            onSelect: context.read<MemberSelectionCubit>().toggle,
           );
         } else {
           return MemberCard(model: member, number: number);

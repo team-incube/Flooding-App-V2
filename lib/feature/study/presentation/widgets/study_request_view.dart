@@ -1,9 +1,6 @@
-import 'package:flooding_v2/feature/auth/presentation/blocs/user_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_size.dart';
-import '../../../../core/enum/role.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/widgets/search_text_field.dart';
 import '../../../member/presentation/widgets/no_member_icon.dart';
@@ -27,8 +24,7 @@ class _StudyRequestViewState extends State<StudyRequestView> {
 
   @override
   Widget build(BuildContext context) {
-    final role = context.role;
-    final body = RequestMemberListLayout(
+    return RequestMemberListLayout(
       title: '자습신청',
       searchBar: SearchTextField(
         textEditingController: searchController,
@@ -40,9 +36,5 @@ class _StudyRequestViewState extends State<StudyRequestView> {
         subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
       ),
     );
-
-    return role == Role.dormitoryManager
-        ? BlocBuilder(builder: (context, state) => body)
-        : body;
   }
 }

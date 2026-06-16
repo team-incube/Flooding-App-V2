@@ -38,7 +38,7 @@ abstract class DatagsmStudent with _$DatagsmStudent {
     String? specialty,
     int? dormitoryFloor,
     int? dormitoryRoom,
-    @JsonKey(unknownEnumValue: StudentRole.genderalStudent) StudentRole? role,
+    @JsonKey(unknownEnumValue: StudentRole.generalStudent) StudentRole? role,
     @JsonKey(name: 'isLeaveSchool') @Default(false) bool isLeaveSchool,
   }) = _DatagsmStudent;
 

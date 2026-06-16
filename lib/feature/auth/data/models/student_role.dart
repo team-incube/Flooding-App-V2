@@ -5,7 +5,7 @@ enum StudentRole {
   @JsonValue('DORMITORY_MANAGER')
   dormitoryManager,
   @JsonValue('GENERAL_STUDENT')
-  genderalStudent,
+  generalStudent,
   @JsonValue('STUDENT_COUNCIL')
   studentCouncil,
   @JsonValue('GRADUATE')
