@@ -164,21 +164,29 @@ class _MemberGridLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDormManager = context.role == Role.dormitoryManager;
-    final selectedIds = isDormManager
-        ? context.watch<MemberSelectionBloc>().state.checkList
-        : const <int>{};
 
+    final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: AppSpacing.s8,
+      crossAxisSpacing: AppSpacing.s8,
+      mainAxisExtent: MemberCard.fixedSize.height,
+    );
+
+    if (!isDormManager) {
+      return SliverGrid.builder(
+        gridDelegate: gridDelegate,
+        itemCount: memberList.length,
+        itemBuilder: (_, index) =>
+            MemberCard(model: memberList[index], number: index + 1),
+      );
+    }
+
+    final selectedIds = context.watch<MemberSelectionBloc>().state.checkList;
     return SliverGrid.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: AppSpacing.s8,
-        crossAxisSpacing: AppSpacing.s8,
-        mainAxisExtent: MemberCard.fixedSize.height,
-      ),
+      gridDelegate: gridDelegate,
       itemCount: memberList.length,
-      itemBuilder: (_, int index) {
+      itemBuilder: (_, index) {
         final member = memberList[index];
-        if (!isDormManager) return MemberCard(model: member, number: index + 1);
         return MemberCard.button(
           number: index + 1,
           model: member,
