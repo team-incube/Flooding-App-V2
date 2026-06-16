@@ -1,3 +1,5 @@
+import 'package:flooding_v2/core/enum/role.dart';
+import 'package:flooding_v2/feature/auth/presentation/blocs/user_cubit.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
@@ -11,9 +13,10 @@ import 'package:go_router/go_router.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
-import '../../feature/study/presentation/blocs/member_selection_cubit.dart';
+import '../../feature/member/presentation/blocs/member_selection_cubit.dart';
 import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
+import '../widgets/scaffold/floating_button/floating_action_locations.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
@@ -67,8 +70,6 @@ GoRouter createAppRouter(AuthController auth) {
                       ),
                     )..add(MemberListEvent.load()),
                   ),
-                  // 자치회 권한 사용자만 사용하지만, role 분기는 view 에서 하므로
-                  // 여기서는 항상 등록한다(lazy 라 미사용 시 인스턴스도 생성되지 않음).
                   BlocProvider(create: (context) => MemberSelectionCubit()),
                 ],
                 child: const StudyRequestView(),
@@ -93,6 +94,7 @@ GoRouter createAppRouter(AuthController auth) {
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
+          final isDormManager = context.role == Role.dormitoryManager;
 
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||
@@ -100,10 +102,18 @@ GoRouter createAppRouter(AuthController auth) {
             _ => const FloatingActions.both(),
           };
 
+          final floatingButtonLocation = switch (location) {
+            RoutePath.requestStudy || RoutePath.requestMassage
+                when isDormManager =>
+              FloatingActionLocations.aiFloatingLocation,
+            _ => null,
+          };
+
           return RepositoryProvider(
             create: (_) => MemberRepository(),
             child: BaseScaffold(
               floatingActionButton: floatingButton,
+              floatingActionButtonLocation: floatingButtonLocation,
               body: child,
             ),
           );

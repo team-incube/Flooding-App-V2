@@ -1,5 +1,7 @@
+import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
+import 'package:flooding_v2/feature/auth/presentation/blocs/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -146,6 +148,8 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDormManager = context.role == Role.dormitoryManager;
+
     return Row(
       children: [
         _ProfileAvatar(onEdit: onEdit),
@@ -162,9 +166,23 @@ class _ProfileCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.s4),
-              Text(
-                '$studentId',
-                style: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
+              Row(
+                spacing: AppSpacing.s4,
+                children: [
+                  Text(
+                    '$studentId',
+                    style: AppTextStyle.text3.copyWith(
+                      color: AppColors.lightSub2,
+                    ),
+                  ),
+                  if (isDormManager)
+                    Text(
+                      '관리자',
+                      style: AppTextStyle.text3.copyWith(
+                        color: AppColors.negative,
+                      ),
+                    ),
+                ],
               ),
             ],
           ),

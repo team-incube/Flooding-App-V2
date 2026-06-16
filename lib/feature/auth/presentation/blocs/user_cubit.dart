@@ -17,8 +17,8 @@ class UserCubit extends Cubit<UserState> {
     };
     emit(
       UserState(
-        name: student?.name ?? '',
-        studentId: student?.studentNumber ?? 0,
+        name: student?.name ?? '익명',
+        studentId: student?.studentNumber ?? 0000,
         role: role,
       ),
     );

@@ -1,8 +1,11 @@
+import 'package:flooding_v2/feature/auth/data/models/major.dart';
+import 'package:flooding_v2/feature/auth/data/models/sex.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'student_role.dart';
 
 part 'datagsm_user.freezed.dart';
+
 part 'datagsm_user.g.dart';
 
 /// DataGSM userinfo 응답.
@@ -30,8 +33,8 @@ abstract class DatagsmStudent with _$DatagsmStudent {
     required int classNum,
     required int number,
     required int studentNumber,
-    String? sex,
-    String? major,
+    Sex? sex,
+    @JsonKey(unknownEnumValue: null) Major? major,
     String? specialty,
     int? dormitoryFloor,
     int? dormitoryRoom,

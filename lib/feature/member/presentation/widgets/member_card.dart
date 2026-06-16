@@ -10,14 +10,27 @@ import 'package:flooding_v2/core/enum/gender.dart';
 
 import '../models/member_model.dart';
 
+typedef MemberSelectAction = void Function(int schoolNb);
 
 class MemberCard extends StatelessWidget {
-  const MemberCard({super.key, required this.model, required this.number});
+  const MemberCard({super.key, required this.model, required this.number})
+    : onSelect = null,
+      isSelected = false;
+
+  const MemberCard.button({
+    super.key,
+    required this.model,
+    required this.number,
+    required this.onSelect,
+    required this.isSelected,
+  });
 
   static const Size fixedSize = Size(173, 165);
 
   final int number;
   final MemberModel model;
+  final bool isSelected;
+  final MemberSelectAction? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +39,25 @@ class MemberCard extends StatelessWidget {
         ? AppIcon.female(size: AppSize.s12)
         : const SizedBox.shrink();
 
+    final topLine = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text("$number", style: AppTextStyle.text3),
+        if (onSelect != null)
+          IconButton(
+            style: IconButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: () => onSelect!(model.schoolNb),
+            icon: isSelected
+                ? AppIcon.check(size: AppSize.s16)
+                : AppIcon.uncheck(size: AppSize.s16),
+          ),
+      ],
+    );
+
     return Container(
       height: fixedSize.height,
       width: fixedSize.width,
@@ -33,15 +65,10 @@ class MemberCard extends StatelessWidget {
         color: AppColors.lightSub4,
         borderRadius: BorderRadius.circular(AppRadius.s12),
       ),
+      padding: const EdgeInsets.all(AppSpacing.s16),
       child: Stack(
         children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.s16),
-              child: Text("$number", style: AppTextStyle.text3),
-            ),
-          ),
+          Align(alignment: Alignment.topLeft, child: topLine),
 
           Positioned.fill(
             child: Center(
