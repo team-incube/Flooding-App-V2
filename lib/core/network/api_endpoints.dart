@@ -7,4 +7,10 @@ class ApiEndpoints {
 
   /// 기숙사 도메인 공통 prefix — 자습/안마/기상음악/청소구역/벌점 등.
   static const String dormitory = '/dormitory';
+
+  /// 사용자 도메인 공통 prefix — 내 정보/학생 검색 등.
+  static const String users = '/users';
+
+  /// 인증 도메인 공통 prefix — 로그인/토큰 재발급.
+  static const String auth = '/auth';
 }
