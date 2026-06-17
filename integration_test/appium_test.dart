@@ -3,8 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/feature/auth/data/datasources/token_storage.dart';
+import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:flooding_v2/feature/auth/data/models/oauth_token.dart';
+import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
+import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
 import 'package:flooding_v2/main.dart';
 
 /// Appium UI 테스트 진입점.
@@ -17,10 +20,20 @@ void main() {
     callback: (WidgetTester tester) async {
       await Env.load();
 
-      final authController = AuthController(tokenStorage: _FakeTokenStorage());
+      final tokenStorage = _FakeTokenStorage();
+      final userService = _FakeUserService();
+      final meBloc = MeBloc(userService);
+
+      final authController = AuthController(
+        meBloc: meBloc,
+        sessionValidator: _FakeSessionValidator(),
+        tokenStorage: tokenStorage,
+      );
       await authController.bootstrap();
 
-      await tester.pumpWidget(FloodingApp(authController: authController));
+      await tester.pumpWidget(
+        FloodingApp(authController: authController, meBloc: meBloc),
+      );
     },
   );
 }
@@ -47,4 +60,30 @@ class _FakeTokenStorage extends TokenStorage {
     _access = null;
     _refresh = null;
   }
+}
+
+/// 항상 세션이 유효한 것처럼 동작하는 테스트용 세션 검증기.
+class _FakeSessionValidator implements SessionValidator {
+  @override
+  Future<SessionCheck> validateSession({
+    Duration timeout = Duration.zero,
+  }) async => SessionCheck.valid;
+}
+
+/// 고정된 테스트 유저를 반환하는 테스트용 UserService.
+class _FakeUserService extends UserService {
+  _FakeUserService() : super();
+
+  @override
+  Future<Me?> fetchMe() async => const Me(
+    id: 1,
+    name: '테스트',
+    sex: 'MALE',
+    email: 'test@example.com',
+    studentNumber: 1234,
+    grade: 1,
+    classNumber: 1,
+    number: 1,
+    role: 'GENERAL_STUDENT',
+  );
 }
