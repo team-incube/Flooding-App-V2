@@ -1,7 +1,7 @@
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
-import 'package:flooding_v2/feature/auth/presentation/blocs/user_cubit.dart';
+import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,13 +15,13 @@ import '../../../theme/text_style/app_text_style.dart';
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({
     super.key,
-    required this.userName,
-    required this.studentId,
+    required this.name,
+    required this.studentNumber,
     this.onProfileEdit,
   });
 
-  final String userName;
-  final int studentId;
+  final String name;
+  final int studentNumber;
   final VoidCallback? onProfileEdit;
 
   static const double _cornerRadius = 20;
@@ -90,8 +90,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _ProfileCard(
-                  userName: widget.userName,
-                  studentId: widget.studentId,
+                  name: widget.name,
+                  studentNumber: widget.studentNumber,
                   onEdit: widget.onProfileEdit,
                 ),
                 const SizedBox(height: AppSpacing.s24),
@@ -137,13 +137,13 @@ class _MenuDrawerState extends State<MenuDrawer> {
 /// 프로필 카드: 아바타(편집 뱃지 포함) + 이름 + 학번.
 class _ProfileCard extends StatelessWidget {
   const _ProfileCard({
-    required this.userName,
-    required this.studentId,
+    required this.name,
+    required this.studentNumber,
     this.onEdit,
   });
 
-  final String userName;
-  final int studentId;
+  final String name;
+  final int studentNumber;
   final VoidCallback? onEdit;
 
   @override
@@ -160,7 +160,7 @@ class _ProfileCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '안녕하세요! $userName님',
+                '안녕하세요! $name님',
                 style: AppTextStyle.text2.copyWith(
                   color: AppColors.lightMainText,
                 ),
@@ -170,7 +170,7 @@ class _ProfileCard extends StatelessWidget {
                 spacing: AppSpacing.s4,
                 children: [
                   Text(
-                    '$studentId',
+                    '$studentNumber'.padLeft(4, '0'),
                     style: AppTextStyle.text3.copyWith(
                       color: AppColors.lightSub2,
                     ),
