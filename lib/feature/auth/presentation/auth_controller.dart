@@ -8,6 +8,8 @@ import '../data/datasources/token_storage.dart';
 import '../data/flooding_auth_service.dart';
 import '../data/models/oauth_token.dart';
 import '../data/user_service.dart';
+import 'blocs/me_bloc.dart';
+import 'blocs/me_event.dart';
 import 'pages/oauth_webview_page.dart';
 
 /// 앱 전역 인증 상태.
@@ -27,20 +29,17 @@ enum AuthStatus {
 /// 로그인 화면으로 되돌아간다.
 class AuthController extends ChangeNotifier {
   AuthController({
+    required MeBloc meBloc,
+    required SessionValidator sessionValidator,
     DatagsmAuthService? authService,
     TokenStorage? tokenStorage,
-    SessionValidator? sessionValidator,
     FloodingAuthService? floodingAuthService,
-  }) : _tokenStorage = tokenStorage ?? TokenStorage() {
+  }) : _tokenStorage = tokenStorage ?? TokenStorage(),
+       _meBloc = meBloc,
+       _sessionValidator = sessionValidator {
     _authService =
         authService ??
         DatagsmAuthService(
-          tokenStorage: _tokenStorage,
-          onSessionExpired: expireSession,
-        );
-    _sessionValidator =
-        sessionValidator ??
-        UserService(
           tokenStorage: _tokenStorage,
           onSessionExpired: expireSession,
         );
@@ -49,8 +48,9 @@ class AuthController extends ChangeNotifier {
 
   final TokenStorage _tokenStorage;
   late final DatagsmAuthService _authService;
-  late final SessionValidator _sessionValidator;
+  final SessionValidator _sessionValidator;
   late final FloodingAuthService _floodingAuth;
+  final MeBloc _meBloc;
 
   // 초기값. 앱 시작 시 runApp 이전에 bootstrap() 으로 실제 상태가 채워진다.
   AuthStatus _status = AuthStatus.unauthenticated;
@@ -79,6 +79,7 @@ class AuthController extends ChangeNotifier {
       _set(AuthStatus.unauthenticated);
       return;
     }
+    _meBloc.add(const MeEvent.load());
     _set(AuthStatus.authenticated);
   }
 
@@ -106,7 +107,7 @@ class AuthController extends ChangeNotifier {
       // (백엔드가 OAuth 코드 교환을 대신 수행하고 자체 토큰을 내려준다.)
 
       if (callback.code == null) {
-        throw const AuthException('authCode가 누락되거나 유효하지 않습니다..');
+        throw const AuthException('authCode가 누락되거나 유효하지 않습니다.');
       }
 
       final tokens = await _floodingAuth.signin(
@@ -121,6 +122,7 @@ class AuthController extends ChangeNotifier {
       );
       Logger.d('로그인 성공 (Flooding 토큰 발급)', tag: 'AUTH');
 
+      _meBloc.add(const MeEvent.load());
       _set(AuthStatus.authenticated);
     } on AuthException catch (e) {
       _fail(e.message);
@@ -136,6 +138,7 @@ class AuthController extends ChangeNotifier {
   /// 토큰 재발급이 실패하면 즉시 로그인 화면으로 전환된다.
   Future<void> expireSession() async {
     await _tokenStorage.clear();
+    _meBloc.add(const MeEvent.clear());
     _set(AuthStatus.unauthenticated);
   }
 
