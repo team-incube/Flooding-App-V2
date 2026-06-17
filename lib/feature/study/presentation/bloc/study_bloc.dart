@@ -19,6 +19,7 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
     required StudyRepository repository,
     StudyRequestPolicy policy = const StudyRequestPolicy(),
     DateTime Function() clock = DateTime.now,
+    Duration tick = const Duration(seconds: 30),
   }) : _getApplicants = getApplicants,
        _repository = repository,
        _policy = policy,
@@ -34,6 +35,12 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
         actionSubmitted: () => _onActionSubmitted(emit),
       );
     });
+
+    // 신청 시작/마감 시각이 실시간으로 지나면 버튼 활성 상태가 저절로 바뀌도록
+    // 주기적으로 재평가한다(앱을 20:00 이전부터 켜둬도 시간이 되면 활성화).
+    _ticker = Timer.periodic(tick, (_) {
+      if (!isClosed) add(const StudyEvent.actionEvaluated());
+    });
   }
 
   final GetStudyApplicantsUseCase _getApplicants;
@@ -41,7 +48,14 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
   final StudyRequestPolicy _policy;
   final DateTime Function() _clock;
 
+  Timer? _ticker;
   List<MemberModel> _allApplicants = [];
+
+  @override
+  Future<void> close() {
+    _ticker?.cancel();
+    return super.close();
+  }
 
   // ── 목록 조회 ─────────────────────────────────────────────
 
@@ -64,8 +78,11 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
       emit(
         state.copyWith(
           listStatus: StudyListStatus.loaded,
-          applicants: _allApplicants,
+          // 재조회로 목록이 갱신돼도 현재 적용 중인 필터를 유지한다.
+          applicants: _applyFilter(_allApplicants, state),
           applicantCount: _allApplicants.length,
+          // 화면 진입/새로고침 시점에 버튼 활성 상태도 함께 재평가한다.
+          actionStatus: _reevaluatedStatus(),
         ),
       );
     } catch (e, s) {
@@ -100,9 +117,21 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
     int? classNb,
     Gender? gender,
   ) {
-    if (_allApplicants.isEmpty) return;
+    // 선택한 필터를 상태에 보관해 두면, 이후 재조회 때도 동일 필터가 재적용된다.
+    final next = state.copyWith(
+      filterGrade: grade,
+      filterClassNb: classNb,
+      filterGender: gender,
+    );
+    emit(next.copyWith(applicants: _applyFilter(_allApplicants, next)));
+  }
 
-    Iterable<MemberModel> filtered = _allApplicants;
+  /// [state] 에 보관된 필터(학년/반/성별)를 [all] 에 적용한 결과를 반환한다.
+  List<MemberModel> _applyFilter(List<MemberModel> all, StudyState state) {
+    Iterable<MemberModel> filtered = all;
+    final grade = state.filterGrade;
+    final classNb = state.filterClassNb;
+    final gender = state.filterGender;
     if (grade != null) {
       filtered = filtered.where((m) => grade == m.schoolNb ~/ 1000);
     }
@@ -112,8 +141,7 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
     if (gender != null) {
       filtered = filtered.where((m) => gender == m.gender);
     }
-
-    emit(state.copyWith(applicants: filtered.toList()));
+    return filtered.toList();
   }
 
   String _messageOf(Object e) {
@@ -132,11 +160,18 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
 
   /// 이미 신청한 상태(`applied`)는 시간과 무관하게 유지한다(취소 가능).
   void _onActionEvaluated(Emitter<StudyState> emit) {
-    if (state.actionStatus == StudyActionStatus.applied ||
-        state.actionStatus == StudyActionStatus.submitting) {
-      return;
+    emit(state.copyWith(actionStatus: _reevaluatedStatus()));
+  }
+
+  /// 현재 시각 기준 버튼 활성 상태. 단, `applied`/`submitting` 은 시간과
+  /// 무관하게 그대로 유지한다(신청 완료/처리 중 상태 보호).
+  StudyActionStatus _reevaluatedStatus() {
+    final current = state.actionStatus;
+    if (current == StudyActionStatus.applied ||
+        current == StudyActionStatus.submitting) {
+      return current;
     }
-    emit(state.copyWith(actionStatus: _openStatus()));
+    return _openStatus();
   }
 
   /// 처리할 수 없는 상태(`closed`/`submitting`)면 아무 것도 하지 않는다.
@@ -154,6 +189,8 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
             result: StudyActionResult(success: true, message: '자습 신청을 취소했어요.'),
           ),
         );
+        // 취소 결과가 목록에 즉시 반영되도록 자동 새로고침한다.
+        add(const StudyEvent.applicantsRequested(refresh: true));
         return;
       }
       await _repository.requestStudy();
@@ -163,6 +200,8 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
           result: StudyActionResult(success: true, message: '자습을 신청했어요.'),
         ),
       );
+      // 신청 결과(본인 이름)가 목록에 즉시 반영되도록 자동 새로고침한다.
+      add(const StudyEvent.applicantsRequested(refresh: true));
     } on ApiException catch (e) {
       emit(
         state.copyWith(

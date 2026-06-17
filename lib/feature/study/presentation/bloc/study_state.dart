@@ -1,6 +1,7 @@
 import 'package:flooding_v2/feature/study/domain/enum/study_action_enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/enum/gender.dart';
 import '../../../member/presentation/models/member_model.dart';
 
 part 'study_state.freezed.dart';
@@ -43,7 +44,22 @@ abstract class StudyState with _$StudyState {
 
     /// 목록 조회 실패 메시지.
     String? listError,
+
+    /// 현재 적용 중인 필터(학년) — 재조회 시 재적용한다.
+    int? filterGrade,
+
+    /// 현재 적용 중인 필터(반).
+    int? filterClassNb,
+
+    /// 현재 적용 중인 필터(성별).
+    Gender? filterGender,
   }) = _StudyState;
+}
+
+/// 필터가 하나라도 적용돼 있는지 여부.
+extension StudyStateX on StudyState {
+  bool get hasActiveFilter =>
+      filterGrade != null || filterClassNb != null || filterGender != null;
 }
 
 /// 버튼에 표시할 라벨/활성 여부 매핑.

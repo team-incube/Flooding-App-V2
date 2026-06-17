@@ -4,8 +4,11 @@ import 'package:flooding_v2/feature/study/domain/repositories/study_request_poli
 void main() {
   const policy = StudyRequestPolicy();
 
+  // 정책은 KST(UTC+9) 기준으로 판정하므로, 기기 시간대와 무관하게 결과가
+  // 결정적이도록 KST 벽시계 시각을 UTC 로 환산해 전달한다.
   DateTime at(int hour, int minute, [int second = 0]) =>
-      DateTime(2026, 6, 16, hour, minute, second);
+      DateTime.utc(2026, 6, 16, hour, minute, second)
+          .subtract(const Duration(hours: 9));
 
   group('StudyRequestPolicy.statusAt', () {
     test('19:59 는 신청 시작 전(beforeOpen)', () {
@@ -42,6 +45,30 @@ void main() {
       expect(policy.isOpenAt(at(20, 30)), isTrue);
       expect(policy.isOpenAt(at(19, 59)), isFalse);
       expect(policy.isOpenAt(at(21, 0)), isFalse);
+    });
+  });
+
+  group('StudyRequestPolicy KST 환산', () {
+    test('기기 시간대와 무관하게 KST 로 판정한다', () {
+      // 11:00 UTC == 20:00 KST → open.
+      expect(
+        policy.statusAt(DateTime.utc(2026, 6, 16, 11, 0)),
+        StudyWindowStatus.open,
+      );
+      // 동일 순간을 +9 오프셋 로컬로 표현해도 같은 결과여야 한다.
+      final kstLocal = DateTime.utc(
+        2026,
+        6,
+        16,
+        11,
+        0,
+      ).toLocal();
+      expect(policy.statusAt(kstLocal), StudyWindowStatus.open);
+      // 09:00 UTC == 18:00 KST → beforeOpen.
+      expect(
+        policy.statusAt(DateTime.utc(2026, 6, 16, 9, 0)),
+        StudyWindowStatus.beforeOpen,
+      );
     });
   });
 }

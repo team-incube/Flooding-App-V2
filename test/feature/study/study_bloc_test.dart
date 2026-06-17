@@ -14,11 +14,13 @@ class _FakeStudyRepository implements StudyRepository {
   final Object? requestError;
   final List<StudyApplicant> applicants;
   Object? fetchError;
+  int fetchCount = 0;
   int requestCount = 0;
   int cancelCount = 0;
 
   @override
   Future<List<StudyApplicant>> fetchApplicants() async {
+    fetchCount++;
     if (fetchError != null) throw fetchError!;
     return applicants;
   }
@@ -45,8 +47,10 @@ StudyBloc _buildBloc(
 );
 
 void main() {
-  DateTime open() => DateTime(2026, 6, 16, 20, 30);
-  DateTime closed() => DateTime(2026, 6, 16, 19, 0);
+  // 정책은 KST(UTC+9) 기준이므로 시계는 UTC 로 고정해 결정적으로 만든다.
+  // 11:30 UTC == 20:30 KST(open), 10:00 UTC == 19:00 KST(closed).
+  DateTime open() => DateTime.utc(2026, 6, 16, 11, 30);
+  DateTime closed() => DateTime.utc(2026, 6, 16, 10, 0);
 
   group('StudyBloc 액션', () {
     test('신청 시간이 아니면 closed 이고 submit 은 무시된다', () async {
@@ -123,6 +127,23 @@ void main() {
       await pumpEventQueue();
 
       expect(bloc.state.actionStatus, StudyActionStatus.applied);
+      await bloc.close();
+    });
+
+    test('대기 중 신청 시간이 되면 actionEvaluated 로 버튼이 활성화된다', () async {
+      var now = closed(); // 19:00 KST → closed
+      final repo = _FakeStudyRepository();
+      final bloc = _buildBloc(repo, clock: () => now);
+
+      expect(bloc.state.actionStatus, StudyActionStatus.closed);
+
+      // 시간이 흘러 신청 가능 시각이 되면(주기 타이머가 쏘는) actionEvaluated 로
+      // 별도 사용자 조작 없이 버튼이 활성화된다.
+      now = open(); // 20:30 KST → open
+      bloc.add(const StudyEvent.actionEvaluated());
+      await pumpEventQueue();
+
+      expect(bloc.state.actionStatus, StudyActionStatus.ready);
       await bloc.close();
     });
   });
@@ -220,6 +241,45 @@ void main() {
       expect(bloc.state.applicants.first.name, '김민솔');
       // 필터는 표시 목록만 줄이고 전체 카운트는 유지한다.
       expect(bloc.state.applicantCount, 2);
+      await bloc.close();
+    });
+
+    test('refresh 재조회 후에도 적용 중인 필터가 유지된다', () async {
+      final repo = _FakeStudyRepository(applicants: applicants);
+      final bloc = _buildBloc(repo, clock: open);
+
+      bloc.add(const StudyEvent.applicantsRequested());
+      await pumpEventQueue();
+
+      bloc.add(const StudyEvent.filtered(grade: 2));
+      await pumpEventQueue();
+      expect(bloc.state.applicants, hasLength(1));
+
+      bloc.add(const StudyEvent.applicantsRequested(refresh: true));
+      await pumpEventQueue();
+
+      // 재조회로 목록을 다시 불러와도 2학년 필터가 그대로 적용된다.
+      expect(bloc.state.applicants, hasLength(1));
+      expect(bloc.state.applicants.first.name, '김민솔');
+      expect(bloc.state.applicantCount, 2);
+      await bloc.close();
+    });
+
+    test('신청 성공 후 목록을 자동으로 새로고침한다', () async {
+      final repo = _FakeStudyRepository(applicants: applicants);
+      final bloc = _buildBloc(repo, clock: open);
+
+      bloc.add(const StudyEvent.applicantsRequested());
+      await pumpEventQueue();
+      final fetchAfterInitialLoad = repo.fetchCount;
+
+      bloc.add(const StudyEvent.actionSubmitted());
+      await pumpEventQueue();
+
+      expect(bloc.state.actionStatus, StudyActionStatus.applied);
+      expect(repo.requestCount, 1);
+      // 신청 성공 직후 자동 새로고침으로 fetch 가 한 번 더 일어난다.
+      expect(repo.fetchCount, fetchAfterInitialLoad + 1);
       await bloc.close();
     });
 

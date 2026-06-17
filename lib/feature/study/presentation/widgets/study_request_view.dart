@@ -72,6 +72,14 @@ class _StudyRequestViewState extends State<StudyRequestView> {
           },
           emptyIcon: isLoading
               ? const Center(child: CircularProgressIndicator())
+              : state.applicantCount > 0
+              // 신청자는 있으나 필터 결과만 비어 있는 경우.
+              ? NoMemberIcon(
+                  icon: AppIcon.graduationCap(size: AppSize.s100),
+                  title: '조건에 맞는 학생이 없습니다.',
+                  subTitle: '필터 설정을 확인해 주세요.',
+                )
+              // 전체 신청자가 0명인 경우.
               : NoMemberIcon(
                   icon: AppIcon.graduationCap(size: AppSize.s100),
                   title: '자습 신청한 인원이 없습니다.',
