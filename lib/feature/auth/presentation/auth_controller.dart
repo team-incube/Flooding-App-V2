@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
 import '../data/datagsm_auth_service.dart';
@@ -79,6 +80,13 @@ class AuthController extends ChangeNotifier {
       _set(AuthStatus.unauthenticated);
       return;
     }
+    if (check == SessionCheck.networkError) {
+      // 서버에 닿지 못함 — 토큰은 유효할 수 있으므로 지우지 않고, 로그인 화면에
+      // 네트워크 오류를 안내해 재시도하게 한다.
+      _fail(ApiException.networkMessage);
+      return;
+    }
+    // 그 외 판단 불가(서버 5xx 등)는 오프라인 사용자를 막지 않도록 진입 허용.
     _set(AuthStatus.authenticated);
   }
 
@@ -137,6 +145,17 @@ class AuthController extends ChangeNotifier {
   Future<void> expireSession() async {
     await _tokenStorage.clear();
     _set(AuthStatus.unauthenticated);
+  }
+
+  /// 사용 중 네트워크 오류가 발생하면 로그인 화면으로 보낸다.
+  ///
+  /// [NetworkErrorReporter] 의 전역 리스너로 연결되어, 어느 화면에서 끊겨도
+  /// 동작한다. 토큰은 유효할 수 있으므로(단순 연결 실패) 지우지 않는다 —
+  /// 연결이 돌아오면 로그인 화면에서 재시도한다. 이미 미인증(로그인 화면)이면
+  /// 무시해 중복 알림·로그인 흐름 간섭을 막는다.
+  void reportNetworkError() {
+    if (_status == AuthStatus.unauthenticated) return;
+    _fail(ApiException.networkMessage);
   }
 
   void _set(AuthStatus status) {

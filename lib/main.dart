@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flooding_v2/core/config/env.dart';
+import 'package:flooding_v2/core/network/network_error_reporter.dart';
 import 'package:flooding_v2/core/route/route.dart';
 import 'package:flooding_v2/core/theme/config/dark_theme.dart';
 import 'package:flooding_v2/core/theme/config/light_theme.dart';
@@ -14,6 +15,10 @@ Future<void> main() async {
   // (짧은 secure storage 읽기 동안은 OS 런치 스크린이 화면을 덮는다.)
   final authController = AuthController();
   await authController.bootstrap();
+
+  // 사용 중 어느 화면에서든 네트워크 오류가 나면 로그인 화면으로 보낸다.
+  // (bootstrap 이후 등록해 시작 시점 처리와 겹치지 않게 한다.)
+  NetworkErrorReporter.setListener(authController.reportNetworkError);
 
   runApp(FloodingApp(authController: authController));
 }
@@ -32,6 +37,7 @@ class _FloodingAppState extends State<FloodingApp> {
 
   @override
   void dispose() {
+    NetworkErrorReporter.setListener(null);
     _router.dispose();
     widget.authController.dispose();
     super.dispose();
