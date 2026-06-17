@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flooding_v2/feature/study/domain/study_request_policy.dart';
+import 'package:flooding_v2/feature/study/domain/repositories/study_request_policy.dart';
 
 void main() {
   const policy = StudyRequestPolicy();

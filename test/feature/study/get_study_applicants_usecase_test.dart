@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flooding_v2/core/enum/gender.dart';
+import 'package:flooding_v2/core/network/api_exception.dart';
 import 'package:flooding_v2/feature/study/data/models/study_applicant.dart';
-import 'package:flooding_v2/feature/study/domain/study_repository.dart';
-import 'package:flooding_v2/feature/study/presentation/usecases/get_study_applicants_usecase.dart';
+import 'package:flooding_v2/feature/study/domain/repositories/study_repository.dart';
+import 'package:flooding_v2/feature/study/domain/usecases/get_study_applicants_usecase.dart';
 
 /// 테스트용 [StudyRepository] — fetchApplicants 결과/예외를 주입한다.
 class _FakeStudyRepository implements StudyRepository {
@@ -84,13 +85,10 @@ void main() {
       expect(members.first.gender, Gender.male);
     });
 
-    test('StudyException 은 메시지를 가진 Exception 으로 변환한다', () async {
+    test('ApiException 은 메시지를 가진 Exception 으로 변환한다', () async {
       final usecase = GetStudyApplicantsUseCase(
         _FakeStudyRepository(
-          error: const StudyException(
-            StudyFailureReason.network,
-            '네트워크 연결을 확인해 주세요.',
-          ),
+          error: const ApiException(isNetwork: true),
         ),
       );
 

@@ -26,7 +26,7 @@ class NoMemberIcon extends StatelessWidget {
         const SizedBox(height: AppSpacing.s12),
         Text(
           title,
-          style: AppTextStyle.text1.copyWith(color: AppColors.lightSub2),
+          style: AppTextStyle.text2.copyWith(color: AppColors.lightSub2),
         ),
         const SizedBox(height: AppSpacing.s4),
         Text(

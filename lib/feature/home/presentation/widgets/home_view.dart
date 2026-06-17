@@ -21,11 +21,9 @@ import '../../../study/presentation/widgets/study_count_card.dart';
 class HomeView extends StatefulWidget {
   const HomeView({
     super.key,
-    required this.studyCount,
     required this.massageCount,
   });
 
-  final int studyCount;
   final int massageCount;
 
   @override
@@ -54,7 +52,7 @@ class _HomeViewState extends State<HomeView> {
               teacher: '이주원',
             ),
             const SizedBox(height: AppSpacing.s16),
-            StudyCountCard(current: widget.studyCount),
+            const StudyCountCard(),
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
               current: widget.massageCount,

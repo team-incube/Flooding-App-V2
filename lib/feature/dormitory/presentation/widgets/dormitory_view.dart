@@ -7,11 +7,9 @@ import '../../../study/presentation/widgets/study_count_card.dart';
 class DormitoryView extends StatelessWidget {
   const DormitoryView({
     super.key,
-    required this.studyCount,
     required this.massageCount,
   });
 
-  final int studyCount;
   final int massageCount;
 
   @override
@@ -19,7 +17,7 @@ class DormitoryView extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          StudyCountCard(current: studyCount),
+          const StudyCountCard(),
           const SizedBox(height: AppSpacing.s16),
           RequestCountCard.massage(
             current: massageCount,
