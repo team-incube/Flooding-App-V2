@@ -1,5 +1,5 @@
 import 'package:flooding_v2/core/enum/role.dart';
-import 'package:flooding_v2/feature/auth/presentation/blocs/user_cubit.dart';
+import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
