@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/env.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/utils/logger.dart';
 import 'datagsm_auth_service.dart' show AuthException;
 import 'datasources/flooding_auth_api.dart';
 import 'models/reissue_request.dart';
@@ -43,6 +44,11 @@ class FloodingAuthService {
       }
       return data;
     } on DioException catch (e) {
+      Logger.e(
+        'signin 실패: ${e.response?.statusCode} ${e.response?.data}',
+        tag: 'AUTH',
+        error: e,
+      );
       if (e.response?.statusCode == 403) {
         throw const AuthException('학생만 로그인할 수 있어요.');
       }
