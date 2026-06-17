@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/config/env.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
 import '../data/datagsm_auth_service.dart';
 import '../data/datasources/token_storage.dart';
-import 'blocs/user_cubit.dart';
+import '../data/flooding_auth_service.dart';
+import '../data/models/oauth_token.dart';
+import '../data/user_service.dart';
 import 'pages/oauth_webview_page.dart';
 
 /// 앱 전역 인증 상태.
@@ -26,23 +29,28 @@ class AuthController extends ChangeNotifier {
   AuthController({
     DatagsmAuthService? authService,
     TokenStorage? tokenStorage,
-    UserCubit? userCubit,
-  }) : _tokenStorage = tokenStorage ?? TokenStorage(),
-       _userCubit = userCubit ?? UserCubit() {
+    SessionValidator? sessionValidator,
+    FloodingAuthService? floodingAuthService,
+  }) : _tokenStorage = tokenStorage ?? TokenStorage() {
     _authService =
         authService ??
         DatagsmAuthService(
           tokenStorage: _tokenStorage,
-          onSessionExpired: _onSessionExpired,
+          onSessionExpired: expireSession,
         );
+    _sessionValidator =
+        sessionValidator ??
+        UserService(
+          tokenStorage: _tokenStorage,
+          onSessionExpired: expireSession,
+        );
+    _floodingAuth = floodingAuthService ?? FloodingAuthService();
   }
 
   final TokenStorage _tokenStorage;
-  final UserCubit _userCubit;
   late final DatagsmAuthService _authService;
-
-  /// 현재 로그인 사용자 정보(이름·학번·역할)를 보관하는 cubit.
-  UserCubit get userCubit => _userCubit;
+  late final SessionValidator _sessionValidator;
+  late final FloodingAuthService _floodingAuth;
 
   // 초기값. 앱 시작 시 runApp 이전에 bootstrap() 으로 실제 상태가 채워진다.
   AuthStatus _status = AuthStatus.unauthenticated;
@@ -53,10 +61,25 @@ class AuthController extends ChangeNotifier {
   /// 직전 로그인 시도의 실패 사유. 성공·미시도 시 null.
   String? get error => _error;
 
-  /// 저장된 토큰 유무로 초기 상태를 결정한다. 앱 시작 시 1회 호출.
+  /// 앱 시작 시 1회 호출해 초기 인증 상태를 결정한다.
+  ///
+  /// 저장된 토큰이 없으면 미인증. 토큰이 있으면 `/users/me` 로 세션 유효성을
+  /// 검사해, 401 이면 토큰을 비우고 미인증(로그인 화면)으로 보낸다.
+  /// 네트워크 등으로 판단이 불가하면 오프라인 사용자를 막지 않도록 진입을 허용한다.
   Future<void> bootstrap() async {
     final hasToken = await _tokenStorage.hasToken();
-    _set(hasToken ? AuthStatus.authenticated : AuthStatus.unauthenticated);
+    if (!hasToken) {
+      _set(AuthStatus.unauthenticated);
+      return;
+    }
+
+    final check = await _sessionValidator.validateSession();
+    if (check == SessionCheck.unauthorized) {
+      await _tokenStorage.clear();
+      _set(AuthStatus.unauthenticated);
+      return;
+    }
+    _set(AuthStatus.authenticated);
   }
 
   /// 웹뷰에 띄울 authorize URL 을 생성한다.
@@ -79,15 +102,24 @@ class AuthController extends ChangeNotifier {
         throw const AuthException('state 불일치 — 인증 요청이 변조되었을 수 있습니다.');
       }
 
-      final token = await _authService.exchangeCode(
-        code: callback.code!,
-        codeVerifier: pkce.verifier,
-      );
-      await _tokenStorage.save(token);
+      // DataGSM 으로 받은 인가 코드를 Flooding 백엔드로 보내 토큰을 발급받는다.
+      // (백엔드가 OAuth 코드 교환을 대신 수행하고 자체 토큰을 내려준다.)
 
-      final user = await _authService.fetchUserInfo();
-      Logger.d('로그인 성공: ${user.email}', tag: 'AUTH');
-      _userCubit.setUser(user);
+      if (callback.code == null) {
+        throw const AuthException('authCode가 누락되거나 유효하지 않습니다..');
+      }
+
+      final tokens = await _floodingAuth.signin(
+        authCode: callback.code!,
+        redirectUri: Env.datagsmRedirectUri,
+      );
+      await _tokenStorage.save(
+        OAuthToken(
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        ),
+      );
+      Logger.d('로그인 성공 (Flooding 토큰 발급)', tag: 'AUTH');
 
       _set(AuthStatus.authenticated);
     } on AuthException catch (e) {
@@ -99,9 +131,11 @@ class AuthController extends ChangeNotifier {
   }
 
   /// 세션 만료(토큰 갱신 실패) 시 저장 토큰을 비우고 미인증 상태로 되돌린다.
-  Future<void> _onSessionExpired() async {
+  ///
+  /// Flooding 인증 클라이언트의 refresh 실패 콜백으로 연결되어,
+  /// 토큰 재발급이 실패하면 즉시 로그인 화면으로 전환된다.
+  Future<void> expireSession() async {
     await _tokenStorage.clear();
-    _userCubit.clear();
     _set(AuthStatus.unauthenticated);
   }
 
@@ -112,15 +146,8 @@ class AuthController extends ChangeNotifier {
   }
 
   void _fail(String message) {
-    _userCubit.clear();
     _error = message;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _userCubit.close();
-    super.dispose();
   }
 }

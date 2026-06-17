@@ -218,7 +218,7 @@ class _ProfileAvatar extends StatelessWidget {
             Positioned(
               right: 0,
               bottom: 0,
-              child: AppIcon.moreVertical(size: _badgeSize),
+              child: AppIcon.profileEdit(size: _badgeSize),
             ),
           ],
         ),

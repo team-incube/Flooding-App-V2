@@ -6,8 +6,6 @@ import '../../../core/network/dio_client.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
 import 'datasources/datagsm_auth_api.dart';
-import 'datasources/datagsm_resource_api.dart';
-import 'models/datagsm_user.dart';
 import 'models/oauth_token.dart';
 import 'models/refresh_request.dart';
 import 'models/token_request.dart';
@@ -28,7 +26,7 @@ class AuthException implements Exception {
 /// authorize URL 생성 → code 교환 → token 갱신 → userinfo 조회.
 /// 리소스 요청은 [AuthInterceptor] 가 access token 주입 및 401 자동 갱신을 처리한다.
 class DatagsmAuthService {
-  DatagsmAuthService._(this._authApi, this._resourceApi);
+  DatagsmAuthService._(this._authApi);
 
   factory DatagsmAuthService({
     Dio? authDio,
@@ -62,31 +60,26 @@ class DatagsmAuthService {
         },
       ),
     );
-    final resourceApi = DatagsmResourceApi(
-      resourceClient,
-      baseUrl: _resourceBase,
-    );
-
-    return DatagsmAuthService._(authApi, resourceApi);
+    return DatagsmAuthService._(authApi);
   }
 
   final DatagsmAuthApi _authApi;
-  final DatagsmResourceApi _resourceApi;
-
   static const String _authorizationHost = 'oauth.authorization.datagsm.kr';
   static const String _authorizationBase =
       'https://oauth.authorization.datagsm.kr';
-  static const String _resourceBase = 'https://oauth.resource.datagsm.kr';
 
   /// 웹뷰에 띄울 authorize URL 을 생성한다.
+  ///
+  /// 코드 교환은 Flooding 백엔드(`/auth/signin`)가 confidential 클라이언트로
+  /// 수행하므로, 앱은 PKCE(`code_challenge`)를 보내지 않는다. (PKCE 를 붙이면
+  /// 백엔드가 `code_verifier` 없이 교환하다 DataGSM 에 거부당한다.)
+  /// [pkce] 의 `state` 만 CSRF 방지용으로 사용한다.
   Uri buildAuthorizeUri(PkcePair pkce, {String? scope}) {
     return Uri.https(_authorizationHost, '/v1/oauth/authorize', {
       'client_id': Env.datagsmClientId,
       'redirect_uri': Env.datagsmRedirectUri,
       'response_type': 'code',
       'state': pkce.state,
-      'code_challenge': pkce.challenge,
-      'code_challenge_method': Pkce.challengeMethod,
       if (scope != null && scope.isNotEmpty) 'scope': scope,
     });
   }
@@ -137,20 +130,6 @@ class DatagsmAuthService {
         error: e,
       );
       throw const AuthException('세션이 만료되었습니다. 다시 로그인해 주세요.');
-    }
-  }
-
-  /// 로그인 사용자 정보를 조회한다. (access token 은 인터셉터가 주입)
-  Future<DatagsmUser> fetchUserInfo() async {
-    try {
-      return await _resourceApi.getUserInfo();
-    } on DioException catch (e) {
-      Logger.e(
-        'userinfo 조회 실패: ${e.response?.statusCode} ${e.response?.data}',
-        tag: 'AUTH',
-        error: e,
-      );
-      throw const AuthException('사용자 정보 조회에 실패했습니다.');
     }
   }
 }
