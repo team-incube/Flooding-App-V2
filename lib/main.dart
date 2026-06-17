@@ -9,7 +9,6 @@ import 'package:flooding_v2/feature/auth/data/datasources/token_storage.dart';
 import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
 import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
-import 'package:flooding_v2/feature/auth/presentation/blocs/me_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

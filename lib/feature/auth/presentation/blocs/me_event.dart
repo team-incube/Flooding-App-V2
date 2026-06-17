@@ -1,4 +1,3 @@
-import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'me_event.freezed.dart';
