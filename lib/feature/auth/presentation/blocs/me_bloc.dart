@@ -1,32 +1,48 @@
-import 'package:flooding_v2/feature/auth/data/models/me.dart';
+import 'package:flooding_v2/feature/auth/data/user_service.dart';
+import 'package:flooding_v2/feature/auth/presentation/blocs/me_event.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/enum/role.dart';
-import '../../data/models/student_role.dart';
-import 'user_state.dart';
+import 'me_state.dart';
 
-class MeCubit extends Cubit<UserState> {
-  MeCubit() : super(const UserState());
-
-  void setUser(Me user) {
-    final studentRole = StudentRole.values.where((e) => e.name == _toCamel(user.role)).firstOrNull;
-    emit(
-      UserState(
-        name: user.name,
-        studentId: user.studentNumber,
-        role: studentRole?.toRole,
-      ),
-    );
+class MeBloc extends Bloc<MeEvent, MeState> {
+  MeBloc(this._userService) : super(const MeState.initial()) {
+    on<MeEvent>((event, emit) async {
+      await event.whenOrNull(load: () => _onLoad(emit), clear: () => _onClear(emit));
+    });
   }
 
-  String _toCamel(String snakeCase) => snakeCase
-      .toLowerCase()
-      .replaceAllMapped(RegExp(r'_([a-z])'), (m) => m[1]!.toUpperCase());
+  final UserService _userService;
 
-  void clear() => emit(const UserState());
+  Future<void> _onLoad(Emitter<MeState> emit) async {
+    emit(const MeState.loading());
+    try {
+      final me = await _userService.fetchMe();
+      if (me == null) {
+        emit(const MeState.failure());
+        return;
+      }
+      emit(
+        MeState.loaded(
+          name: me.name,
+          studentNumber: me.studentNumber,
+          role:
+              Role.values.where((r) => r.value == me.role).firstOrNull ??
+              Role.generalStudent,
+        ),
+      );
+    } catch (_) {
+      emit(const MeState.failure());
+    }
+  }
+
+  void _onClear(Emitter<MeState> emit) => emit(const MeState.initial());
 }
 
 extension AccessRole on BuildContext {
-  Role get role => watch<MeCubit>().state.role ?? Role.generalStudent;
+  Role get role => watch<MeBloc>().state.maybeWhen(
+    loaded: (_, __, role) => role,
+    orElse: () => Role.generalStudent,
+  );
 }
