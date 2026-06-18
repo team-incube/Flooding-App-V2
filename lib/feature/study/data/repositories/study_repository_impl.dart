@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_exception.dart';
-import '../../../../core/network/flooding_api_client.dart';
+import '../../../../core/network/auth_interceptor.dart' show SessionInvalidator;
 import '../../../auth/data/datasources/token_storage.dart';
+import '../../../auth/data/flooding_authed_client.dart';
 import '../../domain/repositories/study_repository.dart';
 import '../../domain/repositories/study_request_policy.dart';
 import '../datasources/study_api.dart';
@@ -14,9 +15,9 @@ import '../models/study_applicant.dart';
 /// - 백엔드 [DioException] 은 [ErrorInterceptor] 가 [ApiException] 으로
 ///   정규화하므로, 여기서는 [DioExceptionX.toApiException] 으로 풀어 던지기만 한다.
 ///
-/// 인증: 저장된 access token 을 Bearer 로 주입한다.
-/// 단, Flooding 백엔드 토큰 발급(인증 브릿지)은 별도 작업이며,
-/// 현재는 401 자동 갱신(refresh)을 연결하지 않는다.
+/// 인증: 저장된 access token 을 Bearer 로 주입하고, 401 시 `/auth/reissue` 로
+/// 토큰을 갱신해 1회 재시도한다. 갱신 실패 시 [onSessionExpired] 로 세션을
+/// 종료해 로그인 화면으로 되돌린다.
 class StudyRepositoryImpl implements StudyRepository {
   StudyRepositoryImpl(
     this._api, {
@@ -26,15 +27,20 @@ class StudyRepositoryImpl implements StudyRepository {
        _clock = clock;
 
   /// 실제 네트워크 클라이언트를 구성하는 팩토리.
+  ///
+  /// [onSessionExpired] 를 주면 토큰 갱신 실패 시 호출돼 로그인 화면으로
+  /// 되돌릴 수 있다(보통 `AuthController.expireSession`).
   factory StudyRepositoryImpl.create({
     Dio? dio,
     TokenStorage? tokenStorage,
+    SessionInvalidator? onSessionExpired,
     StudyRequestPolicy policy = const StudyRequestPolicy(),
     DateTime Function() clock = DateTime.now,
   }) {
     final storage = tokenStorage ?? TokenStorage();
-    final client = FloodingApiClient.create(
-      accessToken: storage.readAccessToken,
+    final client = FloodingAuthedClient.create(
+      tokenStorage: storage,
+      onSessionExpired: onSessionExpired,
       dio: dio,
     );
     final api = StudyApi(client);

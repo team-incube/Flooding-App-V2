@@ -147,6 +147,16 @@ class AuthController extends ChangeNotifier {
     _set(AuthStatus.unauthenticated);
   }
 
+  /// 사용자가 직접 로그아웃한다 — 저장 토큰을 비우고 로그인 화면으로 돌아간다.
+  ///
+  /// 상태가 [AuthStatus.unauthenticated] 로 바뀌면 [createAppRouter] 의
+  /// redirect 가 재평가돼 로그인 화면으로 자동 전환된다.
+  Future<void> logout() async {
+    Logger.d('로그아웃', tag: 'AUTH');
+    await _tokenStorage.clear();
+    _set(AuthStatus.unauthenticated);
+  }
+
   /// 사용 중 네트워크 오류가 발생하면 로그인 화면으로 보낸다.
   ///
   /// [NetworkErrorReporter] 의 전역 리스너로 연결되어, 어느 화면에서 끊겨도

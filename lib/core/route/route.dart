@@ -19,6 +19,8 @@ import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
+import '../../feature/auth/presentation/bloc/me_bloc.dart';
+import '../../feature/auth/presentation/bloc/me_state.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
 import 'route_path.dart';
 
@@ -91,7 +93,9 @@ GoRouter createAppRouter(AuthController auth) {
             providers: [
               RepositoryProvider(create: (_) => MemberRepository()),
               RepositoryProvider<StudyRepository>(
-                create: (_) => StudyRepositoryImpl.create(),
+                create: (_) => StudyRepositoryImpl.create(
+                  onSessionExpired: auth.expireSession,
+                ),
               ),
             ],
             child: BlocProvider(
@@ -103,9 +107,20 @@ GoRouter createAppRouter(AuthController auth) {
                   repository: repository,
                 )..add(const StudyEvent.applicantsRequested());
               },
-              child: BaseScaffold(
-                floatingActionButton: floatingButton,
-                body: child,
+              child: BlocBuilder<MeBloc, MeState>(
+                builder: (context, meState) {
+                  final me = meState.maybeWhen(
+                    loaded: (me) => me,
+                    orElse: () => null,
+                  );
+                  return BaseScaffold(
+                    floatingActionButton: floatingButton,
+                    onLogout: auth.logout,
+                    userName: me?.name ?? '',
+                    studentId: me?.studentNumber.toString() ?? '',
+                    body: child,
+                  );
+                },
               ),
             ),
           );

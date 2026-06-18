@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/core/network/network_error_reporter.dart';
 import 'package:flooding_v2/core/route/route.dart';
 import 'package:flooding_v2/core/theme/config/dark_theme.dart';
 import 'package:flooding_v2/core/theme/config/light_theme.dart';
+import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_event.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,23 +39,51 @@ class FloodingApp extends StatefulWidget {
 class _FloodingAppState extends State<FloodingApp> {
   late final _router = createAppRouter(widget.authController);
 
+  // 메뉴 드로어의 이름·학번 표시용 내 정보. 세션 만료 시 로그인으로 보낸다.
+  late final _meBloc = MeBloc(
+    userService: UserService(
+      onSessionExpired: widget.authController.expireSession,
+    ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // 인증 상태에 맞춰 내 정보를 불러오거나 비운다(로그인 시 로드, 로그아웃 시 초기화).
+    widget.authController.addListener(_syncMe);
+    _syncMe();
+  }
+
+  void _syncMe() {
+    if (widget.authController.status == AuthStatus.authenticated) {
+      _meBloc.add(MeEvent.requested());
+    } else {
+      _meBloc.add(MeEvent.cleared());
+    }
+  }
+
   @override
   void dispose() {
     NetworkErrorReporter.setListener(null);
+    widget.authController.removeListener(_syncMe);
     _router.dispose();
+    _meBloc.close();
     widget.authController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'flooding_v2',
-      debugShowCheckedModeBanner: false,
-      theme: LightTheme.theme,
-      darkTheme: DarkTheme.theme,
-      themeMode: ThemeMode.system,
-      routerConfig: _router,
+    return BlocProvider.value(
+      value: _meBloc,
+      child: MaterialApp.router(
+        title: 'flooding_v2',
+        debugShowCheckedModeBanner: false,
+        theme: LightTheme.theme,
+        darkTheme: DarkTheme.theme,
+        themeMode: ThemeMode.system,
+        routerConfig: _router,
+      ),
     );
   }
 }

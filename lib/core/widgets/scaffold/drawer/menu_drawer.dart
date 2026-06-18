@@ -16,11 +16,15 @@ class MenuDrawer extends StatefulWidget {
     required this.userName,
     required this.studentId,
     this.onProfileEdit,
+    this.onLogout,
   });
 
   final String userName;
   final String studentId;
   final VoidCallback? onProfileEdit;
+
+  /// 로그아웃 확인 후 실행할 동작. 미지정 시 로그아웃 항목은 동작하지 않는다.
+  final Future<void> Function()? onLogout;
 
   static const double _cornerRadius = 20;
 
@@ -41,10 +45,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
       confirmLabel: '로그아웃',
     );
     if (!mounted || ok != true) return;
-    // Todo: 로그아웃 처리.
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('로그아웃되었어요')));
+    await widget.onLogout?.call();
   }
 
   /// 드로어 회원탈퇴 → 확인 후 탈퇴.
