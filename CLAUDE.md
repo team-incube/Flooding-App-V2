@@ -19,7 +19,7 @@ Dev task runner at the repo root: `dev.ps1` (Windows) / `dev.sh` (macOS/Linux). 
 
 | Subcommand | Does |
 |---|---|
-| `setup` | `fvm install` + `pub get` + `build_runner build`; seeds missing `.env.dev`/`.env.prod` from `.env.example` |
+| `setup` | `fvm install` + `pub get` + `build_runner build`; seeds missing `.env.dev`/`.env.prod` from GitHub Actions variables `ENV_DEV`/`ENV_PROD` via `gh` (needs `gh auth login`), falling back to `.env.example` if `gh` is unavailable. `setup --force` (`-f`) re-fetches and overwrites existing `.env.*` from `gh` |
 | `prod` | `fvm flutter run --dart-define=ENV=prod` |
 | `profile` | `fvm flutter run --profile --dart-define=ENV=prod` |
 | `gen` | `fvm dart run build_runner build` (`gen --watch` to watch) |

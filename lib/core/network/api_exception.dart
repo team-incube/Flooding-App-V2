@@ -1,11 +1,5 @@
 import 'package:dio/dio.dart';
 
-/// 앱 전반에서 사용하는 정규화된 요청 예외.
-///
-/// [DioException] 의 상태 코드·타임아웃 판정·서버 메시지 추출을 한곳에 모아,
-/// 각 레포지토리가 같은 변환 로직을 중복 구현하지 않도록 한다. 상태 코드의
-/// *의미*(예: 자습 409 = "이미 신청")가 필요한 일부 경우만 레포가 [message]
-/// 를 직접 지정해 던지고, 나머지는 서버 메시지 또는 일반 fallback 을 쓴다.
 class ApiException implements Exception {
   const ApiException({this.statusCode, this.serverMessage, this.isNetwork = false});
 
