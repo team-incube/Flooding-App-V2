@@ -100,7 +100,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
             _TagLine<String>(
               title: '성별',
               initValue: gender,
-              list: Gender.values.map((e) => e.ko).toList(),
+              list: Gender.values.map((e) => e.label).toList(),
               onTagChange: (value) {
                 gender = value;
               },
@@ -129,7 +129,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                       widget.onSubmit.call(
                         grade,
                         classNb,
-                        Gender.values.where((g) => g.ko == gender).firstOrNull,
+                        Gender.values.where((g) => g.label == gender).firstOrNull,
                       );
                     },
                     expand: true,
