@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/env.dart';
 import '../../../core/network/dio_client.dart';
-import '../../../core/utils/logger.dart';
 import 'datagsm_auth_service.dart' show AuthException;
 import 'datasources/flooding_auth_api.dart';
 import 'models/reissue_request.dart';
@@ -19,7 +18,8 @@ class FloodingAuthService {
   final FloodingAuthApi? _injectedApi;
 
   // 기본 클라이언트는 첫 사용(로그인) 시점에 만든다 — 생성 시 Env 읽기를 피한다.
-  late final FloodingAuthApi _api = _injectedApi ?? FloodingAuthApi(_defaultClient());
+  late final FloodingAuthApi _api =
+      _injectedApi ?? FloodingAuthApi(_defaultClient());
 
   static Dio _defaultClient() {
     final dio = DioClient.create();
@@ -44,11 +44,6 @@ class FloodingAuthService {
       }
       return data;
     } on DioException catch (e) {
-      Logger.e(
-        'signin 실패: ${e.response?.statusCode} ${e.response?.data}',
-        tag: 'AUTH',
-        error: e,
-      );
       if (e.response?.statusCode == 403) {
         throw const AuthException('학생만 로그인할 수 있어요.');
       }
