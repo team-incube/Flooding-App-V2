@@ -20,6 +20,8 @@ class RequestCountCard extends StatefulWidget {
     required this.current,
     this.onSeeAllPressed,
     required this.onActionPressed,
+    this.actionLabel = '신청 불가',
+    this.actionEnabled = false,
   }) : title = '자습신청',
        icon = AppIcon.book,
        total = 50,
@@ -39,6 +41,8 @@ class RequestCountCard extends StatefulWidget {
     required this.current,
     this.onSeeAllPressed,
     required this.onActionPressed,
+    this.actionLabel = '신청 불가',
+    this.actionEnabled = false,
   }) : title = '안마의자 신청',
        icon = AppIcon.chair,
        total = 5,
@@ -62,6 +66,8 @@ class RequestCountCard extends StatefulWidget {
   final double bubbleTailOffset;
   final VoidCallback? onSeeAllPressed;
   final VoidCallback onActionPressed;
+  final String actionLabel;
+  final bool actionEnabled;
   final String path;
 
   @override
@@ -159,8 +165,8 @@ class _RequestCountCardState extends State<RequestCountCard> {
           Align(
             alignment: Alignment.centerRight,
             child: PrimaryActionButton(
-              label: '신청 불가',
-              enabled: false,
+              label: widget.actionLabel,
+              enabled: widget.actionEnabled,
               onPressed: widget.onActionPressed,
             ),
           ),

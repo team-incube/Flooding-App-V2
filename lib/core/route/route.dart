@@ -1,5 +1,4 @@
 import 'package:flooding_v2/core/enum/role.dart';
-import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
@@ -7,6 +6,11 @@ import 'package:flooding_v2/feature/member/domain/usecases/get_massage_members_u
 import 'package:flooding_v2/feature/member/domain/usecases/get_study_members_usecase.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
+import 'package:flooding_v2/feature/study/data/repositories/study_repository_impl.dart';
+import 'package:flooding_v2/feature/study/domain/repositories/study_repository.dart';
+import 'package:flooding_v2/feature/study/domain/usecases/get_study_applicants_usecase.dart';
+import 'package:flooding_v2/feature/study/presentation/bloc/study_bloc.dart';
+import 'package:flooding_v2/feature/study/presentation/bloc/study_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -47,34 +51,32 @@ GoRouter createAppRouter(AuthController auth) {
           GoRoute(
             path: RoutePath.home,
             builder: (context, state) {
-              //TODO : controller로부터 현재 신청 인원 불러오기
-              return const HomeView(studyCount: 4, massageCount: 4);
+              //TODO : 안마의자 신청 인원도 API 로 불러오기 (자습은 StudyBloc 로 로드)
+              return const HomeView(massageCount: 4);
             },
           ),
           GoRoute(
             path: RoutePath.dormitory,
             builder: (context, state) {
-              //TODO : controller에서 현재 신청 인원 불러오기
-              return const DormitoryView(studyCount: 4, massageCount: 4);
+              //TODO : 안마의자 신청 인원도 API 로 불러오기 (자습은 StudyBloc 로 로드)
+              return const DormitoryView(massageCount: 4);
             },
           ),
           GoRoute(
             path: RoutePath.requestStudy,
-            builder: (context, state) {
-              return MultiBlocProvider(
-                providers: [
-                  BlocProvider(
-                    create: (context) => MemberListBloc(
-                      getMembers: GetStudyMembersUseCase(
-                        context.read<MemberRepository>(),
-                      ),
-                    )..add(MemberListEvent.load()),
-                  ),
-                  BlocProvider(create: (context) => MemberSelectionBloc()),
-                ],
-                child: const StudyRequestView(),
-              );
-            },
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => MemberListBloc(
+                    getMembers: GetStudyMembersUseCase(
+                      context.read<MemberRepository>(),
+                    ),
+                  )..add(MemberListEvent.load()),
+                ),
+                BlocProvider(create: (context) => MemberSelectionBloc()),
+              ],
+              child: const StudyRequestView(),
+            ),
           ),
           GoRoute(
             path: RoutePath.requestMassage,
@@ -106,7 +108,6 @@ GoRouter createAppRouter(AuthController auth) {
             RoutePath.requestMassage => const FloatingActions.aiChat(),
             _ => const FloatingActions.both(),
           };
-
           final floatingButtonLocation = switch (location) {
             RoutePath.requestStudy || RoutePath.requestMassage
                 when isDormManager =>
@@ -114,12 +115,30 @@ GoRouter createAppRouter(AuthController auth) {
             _ => null,
           };
 
-          return RepositoryProvider(
-            create: (_) => MemberRepository(),
-            child: BaseScaffold(
-              floatingActionButton: floatingButton,
-              floatingActionButtonLocation: floatingButtonLocation,
-              body: child,
+          return MultiRepositoryProvider(
+            providers: [
+              RepositoryProvider(create: (_) => MemberRepository()),
+              RepositoryProvider<StudyRepository>(
+                create: (_) => StudyRepositoryImpl.create(
+                  onSessionExpired: auth.expireSession,
+                ),
+              ),
+            ],
+            child: BlocProvider(
+              create: (ctx) {
+                final repository = ctx.read<StudyRepository>();
+                // 셸 진입 시 1회 로드 — 홈/기숙사 카운트 카드가 즉시 채워진다.
+                return StudyBloc(
+                  getApplicants: GetStudyApplicantsUseCase(repository),
+                  repository: repository,
+                )..add(const StudyEvent.applicantsRequested());
+              },
+              child: BaseScaffold(
+                floatingActionButton: floatingButton,
+                floatingActionButtonLocation: floatingButtonLocation,
+                onLogout: auth.logout,
+                body: child,
+              ),
             ),
           );
         },

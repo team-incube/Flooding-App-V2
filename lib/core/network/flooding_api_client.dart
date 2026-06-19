@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../config/env.dart';
 import 'auth_interceptor.dart';
 import 'dio_client.dart';
+import 'error_interceptor.dart';
 
 /// Flooding 백엔드(`Env.apiBaseUrl`) 전용 [Dio] 팩토리.
 ///
@@ -46,6 +47,9 @@ class FloodingApiClient {
         ),
       );
     }
+
+    // 401 재시도 등 인증 처리가 끝난 뒤 마지막으로 에러를 정규화한다.
+    client.interceptors.add(ErrorInterceptor());
     return client;
   }
 }

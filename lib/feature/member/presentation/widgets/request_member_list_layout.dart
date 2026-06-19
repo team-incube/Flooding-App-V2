@@ -1,6 +1,5 @@
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/widgets/primary_action_button.dart';
-import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_event.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_state.dart';

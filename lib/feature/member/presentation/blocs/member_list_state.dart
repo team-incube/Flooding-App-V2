@@ -19,4 +19,6 @@ class MemberListState with _$MemberListState {
   const factory MemberListState.filtered({
     required List<MemberModel> memberList,
   }) = _Filtered;
+
+  const factory MemberListState.error({required String message}) = _Error;
 }

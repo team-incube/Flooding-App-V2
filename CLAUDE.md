@@ -19,7 +19,7 @@ Dev task runner at the repo root: `dev.ps1` (Windows) / `dev.sh` (macOS/Linux). 
 
 | Subcommand | Does |
 |---|---|
-| `setup` | `fvm install` + `pub get` + `build_runner build`; seeds missing `.env.dev`/`.env.prod` from `.env.example` |
+| `setup` | `fvm install` + `pub get` + `build_runner build`; seeds missing `.env.dev`/`.env.prod` from GitHub Actions variables `ENV_DEV`/`ENV_PROD` via `gh` (needs `gh auth login`), falling back to `.env.example` if `gh` is unavailable. `setup --force` (`-f`) re-fetches and overwrites existing `.env.*` from `gh` |
 | `prod` | `fvm flutter run --dart-define=ENV=prod` |
 | `profile` | `fvm flutter run --profile --dart-define=ENV=prod` |
 | `gen` | `fvm dart run build_runner build` (`gen --watch` to watch) |
@@ -93,7 +93,7 @@ Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`f
 
 ### Branches
 
-`{type}/{issue-number}-{kebab-case-slug}` off `develop`. Types:
+`{type}/#{issue-number}` off `develop`. Types:
 
 | Type | Use | Usual commit emoji |
 |---|---|---|
@@ -101,7 +101,7 @@ Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`f
 | `refactor` | restructuring existing code without behavior change | ♻️ |
 | `chore` | tooling, CI, config, docs — anything outside product code | 🔧 |
 
-Example: `feature/23-publish-ai-chat-page`, `chore/25-setup-claude-harness`.
+Example: `feature/#23`, `chore/#25`.
 
 ### Commits
 

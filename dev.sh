@@ -17,11 +17,32 @@ cmd="${1:-}"
 
 case "$cmd" in
   setup)
+    # env files are gitignored. Pull real values from GitHub Actions variables
+    # (ENV_DEV / ENV_PROD) via gh; fall back to the .env.example template.
+    # `setup --force` (-f) re-fetches and overwrites existing .env.* from gh.
+    force=false
+    for a in "$@"; do
+      [ "$a" = "--force" ] || [ "$a" = "-f" ] && force=true
+    done
     for f in .env.dev .env.prod; do
-      if [ ! -f "$f" ]; then
-        if [ -f .env.example ]; then
+      exists=false; [ -f "$f" ] && exists=true
+      [ "$exists" = true ] && [ "$force" = false ] && continue
+      case "$f" in
+        .env.dev)  var=ENV_DEV ;;
+        .env.prod) var=ENV_PROD ;;
+      esac
+      tmp="$f.tmp.$$"
+      if command -v gh &> /dev/null && gh variable get "$var" > "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+        mv "$tmp" "$f"
+        [ "$exists" = true ] && echo "Updated $f from GitHub variable $var" || echo "Created $f from GitHub variable $var"
+      else
+        rm -f "$tmp"
+        # Never clobber an existing file with the template on a failed fetch.
+        if [ "$exists" = true ]; then
+          echo "⚠️  Could not refresh $f from gh; kept the existing file."
+        elif [ -f .env.example ]; then
           cp .env.example "$f"
-          echo "Created $f from .env.example"
+          echo "Created $f from .env.example (gh unavailable; fill in real values)"
         else
           echo "⚠️  $f is missing and .env.example was not found."
         fi

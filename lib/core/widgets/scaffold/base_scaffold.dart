@@ -1,8 +1,8 @@
-import 'package:flooding_v2/feature/auth/presentation/blocs/me_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../feature/auth/presentation/blocs/me_bloc.dart';
+import '../../../feature/auth/presentation/bloc/me_bloc.dart';
+import '../../../feature/auth/presentation/bloc/me_state.dart';
 import '../../constants/app_size.dart';
 import '../../constants/app_spacing.dart';
 import '../../theme/color/app_colors.dart';
@@ -21,6 +21,7 @@ class BaseScaffold extends StatelessWidget {
     this.appBar,
     this.showDefaultAppBar = true,
     this.onMenuTap,
+    this.onLogout,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.backgroundColor,
@@ -33,6 +34,10 @@ class BaseScaffold extends StatelessWidget {
 
   /// 햄버거 버튼 탭 동작. 미지정 시 [MenuDrawer] 를 연다.
   final VoidCallback? onMenuTap;
+
+  /// 메뉴 드로어의 로그아웃 동작.
+  final Future<void> Function()? onLogout;
+
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Color? backgroundColor;
@@ -50,17 +55,21 @@ class BaseScaffold extends StatelessWidget {
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
       endDrawer: BlocBuilder<MeBloc, MeState>(
         builder: (context, state) {
-          String userName = '익명';
+          String drawerName = '익명';
           int studentNumber = 0;
 
           state.whenOrNull(
-            loaded: (name, number, _) {
-              userName = name;
-              studentNumber = number;
+            loaded: (me) {
+              drawerName = me.name;
+              studentNumber = me.studentNumber;
             },
           );
 
-          return MenuDrawer(name: userName, studentNumber: studentNumber);
+          return MenuDrawer(
+            name: drawerName,
+            studentNumber: studentNumber,
+            onLogout: onLogout,
+          );
         },
       ),
       // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용

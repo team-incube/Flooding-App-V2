@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
 import '../data/datagsm_auth_service.dart';
@@ -8,8 +9,6 @@ import '../data/datasources/token_storage.dart';
 import '../data/flooding_auth_service.dart';
 import '../data/models/oauth_token.dart';
 import '../data/user_service.dart';
-import 'blocs/me_bloc.dart';
-import 'blocs/me_event.dart';
 import 'pages/oauth_webview_page.dart';
 
 /// 앱 전역 인증 상태.
@@ -29,13 +28,11 @@ enum AuthStatus {
 /// 로그인 화면으로 되돌아간다.
 class AuthController extends ChangeNotifier {
   AuthController({
-    required MeBloc meBloc,
     required SessionValidator sessionValidator,
     DatagsmAuthService? authService,
     TokenStorage? tokenStorage,
     FloodingAuthService? floodingAuthService,
   }) : _tokenStorage = tokenStorage ?? TokenStorage(),
-       _meBloc = meBloc,
        _sessionValidator = sessionValidator {
     _authService =
         authService ??
@@ -50,10 +47,10 @@ class AuthController extends ChangeNotifier {
   late final DatagsmAuthService _authService;
   final SessionValidator _sessionValidator;
   late final FloodingAuthService _floodingAuth;
-  final MeBloc _meBloc;
 
   // 초기값. 앱 시작 시 runApp 이전에 bootstrap() 으로 실제 상태가 채워진다.
   AuthStatus _status = AuthStatus.unauthenticated;
+
   AuthStatus get status => _status;
 
   String? _error;
@@ -79,7 +76,13 @@ class AuthController extends ChangeNotifier {
       _set(AuthStatus.unauthenticated);
       return;
     }
-    _meBloc.add(const MeEvent.load());
+    if (check == SessionCheck.networkError) {
+      // 서버에 닿지 못함 — 토큰은 유효할 수 있으므로 지우지 않고, 로그인 화면에
+      // 네트워크 오류를 안내해 재시도하게 한다.
+      _fail(ApiException.networkMessage);
+      return;
+    }
+    // 그 외 판단 불가(서버 5xx 등)는 오프라인 사용자를 막지 않도록 진입 허용.
     _set(AuthStatus.authenticated);
   }
 
@@ -122,7 +125,6 @@ class AuthController extends ChangeNotifier {
       );
       Logger.d('로그인 성공 (Flooding 토큰 발급)', tag: 'AUTH');
 
-      _meBloc.add(const MeEvent.load());
       _set(AuthStatus.authenticated);
     } on AuthException catch (e) {
       _fail(e.message);
@@ -138,8 +140,28 @@ class AuthController extends ChangeNotifier {
   /// 토큰 재발급이 실패하면 즉시 로그인 화면으로 전환된다.
   Future<void> expireSession() async {
     await _tokenStorage.clear();
-    _meBloc.add(const MeEvent.clear());
     _set(AuthStatus.unauthenticated);
+  }
+
+  /// 사용자가 직접 로그아웃한다 — 저장 토큰을 비우고 로그인 화면으로 돌아간다.
+  ///
+  /// 상태가 [AuthStatus.unauthenticated] 로 바뀌면 [createAppRouter] 의
+  /// redirect 가 재평가돼 로그인 화면으로 자동 전환된다.
+  Future<void> logout() async {
+    Logger.d('로그아웃', tag: 'AUTH');
+    await _tokenStorage.clear();
+    _set(AuthStatus.unauthenticated);
+  }
+
+  /// 사용 중 네트워크 오류가 발생하면 로그인 화면으로 보낸다.
+  ///
+  /// [NetworkErrorReporter] 의 전역 리스너로 연결되어, 어느 화면에서 끊겨도
+  /// 동작한다. 토큰은 유효할 수 있으므로(단순 연결 실패) 지우지 않는다 —
+  /// 연결이 돌아오면 로그인 화면에서 재시도한다. 이미 미인증(로그인 화면)이면
+  /// 무시해 중복 알림·로그인 흐름 간섭을 막는다.
+  void reportNetworkError() {
+    if (_status == AuthStatus.unauthenticated) return;
+    _fail(ApiException.networkMessage);
   }
 
   void _set(AuthStatus status) {
