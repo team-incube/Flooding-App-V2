@@ -56,7 +56,7 @@ AuthController _controller(
   _FakeTokenStorage storage,
   _FakeSessionValidator validator,
   _FakeMeBloc meBloc,
-) => AuthController(tokenStorage: storage, sessionValidator: validator);
+) => AuthController(tokenStorage: storage, sessionValidator: validator, meBloc: meBloc);
 
 void main() {
   group('AuthController.bootstrap', () {
