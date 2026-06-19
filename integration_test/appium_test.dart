@@ -7,7 +7,6 @@ import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:flooding_v2/feature/auth/data/models/oauth_token.dart';
 import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
-import 'package:flooding_v2/feature/auth/presentation/blocs/me_bloc.dart';
 import 'package:flooding_v2/main.dart';
 
 /// Appium UI 테스트 진입점.
@@ -22,17 +21,15 @@ void main() {
 
       final tokenStorage = _FakeTokenStorage();
       final userService = _FakeUserService();
-      final meBloc = MeBloc(userService);
 
       final authController = AuthController(
-        meBloc: meBloc,
         sessionValidator: _FakeSessionValidator(),
         tokenStorage: tokenStorage,
       );
       await authController.bootstrap();
 
       await tester.pumpWidget(
-        FloodingApp(authController: authController, meBloc: meBloc),
+        FloodingApp(authController: authController),
       );
     },
   );
