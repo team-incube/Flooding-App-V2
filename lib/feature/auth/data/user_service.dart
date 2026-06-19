@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 
+import '../../../core/network/api_exception.dart';
 import '../../../core/network/auth_interceptor.dart' show SessionInvalidator;
 import 'datasources/token_storage.dart';
 import 'datasources/user_api.dart';
@@ -14,7 +17,10 @@ enum SessionCheck {
   /// `/users/me` 401 — 토큰 만료/무효, 재로그인 필요.
   unauthorized,
 
-  /// 네트워크 오류·타임아웃 등 판단 불가.
+  /// 연결 실패·타임아웃 — 서버에 닿지 못함(오프라인 가능).
+  networkError,
+
+  /// 그 외(서버 5xx 등) 판단 불가.
   unknown,
 }
 
@@ -62,9 +68,13 @@ class UserService implements SessionValidator {
     try {
       await _api.getMe().timeout(timeout);
       return SessionCheck.valid;
+    } on TimeoutException {
+      // .timeout() 이 Dio 자체 타임아웃보다 먼저 끊은 경우 — 네트워크 지연.
+      return SessionCheck.networkError;
     } on DioException catch (e) {
-      return e.response?.statusCode == 401
-          ? SessionCheck.unauthorized
+      if (e.response?.statusCode == 401) return SessionCheck.unauthorized;
+      return e.toApiException().isNetwork
+          ? SessionCheck.networkError
           : SessionCheck.unknown;
     } catch (_) {
       return SessionCheck.unknown;

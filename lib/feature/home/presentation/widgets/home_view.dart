@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/card_header.dart';
 import '../../../../core/widgets/primary_action_button.dart';
 import '../../../../core/widgets/request_count_card.dart';
+import '../../../study/presentation/widgets/study_count_card.dart';
 
 /// 홈 섹션 본문(시간표·자습신청·안마의자·기상음악 카드).
 ///
@@ -20,11 +21,9 @@ import '../../../../core/widgets/request_count_card.dart';
 class HomeView extends StatefulWidget {
   const HomeView({
     super.key,
-    required this.studyCount,
     required this.massageCount,
   });
 
-  final int studyCount;
   final int massageCount;
 
   @override
@@ -53,12 +52,7 @@ class _HomeViewState extends State<HomeView> {
               teacher: '이주원',
             ),
             const SizedBox(height: AppSpacing.s16),
-            RequestCountCard.study(
-              current: widget.studyCount,
-              onActionPressed: () {
-                // Todo: 자습신청 기능 구현
-              },
-            ),
+            const StudyCountCard(),
             const SizedBox(height: AppSpacing.s16),
             RequestCountCard.massage(
               current: widget.massageCount,

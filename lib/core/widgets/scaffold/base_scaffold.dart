@@ -18,6 +18,9 @@ class BaseScaffold extends StatelessWidget {
     this.appBar,
     this.showDefaultAppBar = true,
     this.onMenuTap,
+    this.onLogout,
+    this.userName = '',
+    this.studentId = '',
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.backgroundColor,
@@ -30,6 +33,13 @@ class BaseScaffold extends StatelessWidget {
 
   /// 햄버거 버튼 탭 동작. 미지정 시 [MenuDrawer] 를 연다.
   final VoidCallback? onMenuTap;
+
+  /// 메뉴 드로어의 로그아웃 동작.
+  final Future<void> Function()? onLogout;
+
+  /// 메뉴 드로어에 표시할 사용자 이름·학번(`/users/me`).
+  final String userName;
+  final String studentId;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Color? backgroundColor;
@@ -45,8 +55,11 @@ class BaseScaffold extends StatelessWidget {
       appBar: resolvedAppBar,
       body: Padding(padding: padding, child: body),
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
-      // TODO: controller에서 접속 중인 유저 정보 불러오기
-      endDrawer: const MenuDrawer(userName: '민솔', studentId: '2403'),
+      endDrawer: MenuDrawer(
+        userName: userName,
+        studentId: studentId,
+        onLogout: onLogout,
+      ),
       // 드로어가 열리면 뒤 홈 화면이 옅게 비치도록 반투명 흰색 scrim 적용
       // (디자인: BackGroundColor #F7F7F9 50%).
       drawerScrimColor: Colors.transparent,

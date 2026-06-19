@@ -7,6 +7,8 @@ import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/scaffold/base_scaffold.dart';
+import '../../../auth/presentation/bloc/me_bloc.dart';
+import '../../../auth/presentation/bloc/me_state.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -68,7 +70,15 @@ class _AiChatViewState extends State<_AiChatView> {
 
   @override
   Widget build(BuildContext context) {
+    final me = context.select<MeBloc, ({String name, String studentId})?>(
+      (bloc) => bloc.state.maybeWhen(
+        loaded: (me) => (name: me.name, studentId: me.studentNumber.toString()),
+        orElse: () => null,
+      ),
+    );
     return BaseScaffold(
+      userName: me?.name ?? '',
+      studentId: me?.studentId ?? '',
       body: Column(
         children: [
           const _ChatHeader(),

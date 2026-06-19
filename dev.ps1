@@ -17,11 +17,37 @@ $rest = if ($args.Count -gt 1) { $args[1..($args.Count - 1)] } else { @() }
 
 switch ($cmd) {
     'setup' {
+        # env files are gitignored. Pull real values from GitHub Actions variables
+        # (ENV_DEV / ENV_PROD) via gh; fall back to the .env.example template.
+        # `setup --force` (-f) re-fetches and overwrites existing .env.* from gh.
+        $force = ($rest -contains '--force') -or ($rest -contains '-f')
+        $hasGh = [bool](Get-Command gh -ErrorAction SilentlyContinue)
+        $envMap = @{ '.env.dev' = 'ENV_DEV'; '.env.prod' = 'ENV_PROD' }
         foreach ($f in @('.env.dev', '.env.prod')) {
-            if (-not (Test-Path $f)) {
-                if (Test-Path '.env.example') {
+            $exists = Test-Path $f
+            if ($exists -and -not $force) { continue }
+            $fetched = $false
+            if ($hasGh) {
+                # gh emits one line per env entry; PowerShell captures them as a
+                # string array, and Set-Content writes each element on its own line.
+                $value = gh variable get $envMap[$f] 2>$null
+                if ($LASTEXITCODE -eq 0 -and $value) {
+                    # WriteAllLines writes UTF-8 without BOM; Set-Content -Encoding utf8
+                    # on Windows PowerShell 5.1 prepends a BOM that corrupts the first
+                    # env key (﻿API_BASE_URL), breaking dotenv parsing.
+                    [System.IO.File]::WriteAllLines((Join-Path (Get-Location) $f), [string[]]$value)
+                    $verb = if ($exists) { 'Updated' } else { 'Created' }
+                    Write-Host "$verb $f from GitHub variable $($envMap[$f])"
+                    $fetched = $true
+                }
+            }
+            if (-not $fetched) {
+                # Never clobber an existing file with the template on a failed fetch.
+                if ($exists) {
+                    Write-Warning "Could not refresh $f from gh; kept the existing file."
+                } elseif (Test-Path '.env.example') {
                     Copy-Item '.env.example' $f
-                    Write-Host "Created $f from .env.example"
+                    Write-Host "Created $f from .env.example (gh unavailable; fill in real values)"
                 } else {
                     Write-Warning "$f is missing and .env.example was not found."
                 }
