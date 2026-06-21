@@ -1,4 +1,10 @@
+import 'package:flooding_v2/core/enum/role.dart';
+import 'package:flooding_v2/core/widgets/primary_action_button.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_bloc.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_event.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_size.dart';
@@ -6,6 +12,9 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
+import '../blocs/member_list_bloc.dart';
+import '../blocs/member_list_event.dart';
+import '../blocs/member_list_state.dart';
 import '../models/member_model.dart';
 import 'member_filter_dialog.dart';
 import 'member_card.dart';
@@ -15,19 +24,81 @@ class RequestMemberListLayout extends StatelessWidget {
     super.key,
     required this.searchBar,
     required this.title,
-    required this.filterAction,
     required this.emptyIcon,
-    required this.memberList,
   });
 
   final Widget searchBar;
   final String title;
-  final List<MemberModel> memberList;
-  final OnFilterSubmit filterAction;
   final Widget emptyIcon;
 
   static const double _bottomPadding = 112;
   static const double _emptyTopPadding = 125;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDormManager = context.role == Role.dormitoryManager;
+
+    final body = BlocBuilder<MemberListBloc, MemberListState>(
+      builder: (context, state) {
+        final memberList =
+            state.whenOrNull(
+              loaded: (list) => list,
+              filtered: (list) => list,
+            ) ??
+            [];
+
+        return CustomScrollView(
+          physics: memberList.isNotEmpty
+              ? const ClampingScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
+          slivers: [
+            _TopBar(searchBar: searchBar, title: title),
+            if (memberList.isNotEmpty) ...{
+              _MemberGridLayout(memberList: memberList),
+              const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
+            } else ...{
+              const SliverToBoxAdapter(
+                child: SizedBox(height: _emptyTopPadding),
+              ),
+              SliverFillRemaining(child: Center(child: emptyIcon)),
+            },
+          ],
+        );
+      },
+    );
+
+    return isDormManager
+        ? Stack(
+            children: [
+              body,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+                  child: SizedBox(
+                    height: 47,
+                    child:
+                        BlocBuilder<MemberSelectionBloc, MemberSelectionState>(
+                          builder: (context, state) => PrimaryActionButton(
+                            label: '출석 완료',
+                            expand: true,
+                            enabled: state.checkList.isNotEmpty,
+                          ),
+                        ),
+                  ),
+                ),
+              ),
+            ],
+          )
+        : body;
+  }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.searchBar, required this.title});
+
+  final String title;
+  final Widget searchBar;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +112,7 @@ class RequestMemberListLayout extends StatelessWidget {
       icon: icon,
     );
 
-    final titleBar = SliverAppBar(
+    return SliverAppBar(
       leading: iconButton(AppIcon.chevronLeft(), () {
         context.pop();
       }),
@@ -55,7 +126,17 @@ class RequestMemberListLayout extends StatelessWidget {
       actions: [
         iconButton(
           AppIcon.filter(),
-          () => MemberFilterDialog(onSubmit: filterAction).show(context),
+          () => MemberFilterDialog(
+            onSubmit: (grade, classNb, gender) {
+              context.read<MemberListBloc>().add(
+                MemberListEvent.filter(
+                  grade: grade,
+                  classNb: classNb,
+                  gender: gender,
+                ),
+              );
+            },
+          ).show(context),
         ),
       ],
       bottom: PreferredSize(
@@ -71,22 +152,6 @@ class RequestMemberListLayout extends StatelessWidget {
       floating: true,
       snap: true,
     );
-
-    return CustomScrollView(
-      physics: memberList.isNotEmpty
-          ? const ClampingScrollPhysics()
-          : const NeverScrollableScrollPhysics(),
-      slivers: [
-        titleBar,
-        if (memberList.isNotEmpty) ...{
-          _MemberGridLayout(memberList: memberList),
-          const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
-        } else ...{
-          const SliverToBoxAdapter(child: SizedBox(height: _emptyTopPadding)),
-          SliverFillRemaining(child: Center(child: emptyIcon)),
-        },
-      ],
-    );
   }
 }
 
@@ -97,17 +162,38 @@ class _MemberGridLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDormManager = context.role == Role.dormitoryManager;
+
+    final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: AppSpacing.s8,
+      crossAxisSpacing: AppSpacing.s8,
+      mainAxisExtent: MemberCard.fixedSize.height,
+    );
+
+    if (!isDormManager) {
+      return SliverGrid.builder(
+        gridDelegate: gridDelegate,
+        itemCount: memberList.length,
+        itemBuilder: (_, index) =>
+            MemberCard(model: memberList[index], number: index + 1),
+      );
+    }
+
+    final selectedIds = context.watch<MemberSelectionBloc>().state.checkList;
     return SliverGrid.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: AppSpacing.s8,
-        crossAxisSpacing: AppSpacing.s8,
-        mainAxisExtent: MemberCard.fixedSize.height,
-      ),
+      gridDelegate: gridDelegate,
       itemCount: memberList.length,
-      itemBuilder: (BuildContext context, int index) {
+      itemBuilder: (_, index) {
         final member = memberList[index];
-        return MemberCard(number: index + 1, model: member);
+        return MemberCard.button(
+          number: index + 1,
+          model: member,
+          isSelected: selectedIds.contains(member.schoolNb),
+          onSelect: (schoolNb) => context.read<MemberSelectionBloc>().add(
+            MemberSelectionEvent.check(schoolNb: schoolNb),
+          ),
+        );
       },
     );
   }

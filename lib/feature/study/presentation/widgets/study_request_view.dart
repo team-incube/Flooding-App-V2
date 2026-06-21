@@ -61,15 +61,6 @@ class _StudyRequestViewState extends State<StudyRequestView> {
             textEditingController: searchController,
             hintText: '학생 이름, 학번을 입력해주세요',
           ),
-          filterAction: (grade, classNb, gender) {
-            context.read<StudyBloc>().add(
-              StudyEvent.filtered(
-                grade: grade,
-                classNb: classNb,
-                gender: gender,
-              ),
-            );
-          },
           emptyIcon: isLoading
               ? const Center(child: CircularProgressIndicator())
               : state.applicantCount > 0
@@ -85,7 +76,6 @@ class _StudyRequestViewState extends State<StudyRequestView> {
                   title: '자습 신청한 인원이 없습니다.',
                   subTitle: '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
                 ),
-          memberList: state.applicants,
         );
       },
     );

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/feature/auth/data/datasources/token_storage.dart';
 import 'package:flooding_v2/feature/auth/data/models/oauth_token.dart';
+import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
 import 'package:flooding_v2/main.dart';
 
@@ -17,10 +18,17 @@ void main() {
     callback: (WidgetTester tester) async {
       await Env.load();
 
-      final authController = AuthController(tokenStorage: _FakeTokenStorage());
+      final tokenStorage = _FakeTokenStorage();
+
+      final authController = AuthController(
+        sessionValidator: _FakeSessionValidator(),
+        tokenStorage: tokenStorage,
+      );
       await authController.bootstrap();
 
-      await tester.pumpWidget(FloodingApp(authController: authController));
+      await tester.pumpWidget(
+        FloodingApp(authController: authController),
+      );
     },
   );
 }
@@ -48,3 +56,12 @@ class _FakeTokenStorage extends TokenStorage {
     _refresh = null;
   }
 }
+
+/// 항상 세션이 유효한 것처럼 동작하는 테스트용 세션 검증기.
+class _FakeSessionValidator implements SessionValidator {
+  @override
+  Future<SessionCheck> validateSession({
+    Duration timeout = Duration.zero,
+  }) async => SessionCheck.valid;
+}
+

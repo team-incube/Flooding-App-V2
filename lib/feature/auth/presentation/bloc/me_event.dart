@@ -4,11 +4,11 @@ part 'me_event.freezed.dart';
 
 @freezed
 class MeEvent with _$MeEvent {
-  MeEvent._();
+  const MeEvent._();
 
   /// 내 정보(`/users/me`) 로드 요청.
-  factory MeEvent.requested() = _Requested;
+  const factory MeEvent.requested() = _Requested;
 
   /// 로그아웃 등으로 보관 중인 내 정보를 비운다.
-  factory MeEvent.cleared() = _Cleared;
+  const factory MeEvent.cleared() = _Cleared;
 }

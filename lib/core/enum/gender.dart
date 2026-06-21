@@ -1,9 +1,9 @@
 enum Gender {
-  male(value: 'MALE', ko: '남자'),
-  female(value: 'FEMALE', ko: '여자');
+  male(value: 'MALE', label: '남자'),
+  female(value: 'FEMALE', label: '여자');
 
   final String value;
-  final String ko;
+  final String label;
 
-  const Gender({required this.value, required this.ko});
+  const Gender({required this.value, required this.label});
 }

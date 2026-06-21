@@ -1,7 +1,9 @@
+import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
 import 'package:flooding_v2/feature/member/domain/usecases/get_massage_members_usecase.dart';
+import 'package:flooding_v2/feature/member/domain/usecases/get_study_members_usecase.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
 import 'package:flooding_v2/feature/study/data/repositories/study_repository_impl.dart';
@@ -15,12 +17,12 @@ import 'package:go_router/go_router.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
+import '../../feature/member/presentation/blocs/member_selection_bloc.dart';
 import '../../feature/study/presentation/widgets/study_request_view.dart';
 import '../widgets/scaffold/base_scaffold.dart';
+import '../widgets/scaffold/floating_button/floating_action_locations.dart';
 import '../widgets/scaffold/floating_button/floating_actions.dart';
 import '../../feature/auth/presentation/auth_controller.dart';
-import '../../feature/auth/presentation/bloc/me_bloc.dart';
-import '../../feature/auth/presentation/bloc/me_state.dart';
 import '../../feature/auth/presentation/pages/login_page.dart';
 import 'route_path.dart';
 
@@ -62,16 +64,33 @@ GoRouter createAppRouter(AuthController auth) {
           ),
           GoRoute(
             path: RoutePath.requestStudy,
-            builder: (context, state) => const StudyRequestView(),
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => MemberListBloc(
+                    getMembers: GetStudyMembersUseCase(
+                      context.read<MemberRepository>(),
+                    ),
+                  )..add(MemberListEvent.load()),
+                ),
+                BlocProvider(create: (context) => MemberSelectionBloc()),
+              ],
+              child: const StudyRequestView(),
+            ),
           ),
           GoRoute(
             path: RoutePath.requestMassage,
-            builder: (context, state) => BlocProvider(
-              create: (context) => MemberListBloc(
-                getMembers: GetMassageMembersUseCase(
-                  context.read<MemberRepository>(),
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => MemberListBloc(
+                    getMembers: GetMassageMembersUseCase(
+                      context.read<MemberRepository>(),
+                    ),
+                  )..add(MemberListEvent.load()),
                 ),
-              )..add(MemberListEvent.load()),
+                BlocProvider(create: (context) => MemberSelectionBloc()),
+              ],
               child: const MassageRequestView(),
             ),
           ),
@@ -82,11 +101,18 @@ GoRouter createAppRouter(AuthController auth) {
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
+          final isDormManager = context.role == Role.dormitoryManager;
 
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||
             RoutePath.requestMassage => const FloatingActions.aiChat(),
             _ => const FloatingActions.both(),
+          };
+          final floatingButtonLocation = switch (location) {
+            RoutePath.requestStudy || RoutePath.requestMassage
+                when isDormManager =>
+              FloatingActionLocations.aiFloatingLocation,
+            _ => null,
           };
 
           return MultiRepositoryProvider(
@@ -107,20 +133,11 @@ GoRouter createAppRouter(AuthController auth) {
                   repository: repository,
                 )..add(const StudyEvent.applicantsRequested());
               },
-              child: BlocBuilder<MeBloc, MeState>(
-                builder: (context, meState) {
-                  final me = meState.maybeWhen(
-                    loaded: (me) => me,
-                    orElse: () => null,
-                  );
-                  return BaseScaffold(
-                    floatingActionButton: floatingButton,
-                    onLogout: auth.logout,
-                    userName: me?.name ?? '',
-                    studentId: me?.studentNumber.toString() ?? '',
-                    body: child,
-                  );
-                },
+              child: BaseScaffold(
+                floatingActionButton: floatingButton,
+                floatingActionButtonLocation: floatingButtonLocation,
+                onLogout: auth.logout,
+                body: child,
               ),
             ),
           );

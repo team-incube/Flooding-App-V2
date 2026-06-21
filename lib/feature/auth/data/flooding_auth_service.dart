@@ -18,7 +18,8 @@ class FloodingAuthService {
   final FloodingAuthApi? _injectedApi;
 
   // 기본 클라이언트는 첫 사용(로그인) 시점에 만든다 — 생성 시 Env 읽기를 피한다.
-  late final FloodingAuthApi _api = _injectedApi ?? FloodingAuthApi(_defaultClient());
+  late final FloodingAuthApi _api =
+      _injectedApi ?? FloodingAuthApi(_defaultClient());
 
   static Dio _defaultClient() {
     final dio = DioClient.create();

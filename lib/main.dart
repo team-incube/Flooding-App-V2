@@ -17,7 +17,7 @@ Future<void> main() async {
 
   // 저장 토큰 확인을 첫 프레임 전에 끝내, 시작부터 home/login 이 결정되게 한다.
   // (짧은 secure storage 읽기 동안은 OS 런치 스크린이 화면을 덮는다.)
-  final authController = AuthController();
+  final authController = AuthController(sessionValidator: UserService());
   await authController.bootstrap();
 
   // 사용 중 어느 화면에서든 네트워크 오류가 나면 로그인 화면으로 보낸다.
@@ -28,7 +28,10 @@ Future<void> main() async {
 }
 
 class FloodingApp extends StatefulWidget {
-  const FloodingApp({super.key, required this.authController});
+  const FloodingApp({
+    super.key,
+    required this.authController,
+  });
 
   final AuthController authController;
 

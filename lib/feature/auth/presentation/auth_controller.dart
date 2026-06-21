@@ -9,6 +9,8 @@ import '../data/datasources/token_storage.dart';
 import '../data/flooding_auth_service.dart';
 import '../data/models/oauth_token.dart';
 import '../data/user_service.dart';
+import 'bloc/me_bloc.dart';
+import 'bloc/me_event.dart';
 import 'pages/oauth_webview_page.dart';
 
 /// 앱 전역 인증 상태.
@@ -28,20 +30,17 @@ enum AuthStatus {
 /// 로그인 화면으로 되돌아간다.
 class AuthController extends ChangeNotifier {
   AuthController({
+    required SessionValidator sessionValidator,
     DatagsmAuthService? authService,
     TokenStorage? tokenStorage,
-    SessionValidator? sessionValidator,
     FloodingAuthService? floodingAuthService,
-  }) : _tokenStorage = tokenStorage ?? TokenStorage() {
+    MeBloc? meBloc,
+  }) : _tokenStorage = tokenStorage ?? TokenStorage(),
+       _sessionValidator = sessionValidator,
+       _meBloc = meBloc {
     _authService =
         authService ??
         DatagsmAuthService(
-          tokenStorage: _tokenStorage,
-          onSessionExpired: expireSession,
-        );
-    _sessionValidator =
-        sessionValidator ??
-        UserService(
           tokenStorage: _tokenStorage,
           onSessionExpired: expireSession,
         );
@@ -50,11 +49,13 @@ class AuthController extends ChangeNotifier {
 
   final TokenStorage _tokenStorage;
   late final DatagsmAuthService _authService;
-  late final SessionValidator _sessionValidator;
+  final SessionValidator _sessionValidator;
   late final FloodingAuthService _floodingAuth;
+  final MeBloc? _meBloc;
 
   // 초기값. 앱 시작 시 runApp 이전에 bootstrap() 으로 실제 상태가 채워진다.
   AuthStatus _status = AuthStatus.unauthenticated;
+
   AuthStatus get status => _status;
 
   String? _error;
@@ -81,13 +82,11 @@ class AuthController extends ChangeNotifier {
       return;
     }
     if (check == SessionCheck.networkError) {
-      // 서버에 닿지 못함 — 토큰은 유효할 수 있으므로 지우지 않고, 로그인 화면에
-      // 네트워크 오류를 안내해 재시도하게 한다.
       _fail(ApiException.networkMessage);
       return;
     }
     // 그 외 판단 불가(서버 5xx 등)는 오프라인 사용자를 막지 않도록 진입 허용.
-    _set(AuthStatus.authenticated);
+    _setAuthenticated();
   }
 
   /// 웹뷰에 띄울 authorize URL 을 생성한다.
@@ -114,7 +113,7 @@ class AuthController extends ChangeNotifier {
       // (백엔드가 OAuth 코드 교환을 대신 수행하고 자체 토큰을 내려준다.)
 
       if (callback.code == null) {
-        throw const AuthException('authCode가 누락되거나 유효하지 않습니다..');
+        throw const AuthException('authCode가 누락되거나 유효하지 않습니다.');
       }
 
       final tokens = await _floodingAuth.signin(
@@ -129,7 +128,7 @@ class AuthController extends ChangeNotifier {
       );
       Logger.d('로그인 성공 (Flooding 토큰 발급)', tag: 'AUTH');
 
-      _set(AuthStatus.authenticated);
+      _setAuthenticated();
     } on AuthException catch (e) {
       _fail(e.message);
     } catch (e, s) {
@@ -144,6 +143,7 @@ class AuthController extends ChangeNotifier {
   /// 토큰 재발급이 실패하면 즉시 로그인 화면으로 전환된다.
   Future<void> expireSession() async {
     await _tokenStorage.clear();
+    _meBloc?.add(const MeEvent.cleared());
     _set(AuthStatus.unauthenticated);
   }
 
@@ -166,6 +166,11 @@ class AuthController extends ChangeNotifier {
   void reportNetworkError() {
     if (_status == AuthStatus.unauthenticated) return;
     _fail(ApiException.networkMessage);
+  }
+
+  void _setAuthenticated() {
+    _meBloc?.add(const MeEvent.requested());
+    _set(AuthStatus.authenticated);
   }
 
   void _set(AuthStatus status) {
