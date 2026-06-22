@@ -14,6 +14,7 @@ import 'package:flooding_v2/feature/study/presentation/bloc/study_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../feature/ai/data/repositories/ai_repository_impl.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
@@ -145,7 +146,11 @@ GoRouter createAppRouter(AuthController auth) {
       ),
       GoRoute(
         path: RoutePath.aiChat,
-        builder: (context, state) => const AiChatPage(),
+        builder: (context, state) => AiChatPage(
+          repository: AiRepositoryImpl.create(
+            onSessionExpired: auth.expireSession,
+          ),
+        ),
       ),
       GoRoute(
         path: RoutePath.login,
