@@ -42,6 +42,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     try {
       final reply = await _repository.sendMessage(trimmed);
+      // 응답을 기다리는 사이 화면을 벗어나 bloc 이 닫혔으면 emit 하지 않는다.
+      if (isClosed) return;
       emit(
         state.copyWith(
           messages: [
@@ -52,10 +54,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         ),
       );
     } on ApiException catch (e) {
+      if (isClosed) return;
       emit(state.copyWith(isLoading: false, error: ChatError(e.message)));
     } catch (e, s) {
       // 파싱 오류 등 ApiException 이 아닌 실패에도 로딩을 풀어준다.
       Logger.e('AI 챗봇 응답 실패', tag: 'AI', error: e, stackTrace: s);
+      if (isClosed) return;
       emit(
         state.copyWith(
           isLoading: false,

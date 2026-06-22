@@ -31,13 +31,20 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     // 진입 즉시 자동으로 로그인 흐름을 시작한다(저장 토큰이 없을 때 도달).
-    WidgetsBinding.instance.addPostFrameCallback((_) => _login());
+    // 첫 프레임부터 _authenticating 이 true 이므로 중복 가드를 우회한다.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _login(initial: true));
   }
 
   /// PKCE 생성 → 웹뷰로 authorize → 콜백을 컨트롤러에 넘겨 세션을 확립한다.
-  Future<void> _login() async {
-    if (_authenticating) return;
-    setState(() => _authenticating = true);
+  ///
+  /// [initial] 은 진입 직후 자동 로그인 1회용 — 이미 true 인 [_authenticating]
+  /// 가드에 막히지 않도록 우회한다. '다시 로그인' 버튼은 [initial] 없이 호출돼
+  /// 진행 중 중복 진입을 막는다.
+  Future<void> _login({bool initial = false}) async {
+    if (!initial) {
+      if (_authenticating) return;
+      setState(() => _authenticating = true);
+    }
 
     final pkce = Pkce.generate();
     final authorizeUri = widget.controller.buildAuthorizeUri(pkce);
