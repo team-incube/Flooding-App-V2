@@ -23,7 +23,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _authenticating = false;
+  // 진입 즉시 자동 로그인을 시작하므로 첫 프레임부터 스피너를 보여준다
+  // (false 로 두면 첫 빌드에서 idle UI 가 한 프레임 깜빡인다).
+  bool _authenticating = true;
 
   @override
   void initState() {
@@ -50,7 +52,13 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     await widget.controller.completeLogin(callback, pkce);
-    if (mounted) setState(() => _authenticating = false);
+    // 성공 시에는 redirect 가 홈으로 화면을 교체할 때까지 스피너를 유지한다.
+    // 여기서 _authenticating 을 false 로 되돌리면 홈 전환 직전 한 프레임 동안
+    // idle 상태('로그인이 필요합니다' + '다시 로그인')가 깜빡인다.
+    // 실패·취소(미인증)일 때만 재시도 화면을 보여준다.
+    if (mounted && widget.controller.status != AuthStatus.authenticated) {
+      setState(() => _authenticating = false);
+    }
   }
 
   @override
