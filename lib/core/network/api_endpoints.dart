@@ -13,4 +13,7 @@ class ApiEndpoints {
 
   /// 인증 도메인 공통 prefix — 로그인/토큰 재발급.
   static const String auth = '/auth';
+
+  /// AI 챗봇 도메인 공통 prefix — 메시지 전송 등.
+  static const String ai = '/ai';
 }

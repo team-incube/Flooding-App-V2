@@ -14,6 +14,8 @@ import 'package:flooding_v2/feature/study/presentation/bloc/study_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../feature/ai/data/repositories/ai_repository_impl.dart';
+import '../../feature/ai/presentation/bloc/chat_bloc.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
@@ -32,6 +34,12 @@ import 'route_path.dart';
 /// 재평가된다 — 로그인 성공 시 홈으로, 세션 만료 시 로그인으로 자동 전환된다.
 /// 시작 시 토큰 확인은 runApp 이전에 끝나므로 별도 스플래시 라우트는 두지 않는다.
 GoRouter createAppRouter(AuthController auth) {
+  // builder 가 재호출돼도 Dio/TokenStorage 가 매번 새로 생성되지 않도록
+  // AI 챗봇 repository 는 라우터 생성 시 한 번만 만들어 재사용한다.
+  final aiRepository = AiRepositoryImpl.create(
+    onSessionExpired: auth.expireSession,
+  );
+
   return GoRouter(
     initialLocation: RoutePath.home,
     refreshListenable: auth,
@@ -145,7 +153,10 @@ GoRouter createAppRouter(AuthController auth) {
       ),
       GoRoute(
         path: RoutePath.aiChat,
-        builder: (context, state) => const AiChatPage(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => ChatBloc(repository: aiRepository),
+          child: const AiChatPage(),
+        ),
       ),
       GoRoute(
         path: RoutePath.login,

@@ -17,13 +17,13 @@ import '../widgets/chat_typing_indicator.dart';
 
 /// AI 챗봇 대화 페이지.
 ///
-/// [ChatBloc] 을 제공하고, 대화 화면([_AiChatView])을 띄운다.
+/// [ChatBloc] 은 라우트에서 주입되며, 여기서는 대화 화면([_AiChatView])만 띄운다.
 class AiChatPage extends StatelessWidget {
   const AiChatPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => ChatBloc(), child: const _AiChatView());
+    return const _AiChatView();
   }
 }
 
@@ -76,8 +76,18 @@ class _AiChatViewState extends State<_AiChatView> {
             child: BlocConsumer<ChatBloc, ChatState>(
               listenWhen: (previous, current) =>
                   current.messages.length > previous.messages.length ||
-                  (current.isLoading && !previous.isLoading),
-              listener: (context, state) => _scrollToBottom(),
+                  (current.isLoading && !previous.isLoading) ||
+                  !identical(previous.error, current.error),
+              listener: (context, state) {
+                _scrollToBottom();
+                // 전송 실패는 대화를 유지한 채 SnackBar 로 1회 안내한다.
+                final error = state.error;
+                if (error != null) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(content: Text(error.message)));
+                }
+              },
               builder: (context, state) {
                 if (state.messages.isEmpty && !state.isLoading) {
                   return const ChatEmptyView();
@@ -92,14 +102,10 @@ class _AiChatViewState extends State<_AiChatView> {
                       const SizedBox(height: AppSpacing.s16),
                   itemBuilder: (context, index) {
                     if (state.isLoading && index == state.messages.length) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.s16,
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: ChatTypingIndicator(),
-                        ),
+                      // AI 메시지 버블과 좌측 정렬을 맞춘다(추가 가로 패딩 없음).
+                      return const Align(
+                        alignment: Alignment.centerLeft,
+                        child: ChatTypingIndicator(),
                       );
                     }
                     return ChatMessageBubble(message: state.messages[index]);
