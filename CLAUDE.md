@@ -61,7 +61,9 @@ flooding() {
 - `.env.dev` and `.env.prod` are gitignored but declared as pubspec assets. After clone (or if analyze fails with `asset_does_not_exist`), copy `.env.example` to both names.
 - CI reads the pinned version from `.fvmrc` (`flutter-ci.yaml`, `appium-ui.yml`).
 
-### Appium UI tests (required for publishing/UI work)
+### Appium UI tests (run by CI — local run optional)
+
+CI runs the suite on an emulator (`.github/workflows/appium-ui.yml`) for every PR touching `lib/`, `integration_test/`, `appium/`, or `pubspec.yaml`, so UI work does **not** require a local run — open the PR and let CI verify. Run locally only when you need to reproduce/debug a failure:
 
 ```bash
 cd appium
@@ -70,7 +72,7 @@ npm run build:app                       # APK with auth-bypass entrypoint (integ
 npm test                                # wdio + appium-flutter-integration-driver, default udid emulator-5554
 ```
 
-Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`flutterByValueKey$` locators). Android SDK lives at `%LOCALAPPDATA%\Android\Sdk` (not on PATH); AVDs: `flooding`, `goms`. See the `ui-test` skill and `appium/README.md`. CI runs the same suite on an emulator (`.github/workflows/appium-ui.yml`) for PRs touching `lib/`, `integration_test/`, `appium/`, or `pubspec.yaml`.
+Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`flutterByValueKey$` locators). Android SDK lives at `%LOCALAPPDATA%\Android\Sdk` (not on PATH); AVDs: `flooding`, `goms`. See `appium/README.md`.
 
 ## Architecture
 
@@ -136,8 +138,7 @@ Adding `[CI]` to a push commit message triggers Flutter CI on push (PRs always r
 Project skills in `.claude/skills/`:
 
 - `/start-work [issue#]` — pick/confirm an issue, create the convention branch off fresh `develop`.
-- `/verify-loop` — codegen → analyze → test (+ Appium `ui-test` for publishing/UI changes); fix and repeat until green.
-- `/ui-test` — run the Appium UI suite on the emulator; mandatory for `🐋 Type: Publish` / UI changes.
+- `/verify-loop` — codegen → analyze → test; fix and repeat until green. (Appium UI tests run in CI, not locally.)
 - `/ship` — commit remaining work, push, open a PR that passes the title check.
 - `/work-loop` — implement → verify → commit cycle on the current branch.
 - `/full-loop` — full cycle for one issue: start-work → work-loop → ship.

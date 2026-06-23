@@ -20,7 +20,7 @@ For each task, repeat until the list is empty:
    - pages → `lib/feature/{domain}/presentation/pages/`, widgets → `lib/feature/{domain}/presentation/widgets/`, bloc triple → `lib/feature/{domain}/presentation/bloc/`, API → `lib/feature/{domain}/data/`
    - reuse `core/` tokens (AppSize, AppSpacing, AppRadius, theme colors/text styles) — no hardcoded magic numbers/colors
    - layout padding comes from `BaseScaffold`, not per-page
-2. **Verify** with the `verify-loop` skill (analyze must pass; codegen/test as applicable). For publishing/UI tasks this includes the Appium `ui-test` stage — add/extend the page's spec in `appium/test/specs/` as part of the task.
+2. **Verify** with the `verify-loop` skill (analyze must pass; codegen/test as applicable). For publishing/UI tasks, add/extend the page's spec in `appium/test/specs/` as part of the task — CI runs the Appium suite on the PR, so no local UI run is needed.
 3. **Commit** that unit alone: `{emoji} :: {한국어 요약}` (✨/♻️/💄/🎨/🐛/🔧).
 4. Mark the task completed and move to the next.
 
