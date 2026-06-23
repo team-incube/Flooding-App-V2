@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../feature/ai/data/repositories/ai_repository_impl.dart';
+import '../../feature/ai/presentation/bloc/chat_bloc.dart';
 import '../../feature/ai/presentation/pages/ai_chat_page.dart';
 import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
 import '../../feature/home/presentation/widgets/home_view.dart';
@@ -152,7 +153,10 @@ GoRouter createAppRouter(AuthController auth) {
       ),
       GoRoute(
         path: RoutePath.aiChat,
-        builder: (context, state) => AiChatPage(repository: aiRepository),
+        builder: (context, state) => BlocProvider(
+          create: (_) => ChatBloc(repository: aiRepository),
+          child: const AiChatPage(),
+        ),
       ),
       GoRoute(
         path: RoutePath.login,

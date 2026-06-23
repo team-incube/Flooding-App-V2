@@ -7,7 +7,6 @@ import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/scaffold/base_scaffold.dart';
-import '../../domain/repositories/ai_repository.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -18,19 +17,13 @@ import '../widgets/chat_typing_indicator.dart';
 
 /// AI 챗봇 대화 페이지.
 ///
-/// [ChatBloc] 을 제공하고, 대화 화면([_AiChatView])을 띄운다.
+/// [ChatBloc] 은 라우트에서 주입되며, 여기서는 대화 화면([_AiChatView])만 띄운다.
 class AiChatPage extends StatelessWidget {
-  const AiChatPage({super.key, required this.repository});
-
-  /// 메시지 전송에 사용할 AI 챗봇 repository(라우트에서 주입).
-  final AiRepository repository;
+  const AiChatPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ChatBloc(repository: repository),
-      child: const _AiChatView(),
-    );
+    return const _AiChatView();
   }
 }
 
