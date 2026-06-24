@@ -13,11 +13,17 @@ const SKILLS = [
   { skill: 'full-loop',  triggers: ['전체 루프', 'full loop', 'full-loop', '이슈 끝까지'] },
 ];
 
+process.stdin.setEncoding('utf8'); // decode as UTF-8 so multibyte Hangul isn't split across chunks
 let raw = '';
 process.stdin.on('data', (c) => (raw += c));
 process.stdin.on('end', () => {
   let prompt = '';
-  try { prompt = (JSON.parse(raw).prompt || ''); } catch { prompt = raw; }
+  try {
+    const parsed = JSON.parse(raw);
+    prompt = parsed && typeof parsed.prompt === 'string' ? parsed.prompt : '';
+  } catch {
+    prompt = raw;
+  }
   const p = prompt.toLowerCase();
 
   const hits = SKILLS.filter((s) => s.triggers.some((t) => p.includes(t.toLowerCase())));
