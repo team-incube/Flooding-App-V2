@@ -20,6 +20,7 @@ Take the current branch from "code done" to "PR open" following repo conventions
 5. **Open the PR** against `develop`:
    - Title (must match CI regex `^[^ ] :: \(#[0-9]+\) - .+`):
      `🔀 :: (#{N}) - {한국어 제목}`
+     Before creating, propose ~3 candidate `{한국어 제목}` options via `AskUserQuestion` and let the user pick (or edit) — don't auto-name. The `🔀 :: (#{N}) - ` prefix is fixed; only the Korean title varies.
    - Body: fill `.github/PULL_REQUEST_TEMPLATE.md` in Korean — 개요, `Closes #{N}`, 작업내용 (bulleted actual changes), 테스트 방법 (concrete steps), 스크린샷 (placeholder note if UI changed but no screenshot available), 질문사항, 체크리스트 (check only what was actually verified).
    - **Korean body encoding (Windows/PowerShell):** never pipe a here-string into `gh ... --body-file -` — PowerShell 5.1 encodes native-command stdin in the system codepage and mangles Hangul into `?`. Write the body to a UTF-8 file first, then pass its path:
      ```
