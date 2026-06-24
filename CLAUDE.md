@@ -95,7 +95,7 @@ Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`f
 
 ### Branches
 
-`{type}/#{issue-number}` off `develop`. Types:
+`{type}/{issue-number}-{kebab-slug}` off `develop` (slug = short English summary of the issue). Types:
 
 | Type | Use | Usual commit emoji |
 |---|---|---|
@@ -103,7 +103,7 @@ Specs: `appium/test/specs/{feature}.e2e.ts` (WebdriverIO TS, `flutterByText$`/`f
 | `refactor` | restructuring existing code without behavior change | ♻️ |
 | `chore` | tooling, CI, config, docs — anything outside product code | 🔧 |
 
-Example: `feature/#23`, `chore/#25`.
+Example: `feature/23-publish-ai-chat-page`, `chore/25-setup-claude-harness`.
 
 ### Commits
 
