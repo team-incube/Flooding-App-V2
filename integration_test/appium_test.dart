@@ -60,8 +60,8 @@ class _FakeTokenStorage extends TokenStorage {
 /// 항상 세션이 유효한 것처럼 동작하는 테스트용 세션 검증기.
 class _FakeSessionValidator implements SessionValidator {
   @override
-  Future<SessionCheck> validateSession({
+  Future<SessionResult> validateSession({
     Duration timeout = Duration.zero,
-  }) async => SessionCheck.valid;
+  }) async => (check: SessionCheck.valid, me: null);
 }
 

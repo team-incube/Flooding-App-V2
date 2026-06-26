@@ -17,6 +17,7 @@ class MeBloc extends Bloc<MeEvent, MeState> {
     on<MeEvent>((event, emit) async {
       await event.when<FutureOr<void>>(
         requested: () => _onRequested(emit),
+        provided: (me) async => emit(MeState.loaded(me: me)),
         cleared: () async => emit(const MeState.initial()),
       );
     });

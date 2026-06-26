@@ -7,6 +7,7 @@ import '../../../core/utils/pkce.dart';
 import '../data/datagsm_auth_service.dart';
 import '../data/datasources/token_storage.dart';
 import '../data/flooding_auth_service.dart';
+import '../data/models/me.dart';
 import '../data/models/oauth_token.dart';
 import '../data/user_service.dart';
 import 'bloc/me_bloc.dart';
@@ -63,6 +64,21 @@ class AuthController extends ChangeNotifier {
   /// 직전 로그인 시도의 실패 사유. 성공·미시도 시 null.
   String? get error => _error;
 
+  // 부트스트랩의 세션 검사(`/users/me`)가 받아온 내 정보. 진입 직후 같은
+  // 엔드포인트를 다시 부르지 않도록 [takeInitialMe] 로 1회 소비한다.
+  Me? _initialMe;
+
+  /// 부트스트랩에서 받아둔 내 정보를 1회 반환하고 비운다.
+  ///
+  /// 시작 시 세션 검사가 이미 `/users/me` 를 호출했으므로, 그 본문을 [MeBloc]
+  /// 시드로 재사용해 중복 호출을 없앤다. 이후(재로그인 등)에는 null 을 반환해
+  /// 정상적으로 새로 조회하게 한다.
+  Me? takeInitialMe() {
+    final me = _initialMe;
+    _initialMe = null;
+    return me;
+  }
+
   /// 앱 시작 시 1회 호출해 초기 인증 상태를 결정한다.
   ///
   /// 저장된 토큰이 없으면 미인증. 토큰이 있으면 `/users/me` 로 세션 유효성을
@@ -75,16 +91,18 @@ class AuthController extends ChangeNotifier {
       return;
     }
 
-    final check = await _sessionValidator.validateSession();
-    if (check == SessionCheck.unauthorized) {
+    final result = await _sessionValidator.validateSession();
+    if (result.check == SessionCheck.unauthorized) {
       await _tokenStorage.clear();
       _set(AuthStatus.unauthenticated);
       return;
     }
-    if (check == SessionCheck.networkError) {
+    if (result.check == SessionCheck.networkError) {
       _fail(ApiException.networkMessage);
       return;
     }
+    // 검사용 호출이 받아온 내 정보를 보관해, 진입 직후 재조회를 생략한다.
+    _initialMe = result.me;
     // 그 외 판단 불가(서버 5xx 등)는 오프라인 사용자를 막지 않도록 진입 허용.
     _setAuthenticated();
   }
@@ -169,7 +187,13 @@ class AuthController extends ChangeNotifier {
   }
 
   void _setAuthenticated() {
-    _meBloc?.add(const MeEvent.requested());
+    final meBloc = _meBloc;
+    if (meBloc != null) {
+      // 부트스트랩이 받아둔 내 정보가 있으면 재조회 없이 그대로 시드한다.
+      // (운영에서는 MeBloc 을 FloodingApp 이 소유해 takeInitialMe 로 시드한다.)
+      final me = takeInitialMe();
+      meBloc.add(me != null ? MeEvent.provided(me) : const MeEvent.requested());
+    }
     _set(AuthStatus.authenticated);
   }
 

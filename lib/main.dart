@@ -59,9 +59,12 @@ class _FloodingAppState extends State<FloodingApp> {
 
   void _syncMe() {
     if (widget.authController.status == AuthStatus.authenticated) {
-      _meBloc.add(MeEvent.requested());
+      // 시작 시엔 부트스트랩의 세션 검사가 받아온 내 정보를 재사용하고
+      // (중복 `/users/me` 제거), 이후 재로그인 등에서는 새로 조회한다.
+      final me = widget.authController.takeInitialMe();
+      _meBloc.add(me != null ? MeEvent.provided(me) : const MeEvent.requested());
     } else {
-      _meBloc.add(MeEvent.cleared());
+      _meBloc.add(const MeEvent.cleared());
     }
   }
 
