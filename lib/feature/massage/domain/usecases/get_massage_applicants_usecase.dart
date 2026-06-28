@@ -1,9 +1,8 @@
-import '../../../../core/enum/gender.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../member/domain/usecases/get_members_usecase.dart';
 import '../../../member/presentation/models/member_model.dart';
-import '../../data/models/massage_applicant.dart';
+import '../mapper/massage_member_mapper.dart';
 import '../repositories/massage_repository.dart';
 
 /// Flooding 백엔드의 안마의자 신청자 목록을 [MemberModel] 로 변환해 제공한다.
@@ -20,7 +19,7 @@ class GetMassageApplicantsUseCase implements GetMembersUseCase {
   Future<List<MemberModel>> call() async {
     try {
       final applicants = await _repository.fetchApplicants();
-      return applicants.map(_toMember).toList();
+      return applicants.map(MassageMemberMapper.toMember).toList();
     } on ApiException catch (e) {
       throw Exception(e.message);
     } catch (e, s) {
@@ -29,38 +28,6 @@ class GetMassageApplicantsUseCase implements GetMembersUseCase {
       // `on ApiException` 을 빠져나가 로딩 상태가 영영 풀리지 않는다.
       Logger.e('안마의자 신청자 목록 처리 실패', tag: 'MASSAGE', error: e, stackTrace: s);
       throw Exception('목록을 불러오지 못했어요.');
-    }
-  }
-
-  MemberModel _toMember(MassageApplicant a) => MemberModel(
-    name: a.name,
-    schoolNb: _schoolNumber(a),
-    gender: _gender(a.sex),
-  );
-
-  /// 학년·반·번호가 모두 있으면 4자리 학번(예: 2403)으로 합성하고,
-  /// 없으면 응답의 `studentNumber` 를 사용한다. (필터가 학번 자릿수에 의존)
-  int _schoolNumber(MassageApplicant a) {
-    final grade = a.grade;
-    final classNumber = a.classNumber;
-    final number = a.number;
-    if (grade != null && classNumber != null && number != null) {
-      return grade * 1000 + classNumber * 100 + number;
-    }
-    return a.studentNumber;
-  }
-
-  /// 백엔드 성별 표기(`MAN`/`WOMAN`)를 앱 [Gender] 로 변환한다.
-  /// 값이 없거나 알 수 없으면 [Gender.male] 로 둔다.
-  Gender _gender(String? sex) {
-    switch (sex?.toUpperCase()) {
-      case 'WOMAN':
-      case 'FEMALE':
-        return Gender.female;
-      case 'MAN':
-      case 'MALE':
-      default:
-        return Gender.male;
     }
   }
 }

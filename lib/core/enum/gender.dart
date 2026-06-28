@@ -6,4 +6,16 @@ enum Gender {
   final String label;
 
   const Gender({required this.value, required this.label});
+
+  factory Gender.fromValue(String? value) {
+    switch (value?.toUpperCase()) {
+      case 'WOMAN':
+      case 'FEMALE':
+        return Gender.female;
+      case 'MAN':
+      case 'MALE':
+      default:
+        return Gender.male;
+    }
+  }
 }

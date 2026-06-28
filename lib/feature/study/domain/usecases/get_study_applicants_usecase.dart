@@ -1,6 +1,7 @@
 import '../../../../core/enum/gender.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/logger.dart';
+import '../../../member/domain/student_formatter.dart';
 import '../../../member/presentation/models/member_model.dart';
 import '../../data/models/study_applicant.dart';
 import '../repositories/study_repository.dart';
@@ -31,21 +32,14 @@ class GetStudyApplicantsUseCase {
 
   MemberModel _toMember(StudyApplicant a) => MemberModel(
     name: a.name,
-    schoolNb: _schoolNumber(a),
+    schoolNb: StudentFormatter.formatSchoolNumber(
+      grade: a.grade,
+      classNumber: a.classNumber,
+      number: a.number,
+      studentNumber: a.studentNumber,
+    ),
     gender: _gender(a.sex),
   );
-
-  /// 학년·반·번호가 모두 있으면 4자리 학번(예: 2403)으로 합성하고,
-  /// 없으면 응답의 `studentNumber` 를 사용한다. (필터가 학번 자릿수에 의존)
-  int _schoolNumber(StudyApplicant a) {
-    final grade = a.grade;
-    final classNumber = a.classNumber;
-    final number = a.number;
-    if (grade != null && classNumber != null && number != null) {
-      return grade * 1000 + classNumber * 100 + number;
-    }
-    return a.studentNumber;
-  }
 
   /// 백엔드 성별 표기(`MAN`/`WOMAN`)를 앱 [Gender] 로 변환한다.
   /// 값이 없거나 알 수 없으면 [Gender.male] 로 둔다.
