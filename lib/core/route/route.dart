@@ -1,8 +1,13 @@
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
-import 'package:flooding_v2/feature/massage/widget/massage_request_view.dart';
+import 'package:flooding_v2/feature/massage/data/repositories/massage_repository_impl.dart';
+import 'package:flooding_v2/feature/massage/domain/repositories/massage_repository.dart';
+import 'package:flooding_v2/feature/massage/domain/usecases/get_massage_applicants_usecase.dart';
+import 'package:flooding_v2/feature/massage/presentation/bloc/massage_bloc.dart';
+import 'package:flooding_v2/feature/massage/presentation/bloc/massage_event.dart';
+import 'package:flooding_v2/feature/massage/presentation/bloc/massage_state.dart';
+import 'package:flooding_v2/feature/massage/presentation/widgets/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
-import 'package:flooding_v2/feature/member/domain/usecases/get_massage_members_usecase.dart';
 import 'package:flooding_v2/feature/member/domain/usecases/get_study_members_usecase.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
@@ -58,17 +63,11 @@ GoRouter createAppRouter(AuthController auth) {
         routes: [
           GoRoute(
             path: RoutePath.home,
-            builder: (context, state) {
-              //TODO : 안마의자 신청 인원도 API 로 불러오기 (자습은 StudyBloc 로 로드)
-              return const HomeView(massageCount: 4);
-            },
+            builder: (context, state) => const HomeView(),
           ),
           GoRoute(
             path: RoutePath.dormitory,
-            builder: (context, state) {
-              //TODO : 안마의자 신청 인원도 API 로 불러오기 (자습은 StudyBloc 로 로드)
-              return const DormitoryView(massageCount: 4);
-            },
+            builder: (context, state) => const DormitoryView(),
           ),
           GoRoute(
             path: RoutePath.requestStudy,
@@ -91,11 +90,20 @@ GoRouter createAppRouter(AuthController auth) {
             builder: (context, state) => MultiBlocProvider(
               providers: [
                 BlocProvider(
-                  create: (context) => MemberListBloc(
-                    getMembers: GetMassageMembersUseCase(
-                      context.read<MemberRepository>(),
-                    ),
-                  )..add(MemberListEvent.load()),
+                  create: (context) {
+                    // 셸 MassageBloc 이 이미 받아둔 신청자 목록으로 시드한다 —
+                    // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
+                    // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
+                    final massage = context.read<MassageBloc>().state;
+                    final seeded =
+                        massage.listStatus == MassageListStatus.loaded;
+                    return MemberListBloc(
+                      getMembers: GetMassageApplicantsUseCase(
+                        context.read<MassageRepository>(),
+                      ),
+                      initialMembers: seeded ? massage.applicants : null,
+                    )..add(MemberListEvent.load());
+                  },
                 ),
                 BlocProvider(create: (context) => MemberSelectionBloc()),
               ],
@@ -131,16 +139,35 @@ GoRouter createAppRouter(AuthController auth) {
                   onSessionExpired: auth.expireSession,
                 ),
               ),
+              RepositoryProvider<MassageRepository>(
+                create: (_) => MassageRepositoryImpl.create(
+                  onSessionExpired: auth.expireSession,
+                ),
+              ),
             ],
-            child: BlocProvider(
-              create: (ctx) {
-                final repository = ctx.read<StudyRepository>();
-                // 셸 진입 시 1회 로드 — 홈/기숙사 카운트 카드가 즉시 채워진다.
-                return StudyBloc(
-                  getApplicants: GetStudyApplicantsUseCase(repository),
-                  repository: repository,
-                )..add(const StudyEvent.applicantsRequested());
-              },
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (ctx) {
+                    final repository = ctx.read<StudyRepository>();
+                    // 셸 진입 시 1회 로드 — 홈/기숙사 카운트 카드가 즉시 채워진다.
+                    return StudyBloc(
+                      getApplicants: GetStudyApplicantsUseCase(repository),
+                      repository: repository,
+                    )..add(const StudyEvent.applicantsRequested());
+                  },
+                ),
+                BlocProvider(
+                  create: (ctx) {
+                    final repository = ctx.read<MassageRepository>();
+                    // 셸 진입 시 1회 로드 — 홈/기숙사 카운트 카드가 즉시 채워진다.
+                    return MassageBloc(
+                      getApplicants: GetMassageApplicantsUseCase(repository),
+                      repository: repository,
+                    )..add(const MassageEvent.applicantsRequested());
+                  },
+                ),
+              ],
               child: BaseScaffold(
                 floatingActionButton: floatingButton,
                 floatingActionButtonLocation: floatingButtonLocation,

@@ -11,7 +11,7 @@ import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/card_header.dart';
 import '../../../../core/widgets/primary_action_button.dart';
-import '../../../../core/widgets/request_count_card.dart';
+import '../../../massage/presentation/widgets/massage_count_card.dart';
 import '../../../study/presentation/widgets/study_count_card.dart';
 
 /// 홈 섹션 본문(시간표·자습신청·안마의자·기상음악 카드).
@@ -19,12 +19,7 @@ import '../../../study/presentation/widgets/study_count_card.dart';
 /// [HomePage] 본문에 드로어로 갈아끼워지는 섹션. 기상음악 URL 입력 컨트롤러를
 /// 직접 소유해, 호스트 페이지가 상태를 들고 있을 필요 없이 자기완결적으로 동작한다.
 class HomeView extends StatefulWidget {
-  const HomeView({
-    super.key,
-    required this.massageCount,
-  });
-
-  final int massageCount;
+  const HomeView({super.key});
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -54,12 +49,7 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: AppSpacing.s16),
             const StudyCountCard(),
             const SizedBox(height: AppSpacing.s16),
-            RequestCountCard.massage(
-              current: widget.massageCount,
-              onActionPressed: () {
-                // Todo: 안마의자 신청 기능 구현
-              },
-            ),
+            const MassageCountCard(),
             const SizedBox(height: AppSpacing.s16),
             _WakeMusicCard(controller: _musicUrlController, requestedCount: 12),
           ],

@@ -11,10 +11,6 @@ class MemberRepository {
         MemberModel(name: '김민솔', gender: Gender.female, schoolNb: 2403 + index),
   );
 
-  Future<List<MemberModel>> getMassageMembers() async {
-    return _mockData;
-  }
-
   Future<List<MemberModel>> getStudyMembers() async {
     return _mockData;
   }

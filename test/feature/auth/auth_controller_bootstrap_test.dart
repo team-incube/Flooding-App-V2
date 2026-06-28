@@ -1,3 +1,4 @@
+import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_event.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,19 +26,32 @@ class _FakeTokenStorage extends TokenStorage {
 }
 
 class _FakeSessionValidator implements SessionValidator {
-  _FakeSessionValidator(this.result);
+  _FakeSessionValidator(this.check, {this.me});
 
-  final SessionCheck result;
+  final SessionCheck check;
+  final Me? me;
   int calls = 0;
 
   @override
-  Future<SessionCheck> validateSession({
+  Future<SessionResult> validateSession({
     Duration timeout = Duration.zero,
   }) async {
     calls++;
-    return result;
+    return (check: check, me: me);
   }
 }
+
+Me _sampleMe() => const Me(
+  id: 1,
+  name: '김민솔',
+  sex: 'WOMAN',
+  email: 'a@gsm.hs.kr',
+  studentNumber: 2403,
+  grade: 2,
+  classNumber: 4,
+  number: 3,
+  role: 'STUDENT',
+);
 
 class _FakeUserService extends UserService {
   _FakeUserService() : super();
@@ -85,6 +99,23 @@ void main() {
       expect(validator.calls, 1);
       expect(storage.cleared, isFalse);
       expect(meBloc.addedEvents, [const MeEvent.requested()]);
+    });
+
+    test('세션 검사가 받아온 내 정보는 재조회 없이 provided 로 시드된다', () async {
+      final storage = _FakeTokenStorage(token: 'access');
+      final me = _sampleMe();
+      final validator = _FakeSessionValidator(SessionCheck.valid, me: me);
+      final meBloc = _FakeMeBloc();
+      final controller = _controller(storage, validator, meBloc);
+
+      await controller.bootstrap();
+
+      expect(controller.status, AuthStatus.authenticated);
+      // `/users/me` 는 검사 때 한 번만 — 진입 시 재조회하지 않는다.
+      expect(validator.calls, 1);
+      expect(meBloc.addedEvents, [MeEvent.provided(me)]);
+      // 1회 소비 후에는 비워져, 재로그인 등에서 정상 재조회한다.
+      expect(controller.takeInitialMe(), isNull);
     });
 
     test('401 이면 토큰을 비우고 미인증(로그인으로)', () async {

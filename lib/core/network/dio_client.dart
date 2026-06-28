@@ -16,7 +16,9 @@ class DioClient {
       ),
     );
 
-    if (kDebugMode) {
+    // debug·profile 모두 로깅을 붙인다(release 만 제외) — `flooding profile`
+    // 실행 시에도 dio 로그가 보이도록.
+    if (!kReleaseMode) {
       dio.interceptors.add(LoggingInterceptor());
     }
 

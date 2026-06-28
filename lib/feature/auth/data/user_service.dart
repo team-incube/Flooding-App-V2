@@ -24,9 +24,15 @@ enum SessionCheck {
   unknown,
 }
 
+/// 세션 검사 결과와, 그 과정에서 받은 내 정보를 함께 담는다.
+///
+/// 검사용 `/users/me` 호출이 이미 본문을 받아오므로, [me] 를 재사용하면
+/// 진입 직후 같은 엔드포인트를 다시 부르지 않아도 된다([SessionCheck.valid] 일 때만 채워진다).
+typedef SessionResult = ({SessionCheck check, Me? me});
+
 /// 앱 진입 시 세션 유효성을 검사하는 계약.
 abstract interface class SessionValidator {
-  Future<SessionCheck> validateSession({Duration timeout});
+  Future<SessionResult> validateSession({Duration timeout});
 }
 
 /// Flooding 백엔드 사용자 정보 조회 서비스.
@@ -62,22 +68,29 @@ class UserService implements SessionValidator {
   ///
   /// 시작 화면이 오래 막히지 않도록 [timeout] 을 둔다(기본 5초).
   @override
-  Future<SessionCheck> validateSession({
+  Future<SessionResult> validateSession({
     Duration timeout = const Duration(seconds: 5),
   }) async {
     try {
-      await _api.getMe().timeout(timeout);
-      return SessionCheck.valid;
+      // 검사용 호출이 받아온 본문을 함께 돌려주어, 진입 직후 같은 `/users/me` 를
+      // 다시 부르지 않고 내 정보를 재사용할 수 있게 한다.
+      final response = await _api.getMe().timeout(timeout);
+      return (check: SessionCheck.valid, me: response.data);
     } on TimeoutException {
       // .timeout() 이 Dio 자체 타임아웃보다 먼저 끊은 경우 — 네트워크 지연.
-      return SessionCheck.networkError;
+      return (check: SessionCheck.networkError, me: null);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) return SessionCheck.unauthorized;
-      return e.toApiException().isNetwork
-          ? SessionCheck.networkError
-          : SessionCheck.unknown;
+      if (e.response?.statusCode == 401) {
+        return (check: SessionCheck.unauthorized, me: null);
+      }
+      return (
+        check: e.toApiException().isNetwork
+            ? SessionCheck.networkError
+            : SessionCheck.unknown,
+        me: null,
+      );
     } catch (_) {
-      return SessionCheck.unknown;
+      return (check: SessionCheck.unknown, me: null);
     }
   }
 }
