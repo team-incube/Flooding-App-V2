@@ -18,9 +18,10 @@ class StudyMemberMapper {
 
   static StudentEntity toEntity(StudyApplicant a) => StudentEntity(
         name: a.name,
-        grade: a.grade ?? 0,
-        classNumber: a.classNumber ?? 0,
-        number: a.number ?? 0,
+        // 학년/반/번호가 비어 있으면 학번(studentNumber)에서 역산한다.
+        grade: a.grade ?? a.studentNumber ~/ 1000,
+        classNumber: a.classNumber ?? (a.studentNumber ~/ 100) % 10,
+        number: a.number ?? a.studentNumber % 100,
         gender: Gender.getString(a.sex),
       );
 }

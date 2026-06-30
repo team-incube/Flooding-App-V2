@@ -78,7 +78,11 @@ GoRouter createAppRouter(AuthController auth) {
                     // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
                     // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
                     final study = context.read<StudyBloc>().state;
-                    final seeded = study.listStatus == StudyListStatus.loaded;
+                    // loaded 뿐 아니라 백그라운드 갱신(refreshing) 중에도 이미
+                    // 받아둔 목록이 있으므로 시드해 인디케이터를 띄우지 않는다.
+                    final seeded =
+                        study.listStatus == StudyListStatus.loaded ||
+                        study.listStatus == StudyListStatus.refreshing;
                     return MemberListBloc(
                       getMembers: GetStudyApplicantsUseCase(
                         context.read<StudyRepository>(),
