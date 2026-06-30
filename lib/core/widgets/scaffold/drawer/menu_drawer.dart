@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
@@ -214,12 +216,15 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = profileImageUrl;
-    // 등록된 사진이 있으면 원형으로 보여주고, 없거나 로드 실패 시 기본 아바타.
+    // 서버 URL(http…) 은 네트워크에서, 낙관적 갱신으로 들어온 로컬 경로는
+    // 파일에서 읽는다. 없거나 로드 실패 시 기본 아바타.
     final avatar = (url == null || url.isEmpty)
         ? AppIcon.avatar()
         : ClipOval(
-            child: Image.network(
-              url,
+            child: Image(
+              image: url.startsWith('http')
+                  ? NetworkImage(url)
+                  : FileImage(File(url)) as ImageProvider,
               width: _avatarSize,
               height: _avatarSize,
               fit: BoxFit.cover,
