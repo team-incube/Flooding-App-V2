@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -9,36 +12,47 @@ import '../../../../core/widgets/sheet/sheet.dart';
 
 /// 프로필 사진을 등록하는 팝업.
 ///
-/// 점선 영역을 누르면 [onPickTap]이 호출되고, 선택된 이미지가 있으면
-/// [preview]로 미리보기를 보여준다. '등록'을 누르면 true를 반환한다.
-class ProfilePhotoSheet extends StatelessWidget {
-  const ProfilePhotoSheet({super.key, this.onPickTap, this.preview});
+/// 점선 영역을 누르면 갤러리에서 이미지를 고르고, 고른 이미지를 미리보기로
+/// 보여준다. 이미지를 고르기 전에는 '등록'이 비활성이며, '등록'을 누르면 고른
+/// 파일([XFile])을 반환한다. 그 외 닫힘은 null을 반환한다.
+class ProfilePhotoSheet extends StatefulWidget {
+  const ProfilePhotoSheet({super.key});
 
-  /// 점선 업로더를 눌렀을 때 동작(이미지 선택 트리거).
-  final VoidCallback? onPickTap;
-
-  /// 선택된 이미지 미리보기. null이면 비어 있는 안내 상태를 표시한다.
-  final ImageProvider? preview;
-
-  /// 사진 등록 팝업을 띄운다. '등록' 시 true, 그 외 닫힘은 null을 반환한다.
-  static Future<bool?> show(
-    BuildContext context, {
-    VoidCallback? onPickTap,
-    ImageProvider? preview,
-  }) {
-    return showAppFormDialog<bool>(
+  /// 사진 등록 팝업을 띄운다. '등록' 시 고른 [XFile], 그 외 닫힘은 null.
+  static Future<XFile?> show(BuildContext context) {
+    return showAppFormDialog<XFile>(
       context,
-      builder: (_) => ProfilePhotoSheet(onPickTap: onPickTap, preview: preview),
+      builder: (_) => const ProfilePhotoSheet(),
     );
   }
 
   @override
+  State<ProfilePhotoSheet> createState() => _ProfilePhotoSheetState();
+}
+
+class _ProfilePhotoSheetState extends State<ProfilePhotoSheet> {
+  XFile? _picked;
+
+  Future<void> _pick() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked == null || !mounted) return;
+    setState(() => _picked = picked);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final picked = _picked;
     return AppFormSheet(
       header: const AppSheetTitle(title: '프로필 사진 등록'),
       confirmLabel: '등록',
-      onConfirm: () => Navigator.of(context).pop(true),
-      body: _Uploader(onTap: onPickTap, preview: preview),
+      // 이미지를 고르기 전에는 비활성(null)으로 둔다.
+      onConfirm: picked == null
+          ? null
+          : () => Navigator.of(context).pop(picked),
+      body: _Uploader(
+        onTap: _pick,
+        preview: picked == null ? null : FileImage(File(picked.path)),
+      ),
     );
   }
 }
