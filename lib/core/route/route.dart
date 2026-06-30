@@ -7,8 +7,6 @@ import 'package:flooding_v2/feature/massage/presentation/bloc/massage_bloc.dart'
 import 'package:flooding_v2/feature/massage/presentation/bloc/massage_event.dart';
 import 'package:flooding_v2/feature/massage/presentation/bloc/massage_state.dart';
 import 'package:flooding_v2/feature/massage/presentation/widgets/massage_request_view.dart';
-import 'package:flooding_v2/feature/member/domain/repositories/member_repository.dart';
-import 'package:flooding_v2/feature/member/domain/usecases/get_study_members_usecase.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
 import 'package:flooding_v2/feature/study/data/repositories/study_repository_impl.dart';
@@ -16,6 +14,7 @@ import 'package:flooding_v2/feature/study/domain/repositories/study_repository.d
 import 'package:flooding_v2/feature/study/domain/usecases/get_study_applicants_usecase.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_bloc.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_event.dart';
+import 'package:flooding_v2/feature/study/presentation/bloc/study_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -74,11 +73,23 @@ GoRouter createAppRouter(AuthController auth) {
             builder: (context, state) => MultiBlocProvider(
               providers: [
                 BlocProvider(
-                  create: (context) => MemberListBloc(
-                    getMembers: GetStudyMembersUseCase(
-                      context.read<MemberRepository>(),
-                    ),
-                  )..add(MemberListEvent.load()),
+                  create: (context) {
+                    // 셸 StudyBloc 이 이미 받아둔 신청자 목록으로 시드한다 —
+                    // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
+                    // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
+                    final study = context.read<StudyBloc>().state;
+                    // loaded 뿐 아니라 백그라운드 갱신(refreshing) 중에도 이미
+                    // 받아둔 목록이 있으므로 시드해 인디케이터를 띄우지 않는다.
+                    final seeded =
+                        study.listStatus == StudyListStatus.loaded ||
+                        study.listStatus == StudyListStatus.refreshing;
+                    return MemberListBloc(
+                      getMembers: GetStudyApplicantsUseCase(
+                        context.read<StudyRepository>(),
+                      ),
+                      initialMembers: seeded ? study.applicants : null,
+                    )..add(MemberListEvent.load());
+                  },
                 ),
                 BlocProvider(create: (context) => MemberSelectionBloc()),
               ],
@@ -133,7 +144,6 @@ GoRouter createAppRouter(AuthController auth) {
 
           return MultiRepositoryProvider(
             providers: [
-              RepositoryProvider(create: (_) => MemberRepository()),
               RepositoryProvider<StudyRepository>(
                 create: (_) => StudyRepositoryImpl.create(
                   onSessionExpired: auth.expireSession,

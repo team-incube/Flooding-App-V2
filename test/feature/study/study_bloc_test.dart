@@ -40,10 +40,12 @@ class _FakeStudyRepository implements StudyRepository {
 StudyBloc _buildBloc(
   _FakeStudyRepository repo, {
   required DateTime Function() clock,
+  Duration tick = const Duration(milliseconds: 10),
 }) => StudyBloc(
   getApplicants: GetStudyApplicantsUseCase(repo),
   repository: repo,
   clock: clock,
+  tick: tick,
 );
 
 void main() {
@@ -51,6 +53,47 @@ void main() {
   // 11:30 UTC == 20:30 KST(open), 10:00 UTC == 19:00 KST(closed).
   DateTime open() => DateTime.utc(2026, 6, 16, 11, 30);
   DateTime closed() => DateTime.utc(2026, 6, 16, 10, 0);
+
+  group('StudyBloc 현황 폴링', () {
+    const applicants = [
+      StudyApplicant(id: 1, name: '김민솔', studentNumber: 2403, sex: 'WOMAN'),
+    ];
+
+    test('신청 가능 시간대에는 현황을 주기적으로 폴링한다(refresh)', () async {
+      final repo = _FakeStudyRepository(applicants: applicants);
+      final bloc = _buildBloc(repo, clock: open);
+
+      bloc.add(const StudyEvent.applicantsRequested());
+      await pumpEventQueue();
+      final afterInitial = repo.fetchCount;
+
+      // 주기 타이머가 몇 번 돌 시간을 준다.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await pumpEventQueue();
+
+      // 시간대가 열려 있으면 사용자 조작 없이도 fetch 가 더 일어난다.
+      expect(repo.fetchCount, greaterThan(afterInitial));
+      // 폴링은 기존 목록을 유지한 채 값만 갱신한다(빈 목록으로 깜빡이지 않음).
+      expect(bloc.state.applicantCount, 1);
+      await bloc.close();
+    });
+
+    test('신청 시간이 아니면 폴링하지 않는다', () async {
+      final repo = _FakeStudyRepository(applicants: applicants);
+      final bloc = _buildBloc(repo, clock: closed);
+
+      bloc.add(const StudyEvent.applicantsRequested());
+      await pumpEventQueue();
+      final afterInitial = repo.fetchCount;
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await pumpEventQueue();
+
+      // 시간대 밖에서는 추가 호출이 없어야 한다.
+      expect(repo.fetchCount, afterInitial);
+      await bloc.close();
+    });
+  });
 
   group('StudyBloc 액션', () {
     test('신청 시간이 아니면 closed 이고 submit 은 무시된다', () async {
