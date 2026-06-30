@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_radius.dart';
@@ -34,9 +35,13 @@ class _ProfilePhotoSheetState extends State<ProfilePhotoSheet> {
   XFile? _picked;
 
   Future<void> _pick() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked == null || !mounted) return;
-    setState(() => _picked = picked);
+    try {
+      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (picked == null || !mounted) return;
+      setState(() => _picked = picked);
+    } on PlatformException catch (_) {
+      // 권한 거부·중복 호출 등 플랫폼 예외 — 선택을 무시한다(크래시 방지).
+    }
   }
 
   @override

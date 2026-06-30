@@ -42,12 +42,14 @@ class FloodingApp extends StatefulWidget {
 class _FloodingAppState extends State<FloodingApp> {
   late final _router = createAppRouter(widget.authController);
 
-  // 메뉴 드로어의 이름·학번 표시용 내 정보. 세션 만료 시 로그인으로 보낸다.
-  late final _meBloc = MeBloc(
-    userService: UserService(
-      onSessionExpired: widget.authController.expireSession,
-    ),
+  // 내 정보 조회·프로필 사진 업로드 등 사용자 API 를 한 인스턴스로 공유한다
+  // (드로어 편집에서 매번 새로 만들지 않도록 루트에서 주입).
+  late final _userService = UserService(
+    onSessionExpired: widget.authController.expireSession,
   );
+
+  // 메뉴 드로어의 이름·학번 표시용 내 정보. 세션 만료 시 로그인으로 보낸다.
+  late final _meBloc = MeBloc(userService: _userService);
 
   @override
   void initState() {
@@ -80,15 +82,18 @@ class _FloodingAppState extends State<FloodingApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _meBloc,
-      child: MaterialApp.router(
-        title: 'flooding_v2',
-        debugShowCheckedModeBanner: false,
-        theme: LightTheme.theme,
-        darkTheme: DarkTheme.theme,
-        themeMode: ThemeMode.system,
-        routerConfig: _router,
+    return RepositoryProvider<UserService>.value(
+      value: _userService,
+      child: BlocProvider.value(
+        value: _meBloc,
+        child: MaterialApp.router(
+          title: 'flooding_v2',
+          debugShowCheckedModeBanner: false,
+          theme: LightTheme.theme,
+          darkTheme: DarkTheme.theme,
+          themeMode: ThemeMode.system,
+          routerConfig: _router,
+        ),
       ),
     );
   }

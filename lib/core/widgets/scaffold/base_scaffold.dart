@@ -90,8 +90,9 @@ class BaseScaffold extends StatelessWidget {
     if (picked == null || !context.mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
+    final userService = context.read<UserService>();
     try {
-      final url = await UserService().uploadProfileImage(File(picked.path));
+      final url = await userService.uploadProfileImage(File(picked.path));
       if (!context.mounted) return;
       context.read<MeBloc>().add(
         MeEvent.provided(me.copyWith(profileImageUrl: url)),
@@ -100,6 +101,7 @@ class BaseScaffold extends StatelessWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('프로필 사진이 등록되었어요')));
     } on Exception catch (_) {
+      if (!context.mounted) return;
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('프로필 사진 등록에 실패했어요')));

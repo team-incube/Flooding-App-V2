@@ -223,6 +223,9 @@ class _ProfileAvatar extends StatelessWidget {
               width: _avatarSize,
               height: _avatarSize,
               fit: BoxFit.cover,
+              // 로드 중에는 기본 아바타를 보여줘 빈 화면을 막는다.
+              loadingBuilder: (_, child, progress) =>
+                  progress == null ? child : AppIcon.avatar(),
               errorBuilder: (_, _, _) => AppIcon.avatar(),
             ),
           );
