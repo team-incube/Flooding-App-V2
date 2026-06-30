@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../feature/auth/data/models/me.dart';
+import '../../../feature/auth/data/user_service.dart';
 import '../../../feature/auth/presentation/bloc/me_bloc.dart';
+import '../../../feature/auth/presentation/bloc/me_event.dart';
 import '../../../feature/auth/presentation/bloc/me_state.dart';
+import '../../../feature/profile/presentation/widgets/profile_photo_sheet.dart';
 import '../../constants/app_size.dart';
 import '../../constants/app_spacing.dart';
 import '../../theme/color/app_colors.dart';
@@ -55,19 +61,16 @@ class BaseScaffold extends StatelessWidget {
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
       endDrawer: BlocBuilder<MeBloc, MeState>(
         builder: (context, state) {
-          String drawerName = '익명';
-          int studentNumber = 0;
-
-          state.whenOrNull(
-            loaded: (me) {
-              drawerName = me.name;
-              studentNumber = me.studentNumber;
-            },
-          );
+          final me = state.whenOrNull(loaded: (me) => me);
 
           return MenuDrawer(
-            name: drawerName,
-            studentNumber: studentNumber,
+            name: me?.name ?? '익명',
+            studentNumber: me?.studentNumber ?? 0,
+            profileImageUrl: me?.profileImageUrl,
+            // 내 정보가 없으면 편집 동작을 막는다(업로드 후 갱신 대상이 없음).
+            onProfileEdit: me == null
+                ? null
+                : () => _editProfilePhoto(context, me),
             onLogout: onLogout,
           );
         },
@@ -78,6 +81,40 @@ class BaseScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
     );
+  }
+
+  /// 프로필 사진 등록 시트를 열고, 낙관적으로 아바타를 갱신한 뒤 업로드한다.
+  ///
+  /// 고른 로컬 파일을 곧장 [MeBloc] 에 반영해 즉시 보여주고, 업로드는 뒤에서
+  /// 진행한다. 성공해도 로컬 경로를 그대로 두어, 서버가 같은 URL 을 돌려줄 때
+  /// `NetworkImage` 캐시가 옛 이미지를 물고 있는 문제를 피한다(정규 URL 은 다음
+  /// `/users/me` 에서 회복). 실패 시 원래 사진으로 되돌린다.
+  Future<void> _editProfilePhoto(BuildContext context, Me me) async {
+    final picked = await ProfilePhotoSheet.show(context);
+    if (picked == null || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final meBloc = context.read<MeBloc>();
+    final userService = context.read<UserService>();
+
+    // 낙관적 갱신: 고른 로컬 파일을 즉시 아바타에 반영한다.
+    final previousUrl = me.profileImageUrl;
+    meBloc.add(MeEvent.provided(me.copyWith(profileImageUrl: picked.path)));
+
+    try {
+      await userService.uploadProfileImage(File(picked.path));
+      if (!context.mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('프로필 사진이 등록되었어요')));
+    } on Exception catch (_) {
+      // 실패 → 원래 사진으로 되돌린다.
+      meBloc.add(MeEvent.provided(me.copyWith(profileImageUrl: previousUrl)));
+      if (!context.mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('프로필 사진 등록에 실패했어요')));
+    }
   }
 }
 

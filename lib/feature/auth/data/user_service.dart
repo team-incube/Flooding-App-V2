@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 
@@ -62,6 +63,17 @@ class UserService implements SessionValidator {
   Future<Me?> fetchMe() async {
     final response = await _api.getMe();
     return response.data;
+  }
+
+  /// 프로필 사진을 업로드하고 새 `profileImageUrl` 을 돌려준다.
+  /// 실패 시 [DioException] 등을 그대로 던진다.
+  Future<String> uploadProfileImage(File image) async {
+    final response = await _api.uploadProfileImage(image);
+    final url = response.data?.profileImageUrl;
+    if (url == null || url.isEmpty) {
+      throw Exception('프로필 사진 URL 을 받지 못했어요.');
+    }
+    return url;
   }
 
   /// 앱 진입 시 세션 유효성을 검사한다 — `/users/me` 의 401 여부로 판정한다.

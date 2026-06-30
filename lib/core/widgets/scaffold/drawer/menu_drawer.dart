@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
@@ -16,12 +18,16 @@ class MenuDrawer extends StatefulWidget {
     super.key,
     required this.name,
     required this.studentNumber,
+    this.profileImageUrl,
     this.onProfileEdit,
     this.onLogout,
   });
 
   final String name;
   final int studentNumber;
+
+  /// 등록된 프로필 사진 URL. null/빈 값이면 기본 아바타를 표시한다.
+  final String? profileImageUrl;
   final VoidCallback? onProfileEdit;
 
   /// 로그아웃 확인 후 실행할 동작. 미지정 시 로그아웃 항목은 동작하지 않는다.
@@ -92,6 +98,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                 _ProfileCard(
                   name: widget.name,
                   studentNumber: widget.studentNumber,
+                  profileImageUrl: widget.profileImageUrl,
                   onEdit: widget.onProfileEdit,
                 ),
                 const SizedBox(height: AppSpacing.s24),
@@ -139,11 +146,13 @@ class _ProfileCard extends StatelessWidget {
   const _ProfileCard({
     required this.name,
     required this.studentNumber,
+    this.profileImageUrl,
     this.onEdit,
   });
 
   final String name;
   final int studentNumber;
+  final String? profileImageUrl;
   final VoidCallback? onEdit;
 
   @override
@@ -152,7 +161,7 @@ class _ProfileCard extends StatelessWidget {
 
     return Row(
       children: [
-        _ProfileAvatar(onEdit: onEdit),
+        _ProfileAvatar(profileImageUrl: profileImageUrl, onEdit: onEdit),
         const SizedBox(width: AppSpacing.s16),
         Expanded(
           child: Column(
@@ -194,8 +203,9 @@ class _ProfileCard extends StatelessWidget {
 
 /// 기본 아바타(원형 실루엣) 위에 편집 뱃지를 겹친 위젯.
 class _ProfileAvatar extends StatelessWidget {
-  const _ProfileAvatar({this.onEdit});
+  const _ProfileAvatar({this.profileImageUrl, this.onEdit});
 
+  final String? profileImageUrl;
   final VoidCallback? onEdit;
 
   // 디자인 고정 수치 (52px 아바타 + 우하단 24px 뱃지 오버랩)
@@ -205,6 +215,26 @@ class _ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final url = profileImageUrl;
+    // 서버 URL(http…) 은 네트워크에서, 낙관적 갱신으로 들어온 로컬 경로는
+    // 파일에서 읽는다. 없거나 로드 실패 시 기본 아바타.
+    final avatar = (url == null || url.isEmpty)
+        ? AppIcon.avatar()
+        : ClipOval(
+            child: Image(
+              image: url.startsWith('http')
+                  ? NetworkImage(url)
+                  : FileImage(File(url)) as ImageProvider,
+              width: _avatarSize,
+              height: _avatarSize,
+              fit: BoxFit.cover,
+              // 로드 중에는 기본 아바타를 보여줘 빈 화면을 막는다.
+              loadingBuilder: (_, child, progress) =>
+                  progress == null ? child : AppIcon.avatar(),
+              errorBuilder: (_, _, _) => AppIcon.avatar(),
+            ),
+          );
+
     // 아바타 영역 전체를 탭하면 편집 동작이 실행되도록 한다.
     return GestureDetector(
       onTap: onEdit,
@@ -214,7 +244,7 @@ class _ProfileAvatar extends StatelessWidget {
         height: _avatarSize,
         child: Stack(
           children: [
-            AppIcon.avatar(),
+            avatar,
             Positioned(
               right: 0,
               bottom: 0,
