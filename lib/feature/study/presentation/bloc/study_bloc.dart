@@ -38,8 +38,15 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
 
     // 신청 시작/마감 시각이 실시간으로 지나면 버튼 활성 상태가 저절로 바뀌도록
     // 주기적으로 재평가한다(앱을 20:00 이전부터 켜둬도 시간이 되면 활성화).
+    // 또한 신청 가능 시간대에는 현황(신청자 수)을 주기적으로 폴링한다 — 다른
+    // 학생의 신청/취소가 홈·기숙사 카운트 카드에 곧 반영되도록. 시간대 밖에서는
+    // 인원이 바뀌지 않으므로 폴링하지 않아 불필요한 호출을 막는다.
     _ticker = Timer.periodic(tick, (_) {
-      if (!isClosed) add(const StudyEvent.actionEvaluated());
+      if (isClosed) return;
+      add(const StudyEvent.actionEvaluated());
+      if (_policy.isOpenAt(_clock())) {
+        add(const StudyEvent.applicantsRequested(refresh: true));
+      }
     });
   }
 
