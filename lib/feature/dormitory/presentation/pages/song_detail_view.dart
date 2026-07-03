@@ -36,17 +36,6 @@ class _SongDetailViewState extends State<SongDetailView> {
     super.dispose();
   }
 
-  /// 로드된 목록에 검색어(노래 제목·신청자 이름)를 클라이언트에서 필터링한다.
-  List<WakeUpMusic> _filtered(List<WakeUpMusic> musics) {
-    final q = _songSearchController.text.trim().toLowerCase();
-    if (q.isEmpty) return musics;
-    return musics.where((m) {
-      final title = (m.title ?? '').toLowerCase();
-      final name = (m.userName ?? '').toLowerCase();
-      return title.contains(q) || name.contains(q);
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MusicBloc, MusicState>(
@@ -65,9 +54,10 @@ class _SongDetailViewState extends State<SongDetailView> {
         final isLoading =
             state.listStatus == MusicListStatus.initial ||
             state.listStatus == MusicListStatus.loading ||
-        (state.listStatus == MusicListStatus.refreshing && state.musics.isEmpty);
+            (state.listStatus == MusicListStatus.refreshing &&
+                state.totalCount == 0);
 
-        final musics = _filtered(state.musics);
+        final musics = state.musics;
 
         return Column(
           children: [
@@ -93,13 +83,14 @@ class _SongDetailViewState extends State<SongDetailView> {
               child: SearchTextField(
                 textEditingController: _songSearchController,
                 hintText: '학생 이름, 노래 제목을 입력해주세요',
-                onChanged: (_) => setState(() {}),
+                onChanged: (value) =>
+                    context.read<MusicBloc>().add(MusicEvent.searched(value)),
               ),
             ),
             Expanded(
               child: _buildBody(
                 isLoading: isLoading,
-                hasAny: state.musics.isNotEmpty,
+                hasAny: state.totalCount > 0,
                 musics: musics,
               ),
             ),

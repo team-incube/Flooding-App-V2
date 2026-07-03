@@ -19,4 +19,10 @@ class MusicEvent with _$MusicEvent {
 
   /// [musicUrl] 로 기상음악을 신청한다.
   const factory MusicEvent.applied(String musicUrl) = _Applied;
+
+  /// 노래 제목·신청자 이름으로 목록을 검색(필터)한다.
+  ///
+  /// 빈 문자열이면 전체 목록을 표시한다. 검색어는 상태에 보관돼
+  /// 재조회(신청 후 새로고침 등)에도 동일 필터가 유지된다.
+  const factory MusicEvent.searched(String query) = _Searched;
 }

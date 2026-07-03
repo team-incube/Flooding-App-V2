@@ -28,8 +28,14 @@ abstract class MusicState with _$MusicState {
     /// 목록 조회 상태.
     @Default(MusicListStatus.initial) MusicListStatus listStatus,
 
-    /// 신청된 곡 목록.
+    /// 화면에 표시할 곡 목록(검색어 적용 결과).
     @Default(<WakeUpMusic>[]) List<WakeUpMusic> musics,
+
+    /// 검색어와 무관한 전체 신청 곡 수(빈 상태 문구 구분·카운트용).
+    @Default(0) int totalCount,
+
+    /// 현재 적용 중인 검색어 — 재조회 시 재적용한다.
+    @Default('') String query,
 
     /// 목록 조회 실패 메시지.
     String? listError,

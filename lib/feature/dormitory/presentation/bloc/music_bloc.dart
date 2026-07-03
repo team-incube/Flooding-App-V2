@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/logger.dart';
+import '../../data/models/wake_up_music.dart';
 import '../../domain/enum/music_sort.dart';
 import '../../domain/repositories/music_repository.dart';
 import 'music_event.dart';
@@ -19,11 +20,15 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         listRequested: (refresh, date, sort) =>
             _onListRequested(emit, refresh: refresh, date: date, sort: sort),
         applied: (musicUrl) => _onApplied(emit, musicUrl),
+        searched: (query) => _onSearched(emit, query),
       );
     });
   }
 
   final MusicRepository _repository;
+
+  /// 검색어 적용 전 전체 목록 — 필터는 이 목록에 다시 적용한다.
+  List<WakeUpMusic> _allMusics = [];
 
   // ── 목록 조회 ─────────────────────────────────────────────
 
@@ -50,12 +55,17 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       ),
     );
     try {
-      final musics = await _repository.fetchMusicList(
+      _allMusics = await _repository.fetchMusicList(
         date: nextDate,
         sort: nextSort,
       );
       emit(
-        state.copyWith(listStatus: MusicListStatus.loaded, musics: musics),
+        state.copyWith(
+          listStatus: MusicListStatus.loaded,
+          // 재조회로 목록이 갱신돼도 현재 검색어를 유지해 재적용한다.
+          musics: _applyFilter(_allMusics, state.query),
+          totalCount: _allMusics.length,
+        ),
       );
     } catch (e, s) {
       // Exception 뿐 아니라 Error(파싱 TypeError 등)까지 모두 잡아, 어떤
@@ -71,14 +81,36 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         );
         return;
       }
+      _allMusics = [];
       emit(
         state.copyWith(
           listStatus: MusicListStatus.error,
           musics: const [],
+          totalCount: 0,
           listError: _messageOf(e),
         ),
       );
     }
+  }
+
+  // ── 검색(필터) ─────────────────────────────────────────────
+
+  void _onSearched(Emitter<MusicState> emit, String query) {
+    // 검색어를 상태에 보관해 이후 재조회에도 동일 필터가 재적용되도록 한다.
+    emit(
+      state.copyWith(query: query, musics: _applyFilter(_allMusics, query)),
+    );
+  }
+
+  /// [query](노래 제목·신청자 이름)로 [all] 을 필터링한 결과를 반환한다.
+  List<WakeUpMusic> _applyFilter(List<WakeUpMusic> all, String query) {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return all;
+    return all.where((m) {
+      final title = (m.title ?? '').toLowerCase();
+      final name = (m.userName ?? '').toLowerCase();
+      return title.contains(q) || name.contains(q);
+    }).toList();
   }
 
   // ── 신청 ─────────────────────────────────────────────────
