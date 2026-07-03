@@ -12,12 +12,16 @@ class SongRequestCard extends StatefulWidget {
   final String name;
   final DateTime requestedAt;
 
+  /// 유튜브 영상 썸네일 URL. null/빈 값이면 회색 박스만 보여준다.
+  final String? thumbnailUrl;
+
   const SongRequestCard({
     super.key,
     required this.song,
     required this.grade,
     required this.name,
     required this.requestedAt,
+    this.thumbnailUrl,
   });
 
   @override
@@ -36,23 +40,52 @@ class _SongRequestCardState extends State<SongRequestCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
+                SizedBox(
                   height: 70,
                   width: 120,
-                  decoration: BoxDecoration(
-                    color: AppColors.lightSub4,
-                    borderRadius: BorderRadius.circular(AppRadius.s8),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isLiked = !isLiked;
-                      });
-                    },
-                    icon: Align(
-                      alignment: Alignment.topLeft,
-                        child: isLiked ? AppIcon.filledHeart() : AppIcon.heart()),
-                    padding: const EdgeInsets.all(AppSpacing.s6),
+                  child: Stack(
+                    children: [
+                      // 회색 배경 박스(썸네일 로드 전/실패 시 플레이스홀더).
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.lightSub4,
+                            borderRadius: BorderRadius.circular(AppRadius.s8),
+                          ),
+                        ),
+                      ),
+                      // 회색 박스 위에 얹는 유튜브 썸네일(76.55 × 69.96).
+                      // 잘라내지 않고 지정 크기에 전체가 들어가도록 축소한다.
+                      if (widget.thumbnailUrl != null &&
+                          widget.thumbnailUrl!.isNotEmpty)
+                        Center(
+                          child: Image.network(
+                            widget.thumbnailUrl!,
+                            width: 76.55,
+                            height: 69.96,
+                            fit: BoxFit.fill,
+                            // 로드 실패 시 회색 박스만 남긴다.
+                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          ),
+                        ),
+                      // 좌상단 좋아요 버튼(썸네일 위에 표시).
+                      Positioned.fill(
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isLiked = !isLiked;
+                            });
+                          },
+                          icon: Align(
+                            alignment: Alignment.topLeft,
+                            child: isLiked
+                                ? AppIcon.filledHeart()
+                                : AppIcon.heart(),
+                          ),
+                          padding: const EdgeInsets.all(AppSpacing.s6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
