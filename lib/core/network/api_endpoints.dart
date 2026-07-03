@@ -16,4 +16,7 @@ class ApiEndpoints {
 
   /// AI 챗봇 도메인 공통 prefix — 메시지 전송 등.
   static const String ai = '/ai';
+
+  /// neis 도메인 공통 prefix — 급식 목록 조회 등.
+  static const String neis = '/v2/neis';
 }
