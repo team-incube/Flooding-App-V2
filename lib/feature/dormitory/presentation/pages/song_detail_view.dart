@@ -64,7 +64,9 @@ class _SongDetailViewState extends State<SongDetailView> {
       builder: (context, state) {
         final isLoading =
             state.listStatus == MusicListStatus.initial ||
-            state.listStatus == MusicListStatus.loading;
+            state.listStatus == MusicListStatus.loading ||
+        (state.listStatus == MusicListStatus.refreshing && state.musics.isEmpty);
+
         final musics = _filtered(state.musics);
 
         return Column(
@@ -130,6 +132,10 @@ class _SongDetailViewState extends State<SongDetailView> {
           name: music.userName ?? '',
           requestedAt: music.appliedAt ?? DateTime.now(),
           thumbnailUrl: music.thumbnailUrl,
+          isLiked: music.isLiked,
+          onLikePressed: () {
+            // TODO: 좋아요 API 연동 시 이벤트 추가
+          },
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s16),

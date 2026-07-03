@@ -86,7 +86,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   Future<void> _onApplied(Emitter<MusicState> emit, String musicUrl) async {
     if (state.isSubmitting) return;
 
-    emit(state.copyWith(isSubmitting: true));
+    emit(state.copyWith(isSubmitting: true, applyResult: null));
     try {
       await _repository.applyMusic(musicUrl);
       emit(
