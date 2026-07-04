@@ -30,7 +30,7 @@ class _FakeNeisRepository implements NeisRepository {
 
 void main() {
   // KST 09:00(1교시 진행 중)에 해당하는 시각.
-  final duringClass = DateTime.utc(2026, 6, 16, 0).subtract(const Duration(hours: 9));
+  final duringClass = DateTime.utc(2026, 6, 16, 0);
   // KST 18:00(하교 이후)에 해당하는 시각.
   final afterSchool = DateTime.utc(2026, 6, 16, 18).subtract(const Duration(hours: 9));
 
@@ -79,7 +79,7 @@ void main() {
       expect(result.period, isNull);
     });
 
-    test('ApiException 은 메시지를 가진 Exception 으로 변환한다', () async {
+    test('ApiException 은 그대로 전파된다', () async {
       final usecase = GetNextPeriodUseCase(
         _FakeNeisRepository(error: const ApiException(isNetwork: true)),
         clock: () => duringClass,
@@ -88,8 +88,8 @@ void main() {
       expect(
         () => usecase(grade: 2, classNumber: 1),
         throwsA(
-          isA<Exception>().having(
-            (e) => e.toString(),
+          isA<ApiException>().having(
+            (e) => e.message,
             'message',
             contains('네트워크 연결을 확인해 주세요.'),
           ),

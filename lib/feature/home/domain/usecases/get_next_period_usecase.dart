@@ -52,11 +52,15 @@ class GetNextPeriodUseCase {
     final now = _clock();
     final periodNumber = _policy.periodNumberAt(now);
     if (periodNumber == null) return const NextPeriodResult.dayOver();
+    final kst = now.toUtc().add(const Duration(hours: 9));
+    if (kst.weekday == DateTime.saturday || kst.weekday == DateTime.sunday) {
+      return const NextPeriodResult.noClass();
+    }
     try {
       final timetable = await _repository.fetchTimetable(
         grade: grade,
         classNumber: classNumber,
-        date: now,
+        date: kst,
       );
       for (final period in timetable.periods) {
         if (period.period == periodNumber) {
@@ -64,11 +68,11 @@ class GetNextPeriodUseCase {
         }
       }
       return const NextPeriodResult.noClass();
-    } on ApiException catch (e) {
-      throw Exception(e.message);
+    } on ApiException {
+      rethrow;
     } catch (e, s) {
       Logger.e('시간표 조회 실패', tag: 'NEIS', error: e, stackTrace: s);
-      throw Exception('시간표를 불러오지 못했어요.');
+      throw const ApiException.message('시간표를 불러오지 못했어요.');
     }
   }
 }

@@ -68,12 +68,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   String _messageOf(Object e) {
     if (e is ApiException) return e.message;
-    final raw = e.toString();
-    final stripped = raw.startsWith('Exception: ')
-        ? raw.substring('Exception: '.length)
-        : raw;
-    if (e is! Exception || stripped.isEmpty) return '시간표를 불러오지 못했어요.';
-    return stripped;
+    return '시간표를 불러오지 못했어요.';
   }
 
   @override

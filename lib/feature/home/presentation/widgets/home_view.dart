@@ -79,13 +79,13 @@ class _ScheduleCard extends StatelessWidget {
             '',
           ),
           ScheduleStatus.loaded => switch (state.periodStatus) {
-            NextPeriodStatus.found => (
-              '${period!.period} 교시',
+            NextPeriodStatus.found when period != null => (
+              '${period.period} 교시',
               period.subject,
               period.teacher,
             ),
             NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', ''),
-            NextPeriodStatus.noClass || null => ('', '오늘 예정된 수업이 없어요', ''),
+            _ => ('', '오늘 예정된 수업이 없어요', ''),
           },
         };
 
