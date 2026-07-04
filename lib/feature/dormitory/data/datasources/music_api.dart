@@ -9,11 +9,7 @@ import '../models/wake_up_music_response.dart';
 part 'music_api.g.dart';
 
 /// 기상음악 API 경로 — 공통 prefix([ApiEndpoints.dormitory])를 합성한다.
-class _Endpoints {
-  _Endpoints._();
-
-  static const String music = '${ApiEndpoints.dormitory}/music';
-}
+const String _music = '${ApiEndpoints.dormitory}/music';
 
 /// Flooding 백엔드 기상음악(`/dormitory/music`) API.
 ///
@@ -25,14 +21,14 @@ abstract class MusicApi {
   /// 날짜별 기상음악 신청 목록 조회.
   ///
   /// [date] 는 `yyyy-MM-dd`(미지정 시 서버 기본), [sort] 는 `TIME`/`LIKE`.
-  @GET(_Endpoints.music)
+  @GET(_music)
   Future<WakeUpMusicListResponse> getMusicList({
     @Query('date') String? date,
     @Query('sort') String? sort,
   });
 
   /// 기상음악 신청 — 이미 신청한 경우 409.
-  @POST(_Endpoints.music)
+  @POST(_music)
   Future<WakeUpMusicResponse> applyMusic(
     @Body() ApplyWakeUpMusicRequest request,
   );
