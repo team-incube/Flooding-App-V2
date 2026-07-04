@@ -1,5 +1,6 @@
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_radius.dart';
@@ -11,6 +12,9 @@ import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/card_header.dart';
 import '../../../../core/widgets/primary_action_button.dart';
+import '../../../dormitory/presentation/bloc/music_bloc.dart';
+import '../../../dormitory/presentation/bloc/music_event.dart';
+import '../../../dormitory/presentation/bloc/music_state.dart';
 import '../../../massage/presentation/widgets/massage_count_card.dart';
 import '../../../study/presentation/widgets/study_count_card.dart';
 
@@ -34,6 +38,13 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
   }
 
+  /// 입력한 URL 로 기상음악을 신청한다.
+  void _onApplyMusic() {
+    final url = _musicUrlController.text.trim();
+    if (url.isEmpty) return;
+    context.read<MusicBloc>().add(MusicEvent.applied(url));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -51,7 +62,26 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: AppSpacing.s16),
             const MassageCountCard(),
             const SizedBox(height: AppSpacing.s16),
-            _WakeMusicCard(controller: _musicUrlController, requestedCount: 12),
+            BlocConsumer<MusicBloc, MusicState>(
+              // 신청 결과(성공/실패)를 1회성 스낵바로 안내한다.
+              listenWhen: (prev, curr) =>
+                  !identical(prev.applyResult, curr.applyResult),
+              listener: (context, state) {
+                final result = state.applyResult;
+                if (result == null) return;
+                // 신청 성공 시 입력창을 비운다.
+                if (result.success) _musicUrlController.clear();
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text(result.message)));
+              },
+              builder: (context, state) => _WakeMusicCard(
+                controller: _musicUrlController,
+                requestedCount: state.musics.length,
+                submitting: state.isSubmitting,
+                onApply: _onApplyMusic,
+              ),
+            ),
           ],
         ),
       ),
@@ -123,10 +153,18 @@ class _WakeMusicCard extends StatelessWidget {
   const _WakeMusicCard({
     required this.controller,
     required this.requestedCount,
+    required this.submitting,
+    required this.onApply,
   });
 
   final TextEditingController controller;
   final int requestedCount;
+
+  /// 신청 요청 처리 중 여부 — true 면 버튼을 비활성화한다.
+  final bool submitting;
+
+  /// '신청하기' 탭 콜백.
+  final VoidCallback onApply;
 
   @override
   Widget build(BuildContext context) {
@@ -216,13 +254,21 @@ class _WakeMusicCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.s8),
-          const PrimaryActionButton(
-            label: '신청하기',
-            enabled: false,
-            expand: true,
-            verticalPadding: AppSpacing.s14,
-            horizontalPadding: AppSpacing.s32,
-            borderRadius: AppRadius.s8,
+          // URL 이 입력돼야(그리고 처리 중이 아닐 때만) 버튼을 활성화한다.
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, _) {
+              final canApply = value.text.trim().isNotEmpty && !submitting;
+              return PrimaryActionButton(
+                label: submitting ? '신청 중...' : '신청하기',
+                enabled: canApply,
+                onPressed: onApply,
+                expand: true,
+                verticalPadding: AppSpacing.s14,
+                horizontalPadding: AppSpacing.s32,
+                borderRadius: AppRadius.s8,
+              );
+            },
           ),
         ],
       ),
