@@ -2,13 +2,13 @@ import 'package:flooding_v2/feature/home/data/models/period_data.dart';
 import 'package:flooding_v2/feature/home/domain/usecases/get_next_period_usecase.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'home_state.freezed.dart';
+part 'timetable_state.freezed.dart';
 
 enum ScheduleStatus { initial, loading, loaded, error }
 
 @freezed
-abstract class HomeState with _$HomeState {
-  const factory HomeState({
+abstract class TimetableState with _$TimetableState {
+  const factory TimetableState({
     @Default(ScheduleStatus.initial) ScheduleStatus scheduleStatus,
 
     /// 현재 진행 중이거나 다음으로 시작하는 교시. [scheduleStatus] 가 `loaded` 이고
@@ -21,5 +21,5 @@ abstract class HomeState with _$HomeState {
 
     /// 시간표 조회 실패 메시지.
     String? scheduleError,
-  }) = _HomeState;
+  }) = _TimetableState;
 }

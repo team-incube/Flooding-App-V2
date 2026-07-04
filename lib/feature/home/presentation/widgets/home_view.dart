@@ -15,8 +15,8 @@ import '../../../../core/widgets/primary_action_button.dart';
 import '../../../massage/presentation/widgets/massage_count_card.dart';
 import '../../../study/presentation/widgets/study_count_card.dart';
 import '../../domain/usecases/get_next_period_usecase.dart';
-import '../bloc/home_bloc.dart';
-import '../bloc/home_state.dart';
+import '../bloc/timetable_bloc.dart';
+import '../bloc/timetable_state.dart';
 
 /// 홈 섹션 본문(시간표·자습신청·안마의자·기상음악 카드).
 ///
@@ -45,7 +45,7 @@ class _HomeViewState extends State<HomeView> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            BlocBuilder<HomeBloc, HomeState>(
+            BlocBuilder<TimetableBloc, TimetableState>(
               builder: (context, state) => _ScheduleCard(state: state),
             ),
             const SizedBox(height: AppSpacing.s16),
@@ -64,7 +64,7 @@ class _HomeViewState extends State<HomeView> {
 class _ScheduleCard extends StatelessWidget {
   const _ScheduleCard({required this.state});
 
-  final HomeState state;
+  final TimetableState state;
 
   @override
   Widget build(BuildContext context) {
