@@ -36,21 +36,35 @@ class _SongDetailViewState extends State<SongDetailView> {
     super.dispose();
   }
 
+  void _showSnack(BuildContext context, String? message) {
+    if (message == null) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MusicBloc, MusicState>(
-      // 조회 실패 시 화면은 기존 목록을 유지하고, 사유는 스낵바로만 안내한다.
-      listenWhen: (prev, curr) =>
-          curr.listStatus == MusicListStatus.error &&
-          prev.listStatus != MusicListStatus.error,
-      listener: (context, state) {
-        final message = state.listError;
-        if (message == null) return;
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(message)));
-      },
-      builder: (context, state) {
+    return MultiBlocListener(
+      listeners: [
+        // 목록 조회 실패 — 화면은 기존 목록을 유지하고 사유만 스낵바로 안내한다.
+        BlocListener<MusicBloc, MusicState>(
+          listenWhen: (prev, curr) =>
+              curr.listStatus == MusicListStatus.error &&
+              prev.listStatus != MusicListStatus.error,
+          listener: (context, state) => _showSnack(context, state.listError),
+        ),
+        // 좋아요 토글 실패 — 낙관적 변경을 롤백하고 사유를 스낵바로 안내한다.
+        BlocListener<MusicBloc, MusicState>(
+          listenWhen: (prev, curr) =>
+              !identical(prev.likeResult, curr.likeResult) &&
+              curr.likeResult != null,
+          listener: (context, state) =>
+              _showSnack(context, state.likeResult?.message),
+        ),
+      ],
+      child: BlocBuilder<MusicBloc, MusicState>(
+        builder: (context, state) {
         final isLoading =
             state.listStatus == MusicListStatus.initial ||
             state.listStatus == MusicListStatus.loading ||
@@ -95,8 +109,9 @@ class _SongDetailViewState extends State<SongDetailView> {
               ),
             ),
           ],
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -124,9 +139,8 @@ class _SongDetailViewState extends State<SongDetailView> {
           requestedAt: music.appliedAt ?? DateTime.now(),
           thumbnailUrl: music.thumbnailUrl,
           isLiked: music.isLiked,
-          onLikePressed: () {
-            // TODO: 좋아요 API 연동 시 이벤트 추가
-          },
+          onLikePressed: () =>
+              context.read<MusicBloc>().add(MusicEvent.likeToggled(music.id)),
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s16),
