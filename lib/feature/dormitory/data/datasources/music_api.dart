@@ -32,4 +32,12 @@ abstract class MusicApi {
   Future<WakeUpMusicResponse> applyMusic(
     @Body() ApplyWakeUpMusicRequest request,
   );
+
+  /// 기상음악 좋아요 — 이미 좋아요한 경우 409.
+  @POST('$_music/{musicId}/like')
+  Future<void> likeMusic(@Path('musicId') int musicId);
+
+  /// 기상음악 좋아요 취소.
+  @DELETE('$_music/{musicId}/like')
+  Future<void> unlikeMusic(@Path('musicId') int musicId);
 }

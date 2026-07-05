@@ -9,4 +9,8 @@ abstract interface class MusicRepository {
   });
 
   Future<WakeUpMusic> applyMusic(String musicUrl);
+
+  Future<void> likeMusic(int musicId);
+
+  Future<void> unlikeMusic(int musicId);
 }
