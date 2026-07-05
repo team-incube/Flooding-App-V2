@@ -1,4 +1,8 @@
 import 'package:flooding_v2/core/enum/role.dart';
+import 'package:flooding_v2/feature/dormitory/data/repositories/music_repository_impl.dart';
+import 'package:flooding_v2/feature/dormitory/domain/repositories/music_repository.dart';
+import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_bloc.dart';
+import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_event.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
@@ -168,6 +172,11 @@ GoRouter createAppRouter(AuthController auth) {
                   onSessionExpired: auth.expireSession,
                 ),
               ),
+              RepositoryProvider<MusicRepository>(
+                create: (_) => MusicRepositoryImpl.create(
+                  onSessionExpired: auth.expireSession,
+                ),
+              ),
             ],
             child: MultiBlocProvider(
               providers: [
@@ -190,6 +199,12 @@ GoRouter createAppRouter(AuthController auth) {
                       repository: repository,
                     )..add(const MassageEvent.applicantsRequested());
                   },
+                ),
+                BlocProvider(
+                  // 셸 진입 시 1회 로드 — 홈 기상음악 카드 카운트/목록을 채운다.
+                  create: (ctx) => MusicBloc(
+                    repository: ctx.read<MusicRepository>(),
+                  )..add(const MusicEvent.listRequested()),
                 ),
               ],
               child: BaseScaffold(
