@@ -21,6 +21,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
             _onListRequested(emit, refresh: refresh, date: date, sort: sort),
         applied: (musicUrl) => _onApplied(emit, musicUrl),
         searched: (query) => _onSearched(emit, query),
+        likeToggled: (musicId) => _onLikeToggled(emit, musicId),
       );
     });
   }
@@ -101,6 +102,55 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       state.copyWith(query: query, musics: _applyFilter(_allMusics, query)),
     );
   }
+
+  // ── 좋아요 토글 ────────────────────────────────────────────
+
+  Future<void> _onLikeToggled(Emitter<MusicState> emit, int musicId) async {
+    final index = _allMusics.indexWhere((m) => m.id == musicId);
+    if (index == -1) return;
+
+    final original = _allMusics[index];
+    final willLike = !original.isLiked;
+    final nextCount = willLike
+        ? original.likeCount + 1
+        : (original.likeCount > 0 ? original.likeCount - 1 : 0);
+
+    // 낙관적 업데이트 — 하트를 즉시 토글하고, 실패 시에만 되돌린다.
+    // 제자리 수정이 아니라 새 리스트로 교체해야 state 변경으로 인식돼 리빌드된다.
+    _allMusics = _replaceMusic(
+      _allMusics,
+      musicId,
+      original.copyWith(isLiked: willLike, likeCount: nextCount),
+    );
+    emit(state.copyWith(musics: _applyFilter(_allMusics, state.query)));
+
+    try {
+      if (willLike) {
+        await _repository.likeMusic(musicId);
+      } else {
+        await _repository.unlikeMusic(musicId);
+      }
+    } catch (e, s) {
+      Logger.e('기상음악 좋아요 토글 실패', tag: 'MUSIC', error: e, stackTrace: s);
+      // 롤백 — 원래 값으로 복구한다(목록이 재조회로 교체됐으면 무시된다).
+      _allMusics = _replaceMusic(_allMusics, musicId, original);
+      emit(
+        state.copyWith(
+          musics: _applyFilter(_allMusics, state.query),
+          likeResult: MusicApplyResult(success: false, message: _messageOf(e)),
+        ),
+      );
+    }
+  }
+
+  /// [musicId] 항목만 [replacement] 으로 바꾼 새 리스트를 반환한다(원본 불변).
+  List<WakeUpMusic> _replaceMusic(
+    List<WakeUpMusic> all,
+    int musicId,
+    WakeUpMusic replacement,
+  ) => [
+    for (final m in all) m.id == musicId ? replacement : m,
+  ];
 
   /// [query](노래 제목·신청자 이름)로 [all] 을 필터링한 결과를 반환한다.
   List<WakeUpMusic> _applyFilter(List<WakeUpMusic> all, String query) {
