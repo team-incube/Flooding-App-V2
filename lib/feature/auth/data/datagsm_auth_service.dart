@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-
 import '../../../core/config/env.dart';
 import '../../../core/network/auth_interceptor.dart';
 import '../../../core/network/dio_client.dart';

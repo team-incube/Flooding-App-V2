@@ -3,7 +3,11 @@ import 'package:flooding_v2/feature/dormitory/data/repositories/music_repository
 import 'package:flooding_v2/feature/dormitory/domain/repositories/music_repository.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_bloc.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_event.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
+import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
+import 'package:flooding_v2/feature/home/domain/usecases/get_next_period_usecase.dart';
+import 'package:flooding_v2/feature/home/presentation/bloc/timetable_bloc.dart';
 import 'package:flooding_v2/feature/massage/data/repositories/massage_repository_impl.dart';
 import 'package:flooding_v2/feature/massage/domain/repositories/massage_repository.dart';
 import 'package:flooding_v2/feature/massage/domain/usecases/get_massage_applicants_usecase.dart';
@@ -66,7 +70,17 @@ GoRouter createAppRouter(AuthController auth) {
         routes: [
           GoRoute(
             path: RoutePath.home,
-            builder: (context, state) => const HomeView(),
+            builder: (context, state) => BlocProvider(
+              create: (ctx) => TimetableBloc(
+                getNextPeriod: GetNextPeriodUseCase(
+                  NeisRepositoryImpl.create(
+                    onSessionExpired: auth.expireSession,
+                  ),
+                ),
+                meBloc: ctx.read<MeBloc>(),
+              ),
+              child: const HomeView(),
+            ),
           ),
           GoRoute(
             path: RoutePath.dormitory,

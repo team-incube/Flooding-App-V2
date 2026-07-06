@@ -17,6 +17,9 @@ import '../../../dormitory/presentation/bloc/music_event.dart';
 import '../../../dormitory/presentation/bloc/music_state.dart';
 import '../../../massage/presentation/widgets/massage_count_card.dart';
 import '../../../study/presentation/widgets/study_count_card.dart';
+import '../../domain/usecases/get_next_period_usecase.dart';
+import '../bloc/timetable_bloc.dart';
+import '../bloc/timetable_state.dart';
 
 /// 홈 섹션 본문(시간표·자습신청·안마의자·기상음악 카드).
 ///
@@ -52,10 +55,8 @@ class _HomeViewState extends State<HomeView> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const _ScheduleCard(
-              period: '3 교시',
-              subject: 'SQL활용',
-              teacher: '이주원',
+            BlocBuilder<TimetableBloc, TimetableState>(
+              builder: (context, state) => _ScheduleCard(state: state),
             ),
             const SizedBox(height: AppSpacing.s16),
             const StudyCountCard(),
@@ -90,18 +91,33 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class _ScheduleCard extends StatelessWidget {
-  const _ScheduleCard({
-    required this.period,
-    required this.subject,
-    required this.teacher,
-  });
+  const _ScheduleCard({required this.state});
 
-  final String period;
-  final String subject;
-  final String teacher;
+  final TimetableState state;
 
   @override
   Widget build(BuildContext context) {
+    final period = state.period;
+    final (String periodLabel, String subject, String teacher) =
+        switch (state.scheduleStatus) {
+          ScheduleStatus.initial ||
+          ScheduleStatus.loading => ('', '불러오는 중...', ''),
+          ScheduleStatus.error => (
+            '',
+            state.scheduleError ?? '시간표를 불러오지 못했어요.',
+            '',
+          ),
+          ScheduleStatus.loaded => switch (state.periodStatus) {
+            NextPeriodStatus.found when period != null => (
+              '${period.period} 교시',
+              period.subject,
+              period.teacher,
+            ),
+            NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', ''),
+            _ => ('', '오늘 예정된 수업이 없어요', ''),
+          },
+        };
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +137,7 @@ class _ScheduleCard extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  period,
+                  periodLabel,
                   style: AppTextStyle.text2.copyWith(
                     color: AppColors.lightSub1,
                   ),

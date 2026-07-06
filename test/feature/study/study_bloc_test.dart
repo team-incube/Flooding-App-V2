@@ -310,13 +310,21 @@ void main() {
 
     test('신청 성공 후 목록을 자동으로 새로고침한다', () async {
       final repo = _FakeStudyRepository(applicants: applicants);
-      final bloc = _buildBloc(repo, clock: open);
+      // 주기 타이머가 fetch 카운트에 끼어들지 않도록 tick 을 충분히 길게 설정한다.
+      final bloc = _buildBloc(
+        repo,
+        clock: open,
+        tick: const Duration(hours: 1),
+      );
 
       bloc.add(const StudyEvent.applicantsRequested());
       await pumpEventQueue();
       final fetchAfterInitialLoad = repo.fetchCount;
 
       bloc.add(const StudyEvent.actionSubmitted());
+      // 1차 펌프: actionSubmitted 핸들러 완료 + 내부에서 add 한 applicantsRequested 스케줄.
+      await pumpEventQueue();
+      // 2차 펌프: 스트림을 통해 추가된 applicantsRequested 이벤트 처리 완료.
       await pumpEventQueue();
 
       expect(bloc.state.actionStatus, StudyActionStatus.applied);
