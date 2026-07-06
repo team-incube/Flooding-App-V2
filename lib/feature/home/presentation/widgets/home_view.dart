@@ -1,10 +1,4 @@
 import 'package:flooding_v2/core/route/route_path.dart';
-import 'package:flooding_v2/feature/auth/data/flooding_authed_client.dart';
-import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
-import 'package:flooding_v2/feature/home/data/datasources/neis_api.dart';
-import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
-import 'package:flooding_v2/feature/home/domain/repositories/neis_repository.dart';
-import 'package:flooding_v2/feature/home/presentation/bloc/timetable_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
