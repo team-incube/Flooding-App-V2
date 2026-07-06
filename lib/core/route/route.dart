@@ -146,7 +146,7 @@ GoRouter createAppRouter(AuthController auth) {
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
-          final isDormManager = context.role == Role.dormitoryManager;
+          final isDormManager = context.isManager;
 
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||

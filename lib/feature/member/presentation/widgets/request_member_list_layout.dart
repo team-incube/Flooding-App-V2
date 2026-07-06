@@ -36,7 +36,7 @@ class RequestMemberListLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDormManager = context.role == Role.dormitoryManager;
+    final isDormManager = context.isManager;
 
     final body = BlocBuilder<MemberListBloc, MemberListState>(
       builder: (context, state) {
@@ -162,7 +162,7 @@ class _MemberGridLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDormManager = context.role == Role.dormitoryManager;
+    final isDormManager = context.isManager;
 
     final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,

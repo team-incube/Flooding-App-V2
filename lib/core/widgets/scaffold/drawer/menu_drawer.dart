@@ -157,7 +157,7 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDormManager = context.role == Role.dormitoryManager;
+    final isDormManager = context.isManager;
 
     return Row(
       children: [

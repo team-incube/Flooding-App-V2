@@ -21,4 +21,7 @@ extension AccessRole on BuildContext {
         Role.generalStudent,
     orElse: () => Role.generalStudent,
   );
+
+  /// 사감(기숙사 관리자) 전용 기능 접근 권한 — `admin`/`dormitoryManager` 모두 허용.
+  bool get isManager => role == Role.admin || role == Role.dormitoryManager;
 }
