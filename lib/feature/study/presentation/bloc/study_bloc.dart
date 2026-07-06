@@ -226,10 +226,7 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
       emit(
         state.copyWith(
           actionStatus: wasApplied ? StudyActionStatus.applied : _openStatus(),
-          result: StudyActionResult(
-            success: false,
-            message: '요청을 처리하지 못했어요.',
-          ),
+          result: StudyActionResult(success: false, message: '요청을 처리하지 못했어요.'),
         ),
       );
     }

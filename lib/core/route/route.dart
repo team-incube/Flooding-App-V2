@@ -116,26 +116,20 @@ GoRouter createAppRouter(AuthController auth) {
           ),
           GoRoute(
             path: RoutePath.requestMassage,
-            builder: (context, state) => MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (context) {
-                    // 셸 MassageBloc 이 이미 받아둔 신청자 목록으로 시드한다 —
-                    // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
-                    // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
-                    final massage = context.read<MassageBloc>().state;
-                    final seeded =
-                        massage.listStatus == MassageListStatus.loaded;
-                    return MemberListBloc(
-                      getMembers: GetMassageApplicantsUseCase(
-                        context.read<MassageRepository>(),
-                      ),
-                      initialMembers: seeded ? massage.applicants : null,
-                    )..add(MemberListEvent.load());
-                  },
-                ),
-                BlocProvider(create: (context) => MemberSelectionBloc()),
-              ],
+            builder: (context, state) => BlocProvider(
+              create: (context) {
+                // 셸 MassageBloc 이 이미 받아둔 신청자 목록으로 시드한다 —
+                // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
+                // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
+                final massage = context.read<MassageBloc>().state;
+                final seeded = massage.listStatus == MassageListStatus.loaded;
+                return MemberListBloc(
+                  getMembers: GetMassageApplicantsUseCase(
+                    context.read<MassageRepository>(),
+                  ),
+                  initialMembers: seeded ? massage.applicants : null,
+                )..add(MemberListEvent.load());
+              },
               child: const MassageRequestView(),
             ),
           ),
@@ -202,9 +196,9 @@ GoRouter createAppRouter(AuthController auth) {
                 ),
                 BlocProvider(
                   // 셸 진입 시 1회 로드 — 홈 기상음악 카드 카운트/목록을 채운다.
-                  create: (ctx) => MusicBloc(
-                    repository: ctx.read<MusicRepository>(),
-                  )..add(const MusicEvent.listRequested()),
+                  create: (ctx) =>
+                      MusicBloc(repository: ctx.read<MusicRepository>())
+                        ..add(const MusicEvent.listRequested()),
                 ),
               ],
               child: BaseScaffold(

@@ -13,10 +13,14 @@ import '../models/member_model.dart';
 typedef MemberSelectAction = void Function(int id, bool isAttended);
 
 class MemberCard extends StatelessWidget {
-  const MemberCard({super.key, required this.model, required this.number})
-    : onSelect = null,
-      isSelected = false,
-      enabled = true;
+  const MemberCard({
+    super.key,
+    required this.model,
+    required this.number,
+    this.showAttendanceBadge = false,
+  }) : onSelect = null,
+       isSelected = false,
+       enabled = true;
 
   const MemberCard.button({
     super.key,
@@ -25,6 +29,7 @@ class MemberCard extends StatelessWidget {
     required this.onSelect,
     required this.isSelected,
     this.enabled = true,
+    this.showAttendanceBadge = false,
   });
 
   static const Size fixedSize = Size(173, 165);
@@ -40,6 +45,10 @@ class MemberCard extends StatelessWidget {
   final bool enabled;
   final MemberSelectAction? onSelect;
 
+  /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 개념이 없는 기능(안마의자
+  /// 등)에서는 false 로 둬 의미 없는 언체크 아이콘이 뜨지 않게 한다.
+  final bool showAttendanceBadge;
+
   @override
   Widget build(BuildContext context) {
     //TODO : 남성 Icon 등록시 SizedBox 교체
@@ -52,9 +61,10 @@ class MemberCard extends StatelessWidget {
       children: [
         Text("$number", style: AppTextStyle.text3),
         // 체크 표시는 선택 여부가 아니라 출석(체크인) 완료 여부를 나타낸다.
-        model.isAttended
-            ? AppIcon.check(size: AppSize.s16)
-            : AppIcon.uncheck(size: AppSize.s16),
+        if (showAttendanceBadge)
+          model.isAttended
+              ? AppIcon.check(size: AppSize.s16)
+              : AppIcon.uncheck(size: AppSize.s16),
       ],
     );
 

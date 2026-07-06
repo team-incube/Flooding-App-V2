@@ -48,7 +48,12 @@ class RequestMemberListLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDormManager = context.isManager;
+    // 이 화면에 체크인/체크아웃 콜백이 있는지(예: 안마의자는 출석 개념 자체가
+    // 없어 둘 다 null) — 출석 배지 노출 여부는 역할과 무관하게 이 값만 따른다.
+    final supportsAttendance = onCheckIn != null || onCheckOut != null;
+    // 사감이면서 출석 기능이 있는 화면에서만 선택·액션 UI(체크박스·하단 버튼)를
+    // 노출하고, 그 외에는 조회 전용으로 둔다.
+    final canCheckAttendance = context.isManager && supportsAttendance;
 
     final body = BlocBuilder<MemberListBloc, MemberListState>(
       builder: (context, state) {
@@ -66,7 +71,11 @@ class RequestMemberListLayout extends StatelessWidget {
           slivers: [
             _TopBar(searchBar: searchBar, title: title),
             if (memberList.isNotEmpty) ...{
-              _MemberGridLayout(memberList: memberList),
+              _MemberGridLayout(
+                memberList: memberList,
+                showSelection: canCheckAttendance,
+                showAttendanceBadge: supportsAttendance,
+              ),
               const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
             } else ...{
               const SliverToBoxAdapter(
@@ -79,7 +88,7 @@ class RequestMemberListLayout extends StatelessWidget {
       },
     );
 
-    return isDormManager
+    return canCheckAttendance
         ? Stack(
             children: [
               body,
@@ -102,7 +111,8 @@ class RequestMemberListLayout extends StatelessWidget {
                               enabled: state.checkList.isNotEmpty,
                               onPressed: action == null
                                   ? null
-                                  : () => _handleAction(state.checkList, action),
+                                  : () =>
+                                        _handleAction(state.checkList, action),
                             );
                           },
                         ),
@@ -116,7 +126,10 @@ class RequestMemberListLayout extends StatelessWidget {
 
   /// 선택된 학생 ID([checkList])로 [action] 을 호출한다. 선택 상태 초기화는
   /// 호출자(feature bloc 의 결과 리스너)가 액션 완료 시점에 직접 수행한다.
-  void _handleAction(Set<int> checkList, void Function(List<int> userIds) action) {
+  void _handleAction(
+    Set<int> checkList,
+    void Function(List<int> userIds) action,
+  ) {
     if (checkList.isEmpty) return;
     action(checkList.toList());
   }
@@ -184,14 +197,24 @@ class _TopBar extends StatelessWidget {
 }
 
 class _MemberGridLayout extends StatelessWidget {
-  const _MemberGridLayout({required this.memberList});
+  const _MemberGridLayout({
+    required this.memberList,
+    required this.showSelection,
+    required this.showAttendanceBadge,
+  });
 
   final List<MemberModel> memberList;
 
+  /// 체크인/체크아웃 선택 UI(하단 액션 버튼 포함) 노출 여부 — 사감 + 출석
+  /// 기능 지원 화면에서만 true.
+  final bool showSelection;
+
+  /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 기능이 있는 화면이면
+  /// 역할과 무관하게 true(일반 학생도 출석 현황은 볼 수 있다).
+  final bool showAttendanceBadge;
+
   @override
   Widget build(BuildContext context) {
-    final isDormManager = context.isManager;
-
     final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,
       mainAxisSpacing: AppSpacing.s8,
@@ -199,12 +222,15 @@ class _MemberGridLayout extends StatelessWidget {
       mainAxisExtent: MemberCard.fixedSize.height,
     );
 
-    if (!isDormManager) {
+    if (!showSelection) {
       return SliverGrid.builder(
         gridDelegate: gridDelegate,
         itemCount: memberList.length,
-        itemBuilder: (_, index) =>
-            MemberCard(model: memberList[index], number: index + 1),
+        itemBuilder: (_, index) => MemberCard(
+          model: memberList[index],
+          number: index + 1,
+          showAttendanceBadge: showAttendanceBadge,
+        ),
       );
     }
 
@@ -223,6 +249,7 @@ class _MemberGridLayout extends StatelessWidget {
           // 이미 선택된 항목과 출석 상태가 다르면(체크인/체크아웃 혼선) 비활성화.
           enabled:
               lockedAttendance == null || lockedAttendance == member.isAttended,
+          showAttendanceBadge: showAttendanceBadge,
           onSelect: (id, isAttended) => context.read<MemberSelectionBloc>().add(
             MemberSelectionEvent.check(id: id, isAttended: isAttended),
           ),
