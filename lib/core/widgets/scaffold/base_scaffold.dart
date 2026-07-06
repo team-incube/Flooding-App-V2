@@ -28,6 +28,7 @@ class BaseScaffold extends StatelessWidget {
     this.showDefaultAppBar = true,
     this.onMenuTap,
     this.onLogout,
+    this.onWithdraw,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.backgroundColor,
@@ -43,6 +44,7 @@ class BaseScaffold extends StatelessWidget {
 
   /// 메뉴 드로어의 로그아웃 동작.
   final Future<void> Function()? onLogout;
+  final Future<void> Function()? onWithdraw;
 
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
@@ -72,6 +74,7 @@ class BaseScaffold extends StatelessWidget {
                 ? null
                 : () => _editProfilePhoto(context, me),
             onLogout: onLogout,
+            onWithdraw: onWithdraw,
           );
         },
       ),
