@@ -169,11 +169,20 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       state.copyWith(
         musics: _applyFilter(_allMusics, state.query),
         totalCount: _allMusics.length,
+        cancelResult: null,
       ),
     );
 
     try {
       await _repository.cancelMusic(musicId);
+      emit(
+        state.copyWith(
+          cancelResult: MusicApplyResult(
+            success: true,
+            message: '기상음악 신청을 취소했어요.',
+          ),
+        ),
+      );
     } catch (e, s) {
       Logger.e('기상음악 신청 취소 실패', tag: 'MUSIC', error: e, stackTrace: s);
       // 롤백 — 이미 제거된 상태라면 원래 위치에 되돌린다(재조회로 교체됐으면 무시).
@@ -188,6 +197,14 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
           ),
         );
       }
+      emit(
+        state.copyWith(
+          cancelResult: MusicApplyResult(
+            success: false,
+            message: e is ApiException ? e.message : '신청 취소를 처리하지 못했어요.',
+          ),
+        ),
+      );
     }
   }
 

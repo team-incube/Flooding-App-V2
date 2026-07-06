@@ -73,6 +73,14 @@ class _SongDetailViewState extends State<SongDetailView> {
           listener: (context, state) =>
               _showSnack(context, state.likeResult?.message),
         ),
+        // 신청 취소 결과 — 성공·실패 모두 스낵바로 안내한다.
+        BlocListener<MusicBloc, MusicState>(
+          listenWhen: (prev, curr) =>
+              !identical(prev.cancelResult, curr.cancelResult) &&
+              curr.cancelResult != null,
+          listener: (context, state) =>
+              _showSnack(context, state.cancelResult?.message),
+        ),
       ],
       child: BlocBuilder<MusicBloc, MusicState>(
         builder: (context, state) {
