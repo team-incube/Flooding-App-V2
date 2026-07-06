@@ -5,17 +5,13 @@ import 'package:retrofit/retrofit.dart';
 
 part 'neis_api.g.dart';
 
-class _Endpoints {
-  const _Endpoints._();
-
-  static const String timeTables = '${ApiEndpoints.neis}/timetables';
-}
+const String _timeTables = '${ApiEndpoints.neis}/timetables';
 
 @RestApi()
 abstract class NeisApi {
   factory NeisApi(Dio dio, {String? baseUrl}) = _NeisApi;
 
-  @GET(_Endpoints.timeTables)
+  @GET(_timeTables)
   Future<TimetableListResponse> getTimeTables({
     @Query('officeCode') required String officeCode,
     @Query('schoolCode') required String schoolCode,

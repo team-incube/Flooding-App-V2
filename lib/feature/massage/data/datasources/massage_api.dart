@@ -7,11 +7,7 @@ import '../models/massage_list_response.dart';
 part 'massage_api.g.dart';
 
 /// 안마의자 API 경로 — 공통 prefix([ApiEndpoints.dormitory])를 합성한다.
-class _Endpoints {
-  _Endpoints._();
-
-  static const String massages = '${ApiEndpoints.dormitory}/massages';
-}
+const String _massages = '${ApiEndpoints.dormitory}/massages';
 
 /// Flooding 백엔드 안마의자(`/dormitory/massages`) API.
 ///
@@ -21,14 +17,14 @@ abstract class MassageApi {
   factory MassageApi(Dio dio, {String? baseUrl}) = _MassageApi;
 
   /// 안마의자 신청자 목록 조회.
-  @GET(_Endpoints.massages)
+  @GET(_massages)
   Future<MassageListResponse> getApplicants();
 
   /// 안마의자 신청.
-  @POST(_Endpoints.massages)
+  @POST(_massages)
   Future<void> requestMassage();
 
   /// 안마의자 신청 취소.
-  @DELETE(_Endpoints.massages)
+  @DELETE(_massages)
   Future<void> cancelMassage();
 }
