@@ -25,4 +25,12 @@ class StudyEvent with _$StudyEvent {
 
   /// 현재 상태에 따라 신청 또는 취소를 수행한다.
   const factory StudyEvent.actionSubmitted() = _ActionSubmitted;
+
+  /// 선택된 학생들([userIds])을 체크인(출석) 처리한다(사감 전용).
+  const factory StudyEvent.checkInRequested({required List<int> userIds}) =
+      _CheckInRequested;
+
+  /// 선택된 학생들([userIds])을 체크아웃(출석 해제) 처리한다(사감 전용).
+  const factory StudyEvent.checkOutRequested({required List<int> userIds}) =
+      _CheckOutRequested;
 }

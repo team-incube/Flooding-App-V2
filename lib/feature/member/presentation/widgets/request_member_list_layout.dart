@@ -25,11 +25,23 @@ class RequestMemberListLayout extends StatelessWidget {
     required this.searchBar,
     required this.title,
     required this.emptyIcon,
+    this.onCheckIn,
+    this.onCheckOut,
   });
 
   final Widget searchBar;
   final String title;
   final Widget emptyIcon;
+
+  /// 미출석 학생을 선택했을 때 체크인 처리하는 콜백(사감 전용 기능).
+  ///
+  /// 실제 처리는 호출자(feature bloc)가 비동기로 수행하고 완료 시 선택 상태도
+  /// 직접 초기화한다 — 이 레이아웃은 선택된 ID만 모아 전달한다. 미지정 시
+  /// (예: 안마의자 화면) 하단 액션 버튼은 눌러도 아무 동작을 하지 않는다.
+  final void Function(List<int> userIds)? onCheckIn;
+
+  /// 이미 출석한 학생을 선택했을 때 체크아웃(출석 해제) 처리하는 콜백.
+  final void Function(List<int> userIds)? onCheckOut;
 
   static const double _bottomPadding = 112;
   static const double _emptyTopPadding = 125;
@@ -79,11 +91,20 @@ class RequestMemberListLayout extends StatelessWidget {
                     height: 47,
                     child:
                         BlocBuilder<MemberSelectionBloc, MemberSelectionState>(
-                          builder: (context, state) => PrimaryActionButton(
-                            label: '출석 완료',
-                            expand: true,
-                            enabled: state.checkList.isNotEmpty,
-                          ),
+                          builder: (context, state) {
+                            // 선택된 항목이 이미 출석 상태면 체크아웃, 아니면
+                            // 체크인 — 선택은 항상 같은 출석 상태끼리만 채워진다.
+                            final isCheckOut = state.selectedAttendance == true;
+                            final action = isCheckOut ? onCheckOut : onCheckIn;
+                            return PrimaryActionButton(
+                              label: isCheckOut ? '출석 해제' : '출석 완료',
+                              expand: true,
+                              enabled: state.checkList.isNotEmpty,
+                              onPressed: action == null
+                                  ? null
+                                  : () => _handleAction(state.checkList, action),
+                            );
+                          },
                         ),
                   ),
                 ),
@@ -91,6 +112,13 @@ class RequestMemberListLayout extends StatelessWidget {
             ],
           )
         : body;
+  }
+
+  /// 선택된 학생 ID([checkList])로 [action] 을 호출한다. 선택 상태 초기화는
+  /// 호출자(feature bloc 의 결과 리스너)가 액션 완료 시점에 직접 수행한다.
+  void _handleAction(Set<int> checkList, void Function(List<int> userIds) action) {
+    if (checkList.isEmpty) return;
+    action(checkList.toList());
   }
 }
 
@@ -180,7 +208,9 @@ class _MemberGridLayout extends StatelessWidget {
       );
     }
 
-    final selectedIds = context.watch<MemberSelectionBloc>().state.checkList;
+    final selectionState = context.watch<MemberSelectionBloc>().state;
+    final selectedIds = selectionState.checkList;
+    final lockedAttendance = selectionState.selectedAttendance;
     return SliverGrid.builder(
       gridDelegate: gridDelegate,
       itemCount: memberList.length,
@@ -189,9 +219,12 @@ class _MemberGridLayout extends StatelessWidget {
         return MemberCard.button(
           number: index + 1,
           model: member,
-          isSelected: selectedIds.contains(member.schoolNb),
-          onSelect: (schoolNb) => context.read<MemberSelectionBloc>().add(
-            MemberSelectionEvent.check(schoolNb: schoolNb),
+          isSelected: selectedIds.contains(member.id),
+          // 이미 선택된 항목과 출석 상태가 다르면(체크인/체크아웃 혼선) 비활성화.
+          enabled:
+              lockedAttendance == null || lockedAttendance == member.isAttended,
+          onSelect: (id, isAttended) => context.read<MemberSelectionBloc>().add(
+            MemberSelectionEvent.check(id: id, isAttended: isAttended),
           ),
         );
       },

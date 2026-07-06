@@ -6,6 +6,7 @@ import 'package:flooding_v2/feature/member/presentation/models/member_model.dart
 
 class StudyMemberMapper {
   static MemberModel toMember(StudyApplicant a) => MemberModel(
+        id: a.id,
         name: a.name,
         schoolNb: StudentFormatter.formatSchoolNumber(
           grade: a.grade,
@@ -14,6 +15,7 @@ class StudyMemberMapper {
           studentNumber: a.studentNumber,
         ),
         gender: Gender.getString(a.sex),
+        isAttended: a.isAttended ?? false,
       );
 
   static StudentEntity toEntity(StudyApplicant a) => StudentEntity(
