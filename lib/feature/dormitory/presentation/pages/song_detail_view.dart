@@ -1,5 +1,6 @@
 import 'package:flooding_v2/core/constants/app_size.dart';
 import 'package:flooding_v2/core/constants/app_spacing.dart';
+import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
@@ -47,10 +48,14 @@ class _SongDetailViewState extends State<SongDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    // 로그인한 사용자 id — 신청자 userId 가 이 값과 같은 곡에만 취소 버튼을 노출한다.
+    // 로그인한 사용자 id — 신청자 userId 가 이 값과 같은 곡에 취소 버튼을 노출한다.
     final myUserId = context.select<MeBloc, int?>(
       (bloc) => bloc.state.maybeWhen(loaded: (me) => me.id, orElse: () => null),
     );
+    // 기숙사 관리자·어드민은 모든 사용자의 곡을 삭제할 수 있다.
+    final role = context.role;
+    final canManageAll =
+        role == Role.admin || role == Role.dormitoryManager;
     return MultiBlocListener(
       listeners: [
         // 목록 조회 실패 — 화면은 기존 목록을 유지하고 사유만 스낵바로 안내한다.
@@ -113,6 +118,7 @@ class _SongDetailViewState extends State<SongDetailView> {
                 hasAny: state.totalCount > 0,
                 musics: musics,
                 myUserId: myUserId,
+                canManageAll: canManageAll,
               ),
             ),
           ],
@@ -127,6 +133,7 @@ class _SongDetailViewState extends State<SongDetailView> {
     required bool hasAny,
     required List<WakeUpMusic> musics,
     required int? myUserId,
+    required bool canManageAll,
   }) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -140,8 +147,9 @@ class _SongDetailViewState extends State<SongDetailView> {
     return ListView.separated(
       itemBuilder: (context, index) {
         final music = musics[index];
-        // 내가 신청한 곡일 때만 취소 버튼을 노출한다(신청자 userId 가 내 id 와 일치).
-        final isMine = myUserId != null && music.userId == myUserId;
+        // 관리자는 모든 곡을, 일반 사용자는 본인 신청 곡만 삭제할 수 있다.
+        final canDelete =
+            canManageAll || (myUserId != null && music.userId == myUserId);
         return SongRequestCard(
           song: music.title ?? music.musicUrl ?? '제목 없음',
           grade: music.studentNumber?.toString() ?? '',
@@ -151,7 +159,7 @@ class _SongDetailViewState extends State<SongDetailView> {
           isLiked: music.isLiked,
           onLikePressed: () =>
               context.read<MusicBloc>().add(MusicEvent.likeToggled(music.id)),
-          isMine: isMine,
+          canDelete: canDelete,
           onDeletePressed: () =>
               context.read<MusicBloc>().add(MusicEvent.cancelRequested(music.id)),
         );
