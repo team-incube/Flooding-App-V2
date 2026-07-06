@@ -1,4 +1,10 @@
 import 'package:flooding_v2/core/route/route_path.dart';
+import 'package:flooding_v2/feature/auth/data/flooding_authed_client.dart';
+import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
+import 'package:flooding_v2/feature/home/data/datasources/neis_api.dart';
+import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
+import 'package:flooding_v2/feature/home/domain/repositories/neis_repository.dart';
+import 'package:flooding_v2/feature/home/presentation/bloc/timetable_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -98,25 +104,27 @@ class _ScheduleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final period = state.period;
-    final (String periodLabel, String subject, String teacher) =
-        switch (state.scheduleStatus) {
-          ScheduleStatus.initial ||
-          ScheduleStatus.loading => ('', '불러오는 중...', ''),
-          ScheduleStatus.error => (
-            '',
-            state.scheduleError ?? '시간표를 불러오지 못했어요.',
-            '',
-          ),
-          ScheduleStatus.loaded => switch (state.periodStatus) {
-            NextPeriodStatus.found when period != null => (
-              '${period.period} 교시',
-              period.subject,
-              period.teacher,
-            ),
-            NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', ''),
-            _ => ('', '오늘 예정된 수업이 없어요', ''),
-          },
-        };
+    final (
+      String periodLabel,
+      String subject,
+      String teacher,
+    ) = switch (state.scheduleStatus) {
+      ScheduleStatus.initial || ScheduleStatus.loading => ('', '불러오는 중...', ''),
+      ScheduleStatus.error => (
+        '',
+        state.scheduleError ?? '시간표를 불러오지 못했어요.',
+        '',
+      ),
+      ScheduleStatus.loaded => switch (state.periodStatus) {
+        NextPeriodStatus.found when period != null => (
+          '${period.period} 교시',
+          period.subject,
+          period.teacher,
+        ),
+        NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', ''),
+        _ => ('', '오늘 예정된 수업이 없어요', ''),
+      },
+    };
 
     return AppCard(
       child: Column(
