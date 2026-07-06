@@ -86,4 +86,22 @@ class StudyRepositoryImpl implements StudyRepository {
       throw e.toApiException();
     }
   }
+
+  @override
+  Future<void> checkIn(int userId) async {
+    try {
+      await _api.checkIn(userId);
+    } on DioException catch (e) {
+      throw e.toApiException();
+    }
+  }
+
+  @override
+  Future<void> checkOut(int userId) async {
+    try {
+      await _api.checkOut(userId);
+    } on DioException catch (e) {
+      throw e.toApiException();
+    }
+  }
 }

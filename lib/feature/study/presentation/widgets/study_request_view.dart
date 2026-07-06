@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/widgets/search_text_field.dart';
+import '../../../member/presentation/blocs/member_selection_bloc.dart';
+import '../../../member/presentation/blocs/member_selection_event.dart';
 import '../../../member/presentation/widgets/no_member_icon.dart';
 import '../../../member/presentation/widgets/request_member_list_layout.dart';
 import '../bloc/study_bloc.dart';
@@ -39,16 +41,29 @@ class _StudyRequestViewState extends State<StudyRequestView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<StudyBloc, StudyState>(
-      // 조회 실패 시 화면은 기존 빈 상태를 유지하고, 사유는 스낵바로만 안내한다.
+      // 조회 실패는 스낵바로, 체크인/체크아웃 등 액션 결과는 스낵바 안내 후
+      // 선택 상태를 초기화한다.
       listenWhen: (prev, curr) =>
-          curr.listStatus == StudyListStatus.error &&
-          prev.listStatus != StudyListStatus.error,
+          (curr.listStatus == StudyListStatus.error &&
+              prev.listStatus != StudyListStatus.error) ||
+          (curr.result != null && curr.result != prev.result),
       listener: (context, state) {
-        final message = state.listError;
-        if (message == null) return;
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(message)));
+        final listError = state.listError;
+        if (state.listStatus == StudyListStatus.error && listError != null) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(listError)));
+        }
+        final result = state.result;
+        if (result != null) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(result.message)));
+          // 체크인/체크아웃 완료 후 선택 상태를 초기화한다.
+          context.read<MemberSelectionBloc>().add(
+            const MemberSelectionEvent.clear(),
+          );
+        }
       },
       builder: (context, state) {
         final isLoading =
@@ -60,6 +75,12 @@ class _StudyRequestViewState extends State<StudyRequestView> {
           searchBar: SearchTextField(
             textEditingController: searchController,
             hintText: '학생 이름, 학번을 입력해주세요',
+          ),
+          onCheckIn: (userIds) => context.read<StudyBloc>().add(
+            StudyEvent.checkInRequested(userIds: userIds),
+          ),
+          onCheckOut: (userIds) => context.read<StudyBloc>().add(
+            StudyEvent.checkOutRequested(userIds: userIds),
           ),
           emptyIcon: isLoading
               ? const Center(child: CircularProgressIndicator())

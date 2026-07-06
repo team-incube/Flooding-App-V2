@@ -116,26 +116,20 @@ GoRouter createAppRouter(AuthController auth) {
           ),
           GoRoute(
             path: RoutePath.requestMassage,
-            builder: (context, state) => MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (context) {
-                    // 셸 MassageBloc 이 이미 받아둔 신청자 목록으로 시드한다 —
-                    // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
-                    // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
-                    final massage = context.read<MassageBloc>().state;
-                    final seeded =
-                        massage.listStatus == MassageListStatus.loaded;
-                    return MemberListBloc(
-                      getMembers: GetMassageApplicantsUseCase(
-                        context.read<MassageRepository>(),
-                      ),
-                      initialMembers: seeded ? massage.applicants : null,
-                    )..add(MemberListEvent.load());
-                  },
-                ),
-                BlocProvider(create: (context) => MemberSelectionBloc()),
-              ],
+            builder: (context, state) => BlocProvider(
+              create: (context) {
+                // 셸 MassageBloc 이 이미 받아둔 신청자 목록으로 시드한다 —
+                // 재진입 시 인디케이터 없이 곧장 표시하고 백그라운드로만 갱신
+                // 한다(아직 미로딩이면 null 로 두어 첫 조회에서만 인디케이터).
+                final massage = context.read<MassageBloc>().state;
+                final seeded = massage.listStatus == MassageListStatus.loaded;
+                return MemberListBloc(
+                  getMembers: GetMassageApplicantsUseCase(
+                    context.read<MassageRepository>(),
+                  ),
+                  initialMembers: seeded ? massage.applicants : null,
+                )..add(MemberListEvent.load());
+              },
               child: const MassageRequestView(),
             ),
           ),
@@ -146,7 +140,7 @@ GoRouter createAppRouter(AuthController auth) {
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
-          final isDormManager = context.role == Role.dormitoryManager;
+          final isDormManager = context.isManager;
 
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||

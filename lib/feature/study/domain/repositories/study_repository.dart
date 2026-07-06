@@ -15,4 +15,13 @@ abstract interface class StudyRepository {
 
   /// 자습 신청을 취소한다.
   Future<void> cancelStudy();
+
+  /// [userId] 학생을 자습 체크인(출석) 처리한다.
+  ///
+  /// 학생 또는 신청 내역이 없으면(404), 이미 체크인 완료면(409)
+  /// `ApiException` 을 던진다.
+  Future<void> checkIn(int userId);
+
+  /// [userId] 학생의 자습 체크인을 취소(출석 해제)한다.
+  Future<void> checkOut(int userId);
 }

@@ -35,6 +35,12 @@ class _FakeStudyRepository implements StudyRepository {
   Future<void> cancelStudy() async {
     cancelCount++;
   }
+
+  @override
+  Future<void> checkIn(int userId) async {}
+
+  @override
+  Future<void> checkOut(int userId) async {}
 }
 
 StudyBloc _buildBloc(
@@ -391,6 +397,12 @@ class _ThrowingRepository implements StudyRepository {
 
   @override
   Future<void> cancelStudy() async {}
+
+  @override
+  Future<void> checkIn(int userId) async {}
+
+  @override
+  Future<void> checkOut(int userId) async {}
 }
 
 /// fetchApplicants 가 응답 스키마 불일치 시의 파싱 오류(Error)를 흉내내는 저장소.
@@ -407,4 +419,10 @@ class _ParseErrorRepository implements StudyRepository {
 
   @override
   Future<void> cancelStudy() async {}
+
+  @override
+  Future<void> checkIn(int userId) async {}
+
+  @override
+  Future<void> checkOut(int userId) async {}
 }

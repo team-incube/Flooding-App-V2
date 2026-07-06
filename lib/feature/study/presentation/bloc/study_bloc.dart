@@ -33,6 +33,10 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
             _onFiltered(emit, grade, classNb, gender),
         actionEvaluated: () => _onActionEvaluated(emit),
         actionSubmitted: () => _onActionSubmitted(emit),
+        checkInRequested: (userIds) =>
+            _onAttendanceAction(emit, userIds, _repository.checkIn, '체크인'),
+        checkOutRequested: (userIds) =>
+            _onAttendanceAction(emit, userIds, _repository.checkOut, '체크아웃'),
       );
     });
 
@@ -222,13 +226,51 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
       emit(
         state.copyWith(
           actionStatus: wasApplied ? StudyActionStatus.applied : _openStatus(),
-          result: StudyActionResult(
-            success: false,
-            message: '요청을 처리하지 못했어요.',
-          ),
+          result: StudyActionResult(success: false, message: '요청을 처리하지 못했어요.'),
         ),
       );
     }
+  }
+
+  // ── 체크인/체크아웃(사감 전용) ─────────────────────────────
+
+  /// [action] 을 [userIds] 각각에 병렬로 적용하고, 결과를 [StudyActionResult]
+  /// 로 알린 뒤 목록을 새로고침한다(출석 상태를 즉시 반영).
+  Future<void> _onAttendanceAction(
+    Emitter<StudyState> emit,
+    List<int> userIds,
+    Future<void> Function(int userId) action,
+    String actionLabel,
+  ) async {
+    final errors = await Future.wait(
+      userIds.map((userId) async {
+        try {
+          await action(userId);
+          return null;
+        } on ApiException catch (e) {
+          return e.message;
+        } catch (e, s) {
+          Logger.e('자습 $actionLabel 실패', tag: 'STUDY', error: e, stackTrace: s);
+          return '$actionLabel에 실패했어요.';
+        }
+      }),
+    );
+    final successCount = errors.where((e) => e == null).length;
+    final lastError = errors.lastWhere((e) => e != null, orElse: () => null);
+
+    final message = successCount == userIds.length
+        ? '$successCount명 $actionLabel 완료했어요.'
+        : '$successCount/${userIds.length}명만 $actionLabel됐어요. ${lastError ?? ''}';
+    emit(
+      state.copyWith(
+        result: StudyActionResult(
+          success: successCount == userIds.length,
+          message: message,
+        ),
+      ),
+    );
+    // 체크인/체크아웃 결과가 목록(출석 배지)에 즉시 반영되도록 새로고침한다.
+    add(const StudyEvent.applicantsRequested(refresh: true));
   }
 
   StudyActionStatus _openStatus() => _openStatusFor(_policy, _clock);
