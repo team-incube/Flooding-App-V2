@@ -132,8 +132,12 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       }
     } catch (e, s) {
       Logger.e('기상음악 좋아요 토글 실패', tag: 'MUSIC', error: e, stackTrace: s);
-      // 롤백 — 원래 값으로 복구한다(목록이 재조회로 교체됐으면 무시된다).
-      _allMusics = _replaceMusic(_allMusics, musicId, original);
+      // 롤백 — 원래 값으로 복구한다(목록이 재조회로 교체되었으면 무시).
+      final currentIndex = _allMusics.indexWhere((m) => m.id == musicId);
+      if (currentIndex != -1 && _allMusics[currentIndex].isLiked == willLike) {
+        _allMusics = _replaceMusic(_allMusics, musicId, original);
+      }
+
       emit(
         state.copyWith(
           musics: _applyFilter(_allMusics, state.query),
