@@ -202,15 +202,17 @@ GoRouter createAppRouter(AuthController auth) {
                 ),
                 BlocProvider(
                   // 셸 진입 시 1회 로드 — 홈 기상음악 카드 카운트/목록을 채운다.
-                  create: (ctx) => MusicBloc(
-                    repository: ctx.read<MusicRepository>(),
-                  )..add(const MusicEvent.listRequested()),
+                  create: (ctx) =>
+                      MusicBloc(repository: ctx.read<MusicRepository>())
+                        ..add(const MusicEvent.listRequested()),
                 ),
               ],
               child: BaseScaffold(
                 floatingActionButton: floatingButton,
                 floatingActionButtonLocation: floatingButtonLocation,
                 onLogout: auth.logout,
+                //TODO : 회원 탈퇴 기능
+                onWithdraw: auth.logout,
                 body: child,
               ),
             ),

@@ -21,6 +21,7 @@ class MenuDrawer extends StatefulWidget {
     this.profileImageUrl,
     this.onProfileEdit,
     this.onLogout,
+    this.onWithdraw,
   });
 
   final String name;
@@ -32,6 +33,7 @@ class MenuDrawer extends StatefulWidget {
 
   /// 로그아웃 확인 후 실행할 동작. 미지정 시 로그아웃 항목은 동작하지 않는다.
   final Future<void> Function()? onLogout;
+  final Future<void> Function()? onWithdraw;
 
   static const double _cornerRadius = 20;
 
@@ -64,7 +66,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
       confirmLabel: '탈퇴 하기',
     );
     if (!mounted || ok != true) return;
-    // Todo: 회원탈퇴 처리.
+    await widget.onWithdraw?.call();
+    if (!mounted) return;
+    //TODO : 회원 탈퇴 처리
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(const SnackBar(content: Text('회원탈퇴되었어요')));
