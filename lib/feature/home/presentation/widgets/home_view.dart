@@ -78,7 +78,7 @@ class _HomeViewState extends State<HomeView> {
               },
               builder: (context, state) => _WakeMusicCard(
                 controller: _musicUrlController,
-                requestedCount: state.musics.length,
+                requestedCount: state.totalCount,
                 submitting: state.isSubmitting,
                 onApply: _onApplyMusic,
               ),

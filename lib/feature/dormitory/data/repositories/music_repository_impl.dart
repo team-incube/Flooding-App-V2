@@ -72,6 +72,24 @@ class MusicRepositoryImpl implements MusicRepository {
     }
   }
 
+  @override
+  Future<void> likeMusic(int musicId) async {
+    try {
+      await _api.likeMusic(musicId);
+    } on DioException catch (e) {
+      throw e.toApiException();
+    }
+  }
+
+  @override
+  Future<void> unlikeMusic(int musicId) async {
+    try {
+      await _api.unlikeMusic(musicId);
+    } on DioException catch (e) {
+      throw e.toApiException();
+    }
+  }
+
   /// `yyyy-MM-dd` 로 포맷한다(쿼리 파라미터용).
   static String _formatDate(DateTime d) {
     final month = d.month.toString().padLeft(2, '0');

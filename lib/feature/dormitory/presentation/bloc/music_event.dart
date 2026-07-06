@@ -25,4 +25,7 @@ class MusicEvent with _$MusicEvent {
   /// 빈 문자열이면 전체 목록을 표시한다. 검색어는 상태에 보관돼
   /// 재조회(신청 후 새로고침 등)에도 동일 필터가 유지된다.
   const factory MusicEvent.searched(String query) = _Searched;
+
+  /// [musicId] 곡의 좋아요를 토글한다(현재 상태 기준으로 좋아요/취소).
+  const factory MusicEvent.likeToggled(int musicId) = _LikeToggled;
 }
