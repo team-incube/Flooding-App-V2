@@ -49,6 +49,9 @@ abstract class MusicState with _$MusicState {
     /// 직전 좋아요 토글 실패 결과(1회성 안내용). 성공 시엔 설정하지 않는다.
     MusicApplyResult? likeResult,
 
+    /// 직전 신청 취소 결과(1회성 안내용). 성공·실패 모두 설정한다.
+    MusicApplyResult? cancelResult,
+
     /// 현재 조회 정렬 기준.
     @Default(MusicSort.time) MusicSort sort,
 

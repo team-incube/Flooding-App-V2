@@ -73,6 +73,15 @@ class MusicRepositoryImpl implements MusicRepository {
   }
 
   @override
+  Future<void> cancelMusic(int musicId) async {
+    try {
+      await _api.cancelMusic(musicId);
+    } on DioException catch (e) {
+      throw e.toApiException();
+    }
+  }
+
+  @override
   Future<void> likeMusic(int musicId) async {
     try {
       await _api.likeMusic(musicId);

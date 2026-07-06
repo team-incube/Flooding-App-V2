@@ -33,6 +33,10 @@ abstract class MusicApi {
     @Body() ApplyWakeUpMusicRequest request,
   );
 
+  /// 기상음악 신청 취소 — 본인이 신청한 곡만 취소할 수 있다.
+  @DELETE('$_music/{musicId}')
+  Future<void> cancelMusic(@Path('musicId') int musicId);
+
   /// 기상음악 좋아요 — 이미 좋아요한 경우 409.
   @POST('$_music/{musicId}/like')
   Future<void> likeMusic(@Path('musicId') int musicId);
