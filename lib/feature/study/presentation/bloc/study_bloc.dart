@@ -234,7 +234,7 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
 
   // ── 체크인/체크아웃(사감 전용) ─────────────────────────────
 
-  /// [action] 을 [userIds] 각각에 순서대로 적용하고, 결과를 [StudyActionResult]
+  /// [action] 을 [userIds] 각각에 병렬로 적용하고, 결과를 [StudyActionResult]
   /// 로 알린 뒤 목록을 새로고침한다(출석 상태를 즉시 반영).
   Future<void> _onAttendanceAction(
     Emitter<StudyState> emit,
@@ -242,19 +242,21 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
     Future<void> Function(int userId) action,
     String actionLabel,
   ) async {
-    var successCount = 0;
-    String? lastError;
-    for (final userId in userIds) {
-      try {
-        await action(userId);
-        successCount++;
-      } on ApiException catch (e) {
-        lastError = e.message;
-      } catch (e, s) {
-        Logger.e('자습 $actionLabel 실패', tag: 'STUDY', error: e, stackTrace: s);
-        lastError = '$actionLabel에 실패했어요.';
-      }
-    }
+    final errors = await Future.wait(
+      userIds.map((userId) async {
+        try {
+          await action(userId);
+          return null;
+        } on ApiException catch (e) {
+          return e.message;
+        } catch (e, s) {
+          Logger.e('자습 $actionLabel 실패', tag: 'STUDY', error: e, stackTrace: s);
+          return '$actionLabel에 실패했어요.';
+        }
+      }),
+    );
+    final successCount = errors.where((e) => e == null).length;
+    final lastError = errors.lastWhere((e) => e != null, orElse: () => null);
 
     final message = successCount == userIds.length
         ? '$successCount명 $actionLabel 완료했어요.'

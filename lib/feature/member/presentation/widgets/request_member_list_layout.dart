@@ -75,6 +75,8 @@ class RequestMemberListLayout extends StatelessWidget {
                 memberList: memberList,
                 showSelection: canCheckAttendance,
                 showAttendanceBadge: supportsAttendance,
+                canCheckIn: onCheckIn != null,
+                canCheckOut: onCheckOut != null,
               ),
               const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
             } else ...{
@@ -201,6 +203,8 @@ class _MemberGridLayout extends StatelessWidget {
     required this.memberList,
     required this.showSelection,
     required this.showAttendanceBadge,
+    required this.canCheckIn,
+    required this.canCheckOut,
   });
 
   final List<MemberModel> memberList;
@@ -212,6 +216,11 @@ class _MemberGridLayout extends StatelessWidget {
   /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 기능이 있는 화면이면
   /// 역할과 무관하게 true(일반 학생도 출석 현황은 볼 수 있다).
   final bool showAttendanceBadge;
+
+  /// 미출석/출석 학생 각각을 선택 가능하게 할지 — 둘 중 한쪽 콜백만 지원하는
+  /// 화면에서 불가능한 액션의 학생 카드가 선택되는 걸 막는다.
+  final bool canCheckIn;
+  final bool canCheckOut;
 
   @override
   Widget build(BuildContext context) {
@@ -246,9 +255,12 @@ class _MemberGridLayout extends StatelessWidget {
           number: index + 1,
           model: member,
           isSelected: selectedIds.contains(member.id),
-          // 이미 선택된 항목과 출석 상태가 다르면(체크인/체크아웃 혼선) 비활성화.
+          // 이미 선택된 항목과 출석 상태가 다르면(체크인/체크아웃 혼선) 비활성화하고,
+          // 해당 출석 상태를 처리할 콜백 자체가 없으면(예: 체크아웃 미지원) 막는다.
           enabled:
-              lockedAttendance == null || lockedAttendance == member.isAttended,
+              (lockedAttendance == null ||
+                  lockedAttendance == member.isAttended) &&
+              (member.isAttended ? canCheckOut : canCheckIn),
           showAttendanceBadge: showAttendanceBadge,
           onSelect: (id, isAttended) => context.read<MemberSelectionBloc>().add(
             MemberSelectionEvent.check(id: id, isAttended: isAttended),
