@@ -1,7 +1,7 @@
 /// Flooding 백엔드 API 경로의 공통 prefix 상수.
 ///
 /// 여러 기능이 공유하는 도메인 prefix 를 한 곳에서 관리한다.
-/// 기능별 세부 경로는 각 datasource 의 `_Endpoints` 에서 이 값을 합성해 쓴다.
+/// 기능별 세부 경로는 각 datasource 파일의 private top-level `const` 에서 이 값을 합성해 쓴다.
 class ApiEndpoints {
   ApiEndpoints._();
 

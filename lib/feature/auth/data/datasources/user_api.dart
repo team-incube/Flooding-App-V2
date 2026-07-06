@@ -10,12 +10,8 @@ import '../models/profile_image_response.dart';
 part 'user_api.g.dart';
 
 /// 사용자 API 경로 — 공통 prefix([ApiEndpoints.users])를 합성한다.
-class _Endpoints {
-  _Endpoints._();
-
-  static const String me = '${ApiEndpoints.users}/me';
-  static const String profileImage = '${ApiEndpoints.users}/me/profile-image';
-}
+const String _me = '${ApiEndpoints.users}/me';
+const String _profileImage = '${ApiEndpoints.users}/me/profile-image';
 
 /// Flooding 백엔드 사용자(`/users`) API.
 ///
@@ -25,12 +21,12 @@ abstract class UserApi {
   factory UserApi(Dio dio, {String? baseUrl}) = _UserApi;
 
   /// 내 정보 조회 — 세션 유효성 검사에 사용한다(401 시 미인증).
-  @GET(_Endpoints.me)
+  @GET(_me)
   Future<MeResponse> getMe();
 
   /// 프로필 사진 업로드 — multipart/form-data(필드명 `image`).
   /// 응답의 `data.profileImageUrl` 을 이후 표시에 사용한다.
-  @POST(_Endpoints.profileImage)
+  @POST(_profileImage)
   @MultiPart()
   Future<ProfileImageResponse> uploadProfileImage(
     @Part(name: 'image') File image,
