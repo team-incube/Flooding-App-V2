@@ -18,6 +18,12 @@ class SongRequestCard extends StatefulWidget {
 
   final VoidCallback? onLikePressed;
 
+  /// 취소(휴지통) 버튼 노출 여부 — 본인 신청 곡이거나 관리자일 때 true.
+  final bool canDelete;
+
+  /// 취소(휴지통) 버튼을 눌렀을 때 호출된다. [canDelete] 가 false 면 버튼 자체가 없다.
+  final VoidCallback? onDeletePressed;
+
   const SongRequestCard({
     super.key,
     required this.song,
@@ -27,6 +33,8 @@ class SongRequestCard extends StatefulWidget {
     this.thumbnailUrl,
     this.isLiked = false,
     this.onLikePressed,
+    this.canDelete = false,
+    this.onDeletePressed,
   });
 
   @override
@@ -131,20 +139,22 @@ class _SongRequestCardState extends State<SongRequestCard> {
               ),
             ),
           ),
-          Material(
-            color: AppColors.lightSub4,
-            borderRadius: BorderRadius.circular(AppRadius.s8),
+          // 본인 신청 곡 또는 관리자일 때만 취소(휴지통) 버튼을 노출한다.
+          if (widget.canDelete)
+            Material(
+              color: AppColors.lightSub4,
+              borderRadius: BorderRadius.circular(AppRadius.s8),
 
-            child: InkWell(
-              onTap: () {},
-              child: Container(
-                height: 41,
-                width: 41,
-                padding: const EdgeInsets.all(AppSpacing.s8),
-                child: AppIcon.trash(),
+              child: InkWell(
+                onTap: widget.onDeletePressed,
+                child: Container(
+                  height: 41,
+                  width: 41,
+                  padding: const EdgeInsets.all(AppSpacing.s8),
+                  child: AppIcon.trash(),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

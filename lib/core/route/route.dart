@@ -205,6 +205,8 @@ GoRouter createAppRouter(AuthController auth) {
                 floatingActionButton: floatingButton,
                 floatingActionButtonLocation: floatingButtonLocation,
                 onLogout: auth.logout,
+                //TODO : 회원 탈퇴 기능
+                onWithdraw: auth.logout,
                 body: child,
               ),
             ),
