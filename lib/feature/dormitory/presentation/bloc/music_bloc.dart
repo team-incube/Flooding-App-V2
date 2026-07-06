@@ -122,7 +122,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       musicId,
       original.copyWith(isLiked: willLike, likeCount: nextCount),
     );
-    emit(state.copyWith(musics: _applyFilter(_allMusics, state.query)));
+    emit(state.copyWith(musics: _applyFilter(_allMusics, state.query), likeResult: null,));
 
     try {
       if (willLike) {
