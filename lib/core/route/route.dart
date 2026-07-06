@@ -1,13 +1,15 @@
 import 'package:flooding_v2/core/enum/role.dart';
-import 'package:flooding_v2/feature/song/data/repositories/music_repository_impl.dart';
-import 'package:flooding_v2/feature/song/domain/repositories/music_repository.dart';
-import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
-import 'package:flooding_v2/feature/song/presentation/bloc/music_event.dart';
-import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
-import 'package:flooding_v2/feature/song/presentation/pages/song_detail_view.dart';
-import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
-import 'package:flooding_v2/feature/home/domain/usecases/get_next_period_usecase.dart';
-import 'package:flooding_v2/feature/home/presentation/bloc/timetable_bloc.dart';
+import 'package:flooding_v2/core/route/route_path.dart';
+import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
+import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_action_locations.dart';
+import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_actions.dart';
+import 'package:flooding_v2/feature/ai/data/repositories/ai_repository_impl.dart';
+import 'package:flooding_v2/feature/ai/presentation/bloc/chat_bloc.dart';
+import 'package:flooding_v2/feature/ai/presentation/pages/ai_chat_page.dart';
+import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
+import 'package:flooding_v2/feature/auth/presentation/pages/login_page.dart';
+import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
+import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
 import 'package:flooding_v2/feature/massage/data/repositories/massage_repository_impl.dart';
 import 'package:flooding_v2/feature/massage/domain/repositories/massage_repository.dart';
 import 'package:flooding_v2/feature/massage/domain/usecases/get_massage_applicants_usecase.dart';
@@ -17,28 +19,25 @@ import 'package:flooding_v2/feature/massage/presentation/bloc/massage_state.dart
 import 'package:flooding_v2/feature/massage/presentation/widgets/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
+import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_bloc.dart';
+import 'package:flooding_v2/feature/song/data/repositories/music_repository_impl.dart';
+import 'package:flooding_v2/feature/song/domain/repositories/music_repository.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_event.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
+import 'package:flooding_v2/feature/song/presentation/pages/song_detail_view.dart';
+import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
+import 'package:flooding_v2/feature/home/domain/usecases/get_next_period_usecase.dart';
+import 'package:flooding_v2/feature/home/presentation/bloc/timetable_bloc.dart';
 import 'package:flooding_v2/feature/study/data/repositories/study_repository_impl.dart';
 import 'package:flooding_v2/feature/study/domain/repositories/study_repository.dart';
 import 'package:flooding_v2/feature/study/domain/usecases/get_study_applicants_usecase.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_bloc.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_event.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_state.dart';
+import 'package:flooding_v2/feature/study/presentation/widgets/study_request_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../feature/ai/data/repositories/ai_repository_impl.dart';
-import '../../feature/ai/presentation/bloc/chat_bloc.dart';
-import '../../feature/ai/presentation/pages/ai_chat_page.dart';
-import '../../feature/dormitory/presentation/widgets/dormitory_view.dart';
-import '../../feature/home/presentation/widgets/home_view.dart';
-import '../../feature/member/presentation/blocs/member_selection_bloc.dart';
-import '../../feature/study/presentation/widgets/study_request_view.dart';
-import '../widgets/scaffold/base_scaffold.dart';
-import '../widgets/scaffold/floating_button/floating_action_locations.dart';
-import '../widgets/scaffold/floating_button/floating_actions.dart';
-import '../../feature/auth/presentation/auth_controller.dart';
-import '../../feature/auth/presentation/pages/login_page.dart';
-import 'route_path.dart';
 
 /// 인증 상태에 따라 라우팅을 가드하는 go_router 를 생성한다.
 ///
