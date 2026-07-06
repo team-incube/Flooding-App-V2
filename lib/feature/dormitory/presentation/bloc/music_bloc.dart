@@ -22,6 +22,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         applied: (musicUrl) => _onApplied(emit, musicUrl),
         searched: (query) => _onSearched(emit, query),
         likeToggled: (musicId) => _onLikeToggled(emit, musicId),
+        cancelRequested: (musicId) => _onCancelRequested(emit, musicId),
       );
     });
   }
@@ -144,6 +145,49 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
           likeResult: MusicApplyResult(success: false, message: _messageOf(e)),
         ),
       );
+    }
+  }
+
+  // ── 신청 취소 ──────────────────────────────────────────────
+
+  Future<void> _onCancelRequested(
+    Emitter<MusicState> emit,
+    int musicId,
+  ) async {
+    final index = _allMusics.indexWhere((m) => m.id == musicId);
+    if (index == -1) return;
+
+    final removed = _allMusics[index];
+
+    // 낙관적 제거 — 항목을 즉시 목록에서 빼고, 실패 시 원래 자리에 되돌린다.
+    // 제자리 수정이 아니라 새 리스트로 교체해야 state 변경으로 인식돼 리빌드된다.
+    _allMusics = [
+      for (final m in _allMusics)
+        if (m.id != musicId) m,
+    ];
+    emit(
+      state.copyWith(
+        musics: _applyFilter(_allMusics, state.query),
+        totalCount: _allMusics.length,
+      ),
+    );
+
+    try {
+      await _repository.cancelMusic(musicId);
+    } catch (e, s) {
+      Logger.e('기상음악 신청 취소 실패', tag: 'MUSIC', error: e, stackTrace: s);
+      // 롤백 — 이미 제거된 상태라면 원래 위치에 되돌린다(재조회로 교체됐으면 무시).
+      if (_allMusics.every((m) => m.id != musicId)) {
+        final restored = [..._allMusics];
+        restored.insert(index.clamp(0, restored.length), removed);
+        _allMusics = restored;
+        emit(
+          state.copyWith(
+            musics: _applyFilter(_allMusics, state.query),
+            totalCount: _allMusics.length,
+          ),
+        );
+      }
     }
   }
 

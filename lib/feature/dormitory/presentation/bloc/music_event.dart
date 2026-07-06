@@ -28,4 +28,7 @@ class MusicEvent with _$MusicEvent {
 
   /// [musicId] 곡의 좋아요를 토글한다(현재 상태 기준으로 좋아요/취소).
   const factory MusicEvent.likeToggled(int musicId) = _LikeToggled;
+
+  /// [musicId] 곡의 기상음악 신청을 취소한다(본인 신청 곡만).
+  const factory MusicEvent.cancelRequested(int musicId) = _CancelRequested;
 }
