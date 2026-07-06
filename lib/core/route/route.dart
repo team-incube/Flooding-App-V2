@@ -1,10 +1,10 @@
 import 'package:flooding_v2/core/enum/role.dart';
-import 'package:flooding_v2/feature/dormitory/data/repositories/music_repository_impl.dart';
-import 'package:flooding_v2/feature/dormitory/domain/repositories/music_repository.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_bloc.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_event.dart';
+import 'package:flooding_v2/feature/song/data/repositories/music_repository_impl.dart';
+import 'package:flooding_v2/feature/song/domain/repositories/music_repository.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_event.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/pages/song_detail_view.dart';
+import 'package:flooding_v2/feature/song/presentation/pages/song_detail_view.dart';
 import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
 import 'package:flooding_v2/feature/home/domain/usecases/get_next_period_usecase.dart';
 import 'package:flooding_v2/feature/home/presentation/bloc/timetable_bloc.dart';
