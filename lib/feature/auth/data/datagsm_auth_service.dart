@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:retrofit/call_adapter.dart';
-
 import '../../../core/config/env.dart';
 import '../../../core/network/auth_interceptor.dart';
 import '../../../core/network/dio_client.dart';
