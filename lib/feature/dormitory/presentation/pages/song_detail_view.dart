@@ -4,6 +4,8 @@ import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
 import 'package:flooding_v2/core/widgets/search_text_field.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_state.dart';
 import 'package:flooding_v2/feature/dormitory/data/models/wake_up_music.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_bloc.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_event.dart';
@@ -45,6 +47,10 @@ class _SongDetailViewState extends State<SongDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    // 로그인한 사용자 id — 신청자 userId 가 이 값과 같은 곡에만 취소 버튼을 노출한다.
+    final myUserId = context.select<MeBloc, int?>(
+      (bloc) => bloc.state.maybeWhen(loaded: (me) => me.id, orElse: () => null),
+    );
     return MultiBlocListener(
       listeners: [
         // 목록 조회 실패 — 화면은 기존 목록을 유지하고 사유만 스낵바로 안내한다.
@@ -106,6 +112,7 @@ class _SongDetailViewState extends State<SongDetailView> {
                 isLoading: isLoading,
                 hasAny: state.totalCount > 0,
                 musics: musics,
+                myUserId: myUserId,
               ),
             ),
           ],
@@ -119,6 +126,7 @@ class _SongDetailViewState extends State<SongDetailView> {
     required bool isLoading,
     required bool hasAny,
     required List<WakeUpMusic> musics,
+    required int? myUserId,
   }) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -132,6 +140,8 @@ class _SongDetailViewState extends State<SongDetailView> {
     return ListView.separated(
       itemBuilder: (context, index) {
         final music = musics[index];
+        // 내가 신청한 곡일 때만 취소 버튼을 노출한다(신청자 userId 가 내 id 와 일치).
+        final isMine = myUserId != null && music.userId == myUserId;
         return SongRequestCard(
           song: music.title ?? music.musicUrl ?? '제목 없음',
           grade: music.studentNumber?.toString() ?? '',
@@ -141,6 +151,9 @@ class _SongDetailViewState extends State<SongDetailView> {
           isLiked: music.isLiked,
           onLikePressed: () =>
               context.read<MusicBloc>().add(MusicEvent.likeToggled(music.id)),
+          isMine: isMine,
+          onDeletePressed: () =>
+              context.read<MusicBloc>().add(MusicEvent.cancelRequested(music.id)),
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s16),
