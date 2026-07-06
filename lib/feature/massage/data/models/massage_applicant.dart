@@ -14,7 +14,8 @@ part 'massage_applicant.g.dart';
 @freezed
 abstract class MassageApplicant with _$MassageApplicant {
   const factory MassageApplicant({
-    required int id,
+    /// 서버 응답에서는 `userId` 키로 내려온다.
+    @JsonKey(name: 'userId') required int id,
     required String name,
     required int studentNumber,
     int? grade,
