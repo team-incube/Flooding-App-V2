@@ -101,22 +101,24 @@ class _ScheduleCard extends StatelessWidget {
     final (
       String periodLabel,
       String subject,
-      String teacher,
+      String? teacher,
     ) = switch (state.scheduleStatus) {
-      ScheduleStatus.initial || ScheduleStatus.loading => ('', '불러오는 중...', ''),
+      ScheduleStatus.initial ||
+      ScheduleStatus.loading => ('', '불러오는 중...', null),
       ScheduleStatus.error => (
         '',
         state.scheduleError ?? '시간표를 불러오지 못했어요.',
-        '',
+        null,
       ),
       ScheduleStatus.loaded => switch (state.periodStatus) {
         NextPeriodStatus.found when period != null => (
           '${period.period} 교시',
           period.subject,
+          // 담당 교사 미배정 시 NEIS 응답에 teacher 가 없을 수 있다.
           period.teacher,
         ),
-        NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', ''),
-        _ => ('', '오늘 예정된 수업이 없어요', ''),
+        NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', null),
+        _ => ('', '오늘 예정된 수업이 없어요', null),
       },
     };
 
@@ -151,13 +153,15 @@ class _ScheduleCard extends StatelessWidget {
                     color: AppColors.lightSub1,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.s4),
-                Text(
-                  teacher,
-                  style: AppTextStyle.caption1.copyWith(
-                    color: AppColors.lightSub2,
+                if (teacher != null) ...[
+                  const SizedBox(width: AppSpacing.s4),
+                  Text(
+                    teacher,
+                    style: AppTextStyle.caption1.copyWith(
+                      color: AppColors.lightSub2,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

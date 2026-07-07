@@ -9,8 +9,8 @@ abstract class PeriodData with _$PeriodData {
   factory PeriodData({
     required int period,
     required String subject,
-    required String teacher,
-    required int classroom,
+    required String? teacher,
+    required int? classroom,
   }) = _PeriodData;
 
   factory PeriodData.fromJson(Map<String, dynamic> json) =>
