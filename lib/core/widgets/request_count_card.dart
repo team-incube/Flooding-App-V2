@@ -26,12 +26,6 @@ class RequestCountCard extends StatefulWidget {
        icon = AppIcon.book,
        total = 50,
        information = '자습 신청 시간은 20:00 ~ 21:00에 신청이 가능해요',
-
-       /// followerAnchor: 버블의 이 지점이 버튼 좌상단에 고정 (x: 좌측 65%, y: 하단)
-       bubbleAlignment = const Alignment(-.65, 1),
-       bubbleTailOffset = .2,
-
-       /// 꼬투리 위치 — 버블 폭의 20%
        path = RoutePath.requestStudy;
 
   /// 따로 action이 정의되어 있지 많으면 직접 이동
@@ -47,12 +41,6 @@ class RequestCountCard extends StatefulWidget {
        icon = AppIcon.chair,
        total = 5,
        information = '안마 의자 신청 시간은 20:20 ~ 21:00에 신청이 가능해요',
-
-       /// followerAnchor: 버블의 이 지점이 버튼 좌상단에 고정 (x: 좌측 31%, y: 하단)
-       bubbleAlignment = const Alignment(-.31, 1),
-       bubbleTailOffset = .37,
-
-       /// 꼬투리 위치 — 버블 폭의 37%
        path = RoutePath.requestMassage;
 
   /// 따로 action이 정의되어 있지 많으면 직접 이동
@@ -62,8 +50,6 @@ class RequestCountCard extends StatefulWidget {
   final int current;
   final int total;
   final String information;
-  final Alignment bubbleAlignment;
-  final double bubbleTailOffset;
   final VoidCallback? onSeeAllPressed;
   final VoidCallback onActionPressed;
   final String actionLabel;
@@ -75,39 +61,100 @@ class RequestCountCard extends StatefulWidget {
 }
 
 class _RequestCountCardState extends State<RequestCountCard> {
-  // Target-Follower 를 연결하는 레이어 키.
-  final _layerLink = LayerLink();
-  final _overlayController = OverlayPortalController();
+  // 말풍선 위치를 카드 안에서 아이콘 기준 상대 좌표로만 계산하기 위한 키.
+  final _iconKey = GlobalKey();
   Timer? _timer;
+  bool _isShowingInformation = false;
 
-  bool isShowingInformation = false;
+  static const double _iconSize = AppSize.s18;
+  // 말풍선과 아이콘 사이 최소 간격.
+  static const double _gap = 6.0;
+  // 화면 가장자리에서 최소한 이만큼은 띄운다(좌우 대칭 — 중앙 정렬 기준).
+  static const double _screenMargin = 20.0;
 
   void _showComment() {
-    if (isShowingInformation) {
-      _overlayController.hide();
-      _timer?.cancel();
-      isShowingInformation = false;
-    } else {
-      _overlayController.show();
-      // 연속 탭 시 이전 타이머를 취소해 카운트다운을 리셋한다.
-      _timer?.cancel();
-      _timer = Timer(const Duration(seconds: 5), () {
-        _overlayController.hide();
-        isShowingInformation = false;
-      });
-      isShowingInformation = true;
+    if (_isShowingInformation) {
+      _hideComment();
+      return;
     }
+    setState(() => _isShowingInformation = true);
+    // 연속 탭 시 이전 타이머를 취소해 카운트다운을 리셋한다.
+    _timer?.cancel();
+    _timer = Timer(const Duration(seconds: 5), _hideComment);
+  }
+
+  void _hideComment() {
+    _timer?.cancel();
+    if (mounted) setState(() => _isShowingInformation = false);
   }
 
   @override
   void dispose() {
-    // 위젯 소멸 후 hide() 호출을 막기 위해 타이머를 정리한다.
     _timer?.cancel();
     super.dispose();
   }
 
+  /// 화면 좌우 여백을 뺀 나머지 폭 안에서 실제 안내문을 측정한다 — 말풍선은
+  /// 아이콘에 붙지 않고 이 폭 안에서 가운데 정렬되므로, 위치·뒤집힘 판단 모두
+  /// 이 실측 크기를 기준으로 계산해야 실제 렌더 결과와 어긋나지 않는다.
+  ({double width, double height}) _measureBubble(BuildContext context) {
+    final maxBoxWidth = MediaQuery.sizeOf(context).width - _screenMargin * 2;
+    final maxTextWidth = maxBoxWidth - _InformationBubble._horizontalPadding * 2;
+    final textPainter = TextPainter(
+      text: TextSpan(text: widget.information, style: AppTextStyle.caption2),
+      textDirection: Directionality.of(context),
+    )..layout(maxWidth: maxTextWidth < 0 ? 0 : maxTextWidth);
+    return (
+      width: textPainter.width + _InformationBubble._horizontalPadding * 2,
+      height:
+          textPainter.height +
+          _InformationBubble._verticalPadding * 2 +
+          _InformationBubble._tailHeight,
+    );
+  }
+
+  /// 아이콘 위쪽에 말풍선을 띄울 공간이 있는지 — 부족하면 아래로 뒤집는다.
+  bool _hasRoomAbove(double requiredHeight) {
+    final iconBox = _iconKey.currentContext?.findRenderObject() as RenderBox?;
+    if (iconBox == null || !iconBox.hasSize) return true;
+    final iconGlobalTop = iconBox.localToGlobal(Offset.zero).dy;
+    // Scaffold.appBar(flooding 로고바)는 body 보다 위쪽 레이어에 그려져 그
+    // 영역을 그대로 가려버린다 — 화면 y=0 이 아니라 앱바 아래부터를 실제
+    // 사용 가능한 최상단으로 봐야 한다(안 그러면 앱바에 가려지는데도 "공간
+    // 있음"으로 잘못 판단해 뒤집히지 않는다).
+    final appBarHeight = Scaffold.maybeOf(context)?.appBarMaxHeight ?? 0;
+    return iconGlobalTop - appBarHeight - _screenMargin >=
+        requiredHeight + _gap;
+  }
+
+  /// 화면 폭 기준 가운데 정렬된 상자의 왼쪽 끝 — 아이콘을 담은 로컬 Stack
+  /// 기준 상대 좌표로 변환해서 반환한다(Positioned.left 에 그대로 쓴다).
+  double _centeredLocalLeft(double boxWidth) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final boxGlobalLeft = (screenWidth - boxWidth) / 2;
+    final iconBox = _iconKey.currentContext?.findRenderObject() as RenderBox?;
+    if (iconBox == null || !iconBox.hasSize) return 0;
+    final iconGlobalLeft = iconBox.localToGlobal(Offset.zero).dx;
+    return boxGlobalLeft - iconGlobalLeft;
+  }
+
+  /// 가운데 정렬된 상자의 왼쪽 끝에서 아이콘 중심까지의 거리 — 꼬투리가
+  /// (가능한 범위 안에서) 아이콘을 가리키도록 계산한다.
+  double _tailDx(double boxWidth) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final boxGlobalLeft = (screenWidth - boxWidth) / 2;
+    final iconBox = _iconKey.currentContext?.findRenderObject() as RenderBox?;
+    if (iconBox == null || !iconBox.hasSize) return boxWidth / 2;
+    final iconGlobalCenter =
+        iconBox.localToGlobal(Offset.zero).dx + _iconSize / 2;
+    return iconGlobalCenter - boxGlobalLeft;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final measured = _isShowingInformation ? _measureBubble(context) : null;
+    final pointingDown = measured == null ? true : _hasRoomAbove(measured.height);
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,32 +163,37 @@ class _RequestCountCardState extends State<RequestCountCard> {
             children: [
               CardHeader(icon: widget.icon, title: widget.title),
               const SizedBox(width: AppSpacing.s6),
-              OverlayPortal(
-                controller: _overlayController,
-                // Align 없이 두면 overlay 전체를 채우려 해 위치가 어긋난다.
-                overlayChildBuilder: (_) => Align(
-                  child: CompositedTransformFollower(
-                    link: _layerLink,
-                    targetAnchor: Alignment.topLeft,
-                    followerAnchor: widget.bubbleAlignment,
-                    child: _InformationBubble(
-                      text: widget.information,
-                      tailOffset: widget.bubbleTailOffset,
-                    ),
-                  ),
-                ),
-                child: CompositedTransformTarget(
-                  link: _layerLink,
-                  child: IconButton(
+              // 아이콘만 감싸는 로컬 Stack — Positioned 자식(말풍선)은 이
+              // Stack 의 크기 계산에 들어가지 않으므로(clipBehavior.none 과
+              // 함께) 아무리 커도 카드 레이아웃이 늘어나지 않는다.
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    key: _iconKey,
                     style: IconButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: _showComment,
-                    icon: AppIcon.warning(size: AppSize.s18),
+                    icon: AppIcon.warning(size: _iconSize),
                   ),
-                ),
+                  if (measured != null)
+                    Positioned(
+                      left: _centeredLocalLeft(measured.width),
+                      bottom: pointingDown ? _iconSize + _gap : null,
+                      top: pointingDown ? null : _iconSize + _gap,
+                      child: SizedBox(
+                        width: measured.width,
+                        child: _InformationBubble(
+                          text: widget.information,
+                          pointingDown: pointingDown,
+                          tailDx: _tailDx(measured.width),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const Spacer(),
               _SeeAllLink(
@@ -205,23 +257,42 @@ class _SeeAllLink extends StatelessWidget {
 
 class _InformationBubble extends StatelessWidget {
   final String text;
-  final double tailOffset; // 0.0 ~ 1.0, 꼬투리 가로 위치
-  // Painter 와 같은 값을 써야 bottom padding 과 꼬투리 높이가 일치한다.
-  static const _tailHeight = 8;
+  // true 면 상자가 아이콘 위에 있어 꼬투리가 아래를 가리키고, false 면 상자가
+  // 아이콘 아래에 있어 꼬투리가 위를 가리킨다.
+  final bool pointingDown;
+  // 상자 왼쪽 끝에서 꼬투리까지의 절대 거리(px) — 상자 폭과 무관한 고정값.
+  final double tailDx;
+  // Painter 와 같은 값을 써야 padding 과 꼬투리 높이가 일치한다.
+  static const _tailHeight = 8.0;
+  // _RequestCountCardState._hasRoomAbove 도 같은 값으로 높이를 미리 재야
+  // 실제 렌더 크기와 어긋나지 않는다.
+  static const _horizontalPadding = AppSpacing.s16;
+  static const _verticalPadding = AppSpacing.s8;
 
-  const _InformationBubble({required this.text, required this.tailOffset});
+  const _InformationBubble({
+    required this.text,
+    required this.pointingDown,
+    required this.tailDx,
+  });
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _InformationBubblePainter(tailOffset),
+      painter: _InformationBubblePainter(tailDx: tailDx, pointingDown: pointingDown),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.s12,
-          AppSpacing.s6,
-          AppSpacing.s12,
-          AppSpacing.s6 + _tailHeight,
-        ),
+        padding: pointingDown
+            ? const EdgeInsets.fromLTRB(
+                _horizontalPadding,
+                _verticalPadding,
+                _horizontalPadding,
+                _verticalPadding + _tailHeight,
+              )
+            : const EdgeInsets.fromLTRB(
+                _horizontalPadding,
+                _verticalPadding + _tailHeight,
+                _horizontalPadding,
+                _verticalPadding,
+              ),
         child: Text(
           text,
           style: AppTextStyle.caption2.copyWith(color: AppColors.lightSub4),
@@ -233,18 +304,22 @@ class _InformationBubble extends StatelessWidget {
 
 class _InformationBubblePainter extends CustomPainter {
   final Color color;
-  final double tailOffset; // 0.0(좌) ~ 1.0(우)
+  final double tailDx; // 상자 왼쪽 끝에서 꼬투리까지의 절대 거리(px)
+  final bool pointingDown;
   final double borderRadius;
   final tailHeight = _InformationBubble._tailHeight;
+  // 꼬투리가 둥근 모서리 위에 그려지지 않도록 상자 가장자리에서 띄우는 여유.
+  static const _tailMargin = 10.0;
 
-  _InformationBubblePainter(this.tailOffset)
+  _InformationBubblePainter({required this.tailDx, required this.pointingDown})
     : borderRadius = AppRadius.s12,
       color = const Color(0xFF2C2C2E);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = color;
-    final boxHeight = size.height - tailHeight;
+    final boxTop = pointingDown ? 0.0 : tailHeight;
+    final boxBottom = pointingDown ? size.height - tailHeight : size.height;
 
     final path = Path();
 
@@ -252,26 +327,26 @@ class _InformationBubblePainter extends CustomPainter {
     path.addRRect(
       RRect.fromLTRBR(
         0,
-        0,
+        boxTop,
         size.width,
-        boxHeight,
+        boxBottom,
         Radius.circular(borderRadius),
       ),
     );
 
-    // 꼬투리 위치 계산
-    final position = size.width * tailOffset.clamp(0.05, 0.95);
+    // 꼬투리 위치 — 상자 폭을 넘거나 둥근 모서리에 걸치지 않도록 clamp.
+    final maxPosition = size.width - _tailMargin;
+    final position = tailDx.clamp(
+      _tailMargin,
+      maxPosition < _tailMargin ? _tailMargin : maxPosition,
+    );
     const tailWidth = 12;
+    final tailBase = pointingDown ? boxBottom : boxTop;
+    final tailTip = pointingDown ? boxBottom + tailHeight : boxTop - tailHeight;
 
     // 꼬투리 삼각형
-    path.moveTo(position - tailWidth / 2, boxHeight);
-    path.conicTo(
-      position,
-      boxHeight + tailHeight,
-      position + tailWidth / 2,
-      boxHeight,
-      6,
-    );
+    path.moveTo(position - tailWidth / 2, tailBase);
+    path.conicTo(position, tailTip, position + tailWidth / 2, tailBase, 6);
     path.close();
 
     canvas.drawPath(path, paint);
@@ -279,5 +354,5 @@ class _InformationBubblePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_InformationBubblePainter old) =>
-      old.tailOffset != tailOffset;
+      old.tailDx != tailDx || old.pointingDown != pointingDown;
 }
