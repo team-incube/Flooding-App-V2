@@ -40,7 +40,17 @@ Stream<SseMessage> connectSse(
       cancelToken: cancelToken,
     );
 
-    final lines = response.data!.stream
+    final responseBody = response.data;
+    if (responseBody == null) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'Response body is null',
+      );
+    }
+
+    final lines = responseBody.stream
         .cast<List<int>>()
         .transform(utf8.decoder)
         .transform(const LineSplitter());
