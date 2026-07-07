@@ -42,7 +42,14 @@ class AuthInterceptor extends Interceptor {
   static const String _retriedFlag = 'auth_retried';
 
   /// 진행 중인 갱신 작업. null 이 아니면 이미 갱신이 진행 중이다(single-flight).
-  Future<String>? _refreshing;
+  ///
+  /// **앱 전역으로 공유**한다(static) — 저장소·refresh token 은 하나뿐인데
+  /// 도메인마다 별도 [Dio]·[AuthInterceptor] 인스턴스를 쓰기 때문이다. 인스턴스
+  /// 단위로 두면 여러 dio(예: SSE 재연결 + 다른 API 호출)가 동시에 401 을 만나
+  /// 같은 refresh token 으로 각자 재발급을 시도하고, refresh token 회전으로
+  /// 하나가 무효화돼 엉뚱하게 세션이 종료(로그아웃)된다. static 으로 공유하면
+  /// 동시 401 이 하나의 재발급을 함께 기다려 refresh token 을 정확히 1회만 쓴다.
+  static Future<String>? _refreshing;
 
   @override
   void onRequest(
