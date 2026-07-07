@@ -195,9 +195,11 @@ GoRouter createAppRouter(AuthController auth) {
                 ),
                 BlocProvider(
                   // 셸 진입 시 1회 로드 — 홈 기상음악 카드 카운트/목록을 채운다.
+                  // 이어 SSE 를 구독해 신청·취소·좋아요를 실시간 반영한다.
                   create: (ctx) =>
                       MusicBloc(repository: ctx.read<MusicRepository>())
-                        ..add(const MusicEvent.listRequested()),
+                        ..add(const MusicEvent.listRequested())
+                        ..add(const MusicEvent.subscriptionStarted()),
                 ),
               ],
               child: BaseScaffold(
