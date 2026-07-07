@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../feature/ai/domain/repositories/ai_repository.dart';
 import '../../../../feature/ai/presentation/widgets/song_recommendation_sheet.dart';
+import '../../../../feature/song/presentation/bloc/music_bloc.dart';
+import '../../../../feature/song/presentation/bloc/music_event.dart';
 import '../../../constants/app_size.dart';
 import '../../../constants/app_spacing.dart';
 import '../../../route/route_path.dart';
 import '../../../theme/color/app_colors.dart';
 import '../../../theme/icon/app_icon.dart';
+import '../../../utils/youtube.dart';
 
 
 /// 우측 하단에 세로로 쌓인 두 개의 원형 액션 버튼.
@@ -36,22 +41,28 @@ class FloatingActions extends StatefulWidget {
 
 class _FloatingActionsState extends State<FloatingActions> {
   /// 플로팅 AI 버튼 → 오늘의 노래 추천 팝업.
+  ///
+  /// 팝업이 열리면 그 안에서 `POST /ai/song` 으로 추천 유튜브 링크를 받아
+  /// (로딩 → 목록) 표시하고, 사용자가 고른 링크는 기존 기상음악 신청
+  /// 흐름([MusicBloc])으로 신청한다.
   Future<void> _openSongRecommendation() async {
-    // Todo: 추천 곡 목록을 서버에서 받아오도록 교체.
-    const songs = [
-      SongRecommendation(
-        title: 'Numb (Official Music Video) [4K UPGRADE] – Linkin Park',
-        duration: '3:08',
-      ),
-      SongRecommendation(title: 'Viva La Vida – Coldplay', duration: '4:02'),
-      SongRecommendation(title: 'Bohemian Rhapsody – Queen', duration: '5:55'),
-    ];
-    final song = await SongRecommendationSheet.show(context, songs: songs);
-    if (!mounted || song == null) return;
-    // Todo: 선택한 곡 신청 API 연동.
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('신청: ${song.title}')));
+    final aiRepository = context.read<AiRepository>();
+    final musicBloc = context.read<MusicBloc>();
+
+    final selected = await SongRecommendationSheet.show(
+      context,
+      loadSongs: () async {
+        final links = await aiRepository.recommendSongs();
+        return [
+          for (final url in links)
+            SongRecommendation(title: url, thumbnail: youtubeThumbnail(url)),
+        ];
+      },
+    );
+    if (selected == null) return;
+
+    // 선택한 링크로 기존 신청 흐름을 태운다 — 결과 스낵바는 MusicBloc 리스너가 안내.
+    musicBloc.add(MusicEvent.applied(selected.title));
   }
 
   /// 플로팅 챗봇 버튼 → AI 챗봇 대화 페이지로 이동.

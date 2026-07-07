@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
@@ -24,24 +25,27 @@ class SongRecommendation {
   final String? duration;
 }
 
-/// 추천된 곡 목록에서 하나를 골라 신청하는 팝업.
+/// 추천 곡을 받아 하나를 골라 신청하는 팝업.
 ///
-/// 카드를 눌러 곡을 선택하고, 선택 전에는 '신청'이 비활성 상태다.
-/// '신청'으로 선택한 [SongRecommendation]을 반환한다.
+/// 팝업이 열리면 [loadSongs]로 추천을 불러온다(로딩 → 목록/오류). 카드를 눌러
+/// 곡을 선택하고, 선택 전에는 '신청'이 비활성 상태다. '신청'으로 선택한
+/// [SongRecommendation]을 반환한다.
 class SongRecommendationSheet extends StatefulWidget {
-  const SongRecommendationSheet({super.key, required this.songs});
+  const SongRecommendationSheet({super.key, required this.loadSongs});
 
-  final List<SongRecommendation> songs;
+  /// 추천 곡 목록을 비동기로 불러오는 콜백. 실패 시 예외를 던지면 오류 상태로
+  /// 표시하고 '다시 시도'를 제공한다.
+  final Future<List<SongRecommendation>> Function() loadSongs;
 
   /// 노래 추천 팝업을 띄우고 신청한 곡을 반환한다.
   /// 뒤로가기·바깥 탭으로 닫으면 null을 반환한다.
   static Future<SongRecommendation?> show(
     BuildContext context, {
-    required List<SongRecommendation> songs,
+    required Future<List<SongRecommendation>> Function() loadSongs,
   }) {
     return showAppFormDialog<SongRecommendation>(
       context,
-      builder: (_) => SongRecommendationSheet(songs: songs),
+      builder: (_) => SongRecommendationSheet(loadSongs: loadSongs),
     );
   }
 
@@ -50,35 +54,136 @@ class SongRecommendationSheet extends StatefulWidget {
       _SongRecommendationSheetState();
 }
 
+/// 추천 로딩 진행 상태.
+enum _RecommendStatus { loading, loaded, error }
+
 class _SongRecommendationSheetState extends State<SongRecommendationSheet> {
   // 리스트 영역의 최대 높이(디자인 기준).
   static const double _listMaxHeight = 376;
 
+  // 로딩·오류 표시 영역의 고정 높이(팝업 크기가 급변하지 않도록).
+  static const double _statusHeight = 200;
+
+  _RecommendStatus _status = _RecommendStatus.loading;
+  List<SongRecommendation> _songs = const [];
+  String? _error;
   int? _selected;
 
   @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _status = _RecommendStatus.loading;
+      _error = null;
+      _selected = null;
+    });
+    try {
+      final songs = await widget.loadSongs();
+      if (!mounted) return;
+      setState(() {
+        _songs = songs;
+        _status = _RecommendStatus.loaded;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.message;
+        _status = _RecommendStatus.error;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = '노래 추천을 불러오지 못했어요.';
+        _status = _RecommendStatus.error;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final canConfirm =
+        _status == _RecommendStatus.loaded && _selected != null;
     return AppFormSheet(
       header: const _Header(),
-      body: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: _listMaxHeight),
-        child: ListView.separated(
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          itemCount: widget.songs.length,
-          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.s24),
-          itemBuilder: (context, index) => _SongCard(
-            song: widget.songs[index],
-            selected: _selected == index,
-            onTap: () =>
-                setState(() => _selected = _selected == index ? null : index),
-          ),
-        ),
-      ),
+      body: _buildBody(),
       confirmLabel: '신청',
-      onConfirm: _selected == null
-          ? null
-          : () => Navigator.of(context).pop(widget.songs[_selected!]),
+      onConfirm: canConfirm
+          ? () => Navigator.of(context).pop(_songs[_selected!])
+          : null,
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_status) {
+      case _RecommendStatus.loading:
+        return const SizedBox(
+          height: _statusHeight,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      case _RecommendStatus.error:
+        return SizedBox(
+          height: _statusHeight,
+          child: _ErrorView(message: _error!, onRetry: _load),
+        );
+      case _RecommendStatus.loaded:
+        if (_songs.isEmpty) {
+          return const SizedBox(
+            height: _statusHeight,
+            child: Center(child: Text('추천할 곡을 찾지 못했어요.')),
+          );
+        }
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: _listMaxHeight),
+          child: ListView.separated(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: _songs.length,
+            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.s24),
+            itemBuilder: (context, index) => _SongCard(
+              song: _songs[index],
+              selected: _selected == index,
+              onTap: () =>
+                  setState(() => _selected = _selected == index ? null : index),
+            ),
+          ),
+        );
+    }
+  }
+}
+
+/// 추천 로딩 실패 시 안내 + '다시 시도'.
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: AppTextStyle.text3.copyWith(color: AppColors.lightSub1),
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          GestureDetector(
+            onTap: onRetry,
+            behavior: HitTestBehavior.opaque,
+            child: Text(
+              '다시 시도',
+              style: AppTextStyle.text3.copyWith(color: AppColors.lightP1),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

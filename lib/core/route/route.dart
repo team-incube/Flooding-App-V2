@@ -4,6 +4,7 @@ import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
 import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_action_locations.dart';
 import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_actions.dart';
 import 'package:flooding_v2/feature/ai/data/repositories/ai_repository_impl.dart';
+import 'package:flooding_v2/feature/ai/domain/repositories/ai_repository.dart';
 import 'package:flooding_v2/feature/ai/presentation/bloc/chat_bloc.dart';
 import 'package:flooding_v2/feature/ai/presentation/pages/ai_chat_page.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
@@ -170,6 +171,8 @@ GoRouter createAppRouter(AuthController auth) {
                   onSessionExpired: auth.expireSession,
                 ),
               ),
+              // 플로팅 노래추천 버튼이 AI 추천 API 를 호출할 수 있도록 공유한다.
+              RepositoryProvider<AiRepository>.value(value: aiRepository),
             ],
             child: MultiBlocProvider(
               providers: [
