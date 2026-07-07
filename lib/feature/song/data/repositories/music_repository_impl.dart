@@ -95,16 +95,16 @@ class MusicRepositoryImpl implements MusicRepository {
               .cast<Map<String, dynamic>>()
               .map(WakeUpMusic.fromJson)
               .toList();
-          return MusicListInitialized(list);
+          return MusicSseEvent.listInitialized(list);
         case 'music-applied':
           final json = jsonDecode(message.data) as Map<String, dynamic>;
-          return MusicApplied(WakeUpMusic.fromJson(json));
+          return MusicSseEvent.applied(WakeUpMusic.fromJson(json));
         case 'music-cancelled':
           final json = jsonDecode(message.data) as Map<String, dynamic>;
-          return MusicCancelled((json['musicId'] as num).toInt());
+          return MusicSseEvent.cancelled((json['musicId'] as num).toInt());
         case 'music-like-updated':
           final json = jsonDecode(message.data) as Map<String, dynamic>;
-          return MusicLikeUpdated(
+          return MusicSseEvent.likeUpdated(
             musicId: (json['musicId'] as num).toInt(),
             likeCount: (json['likeCount'] as num).toInt(),
           );
