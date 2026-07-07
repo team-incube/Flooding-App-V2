@@ -127,7 +127,10 @@ class _SongRecommendationSheetState extends State<SongRecommendationSheet> {
       case _RecommendStatus.error:
         return SizedBox(
           height: _statusHeight,
-          child: _ErrorView(message: _error!, onRetry: _load),
+          child: _ErrorView(
+            message: _error ?? '노래 추천을 불러오지 못했어요.',
+            onRetry: _load,
+          ),
         );
       case _RecommendStatus.loaded:
         if (_songs.isEmpty) {
