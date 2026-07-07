@@ -286,6 +286,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   /// 다른 이벤트와 동일하게 순차 처리한다(핸들러를 오래 붙잡지 않는다).
   Future<void> _onSubscriptionStarted() async {
     await _sseSub?.cancel();
+    if (_closed) return;
     _reconnectTimer?.cancel();
     _sseSub = _repository.subscribeMusicEvents().listen(
       (event) => add(MusicEvent.sseReceived(event)),
