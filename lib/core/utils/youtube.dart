@@ -10,14 +10,18 @@ String? youtubeVideoId(String url) {
 
   final host = uri.host.toLowerCase();
   if (host.contains('youtu.be')) {
-    return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+    final first = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+    return (first != null && first.isNotEmpty) ? first : null;
   }
   if (host.contains('youtube.com')) {
     final v = uri.queryParameters['v'];
     if (v != null && v.isNotEmpty) return v;
     final segments = uri.pathSegments;
     final i = segments.indexWhere((s) => s == 'embed' || s == 'shorts');
-    if (i != -1 && i + 1 < segments.length) return segments[i + 1];
+    if (i != -1 && i + 1 < segments.length) {
+      final id = segments[i + 1];
+      return id.isNotEmpty ? id : null;
+    }
   }
   return null;
 }
