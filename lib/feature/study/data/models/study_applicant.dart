@@ -14,7 +14,8 @@ part 'study_applicant.g.dart';
 @freezed
 abstract class StudyApplicant with _$StudyApplicant {
   const factory StudyApplicant({
-    required int id,
+    /// 서버 응답에서는 `userId` 키로 내려온다.
+    @JsonKey(name: 'userId') required int id,
     required String name,
     required int studentNumber,
     int? grade,
