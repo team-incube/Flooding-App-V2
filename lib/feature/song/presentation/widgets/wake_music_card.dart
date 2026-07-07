@@ -17,10 +17,7 @@ import '../bloc/music_bloc.dart';
 import '../bloc/music_event.dart';
 
 class WakeMusicCard extends StatefulWidget {
-  const WakeMusicCard({super.key, this.onApply});
-
-  /// '신청하기' 탭 콜백.
-  final VoidCallback? onApply;
+  const WakeMusicCard({super.key});
 
   @override
   State<WakeMusicCard> createState() => _WakeMusicCardState();
@@ -153,7 +150,7 @@ class _WakeMusicCardState extends State<WakeMusicCard> {
                   return PrimaryActionButton(
                     label: state.isSubmitting ? '신청 중...' : '신청하기',
                     enabled: canApply,
-                    onPressed: widget.onApply ?? _onApplyMusic,
+                    onPressed: _onApplyMusic,
                     expand: true,
                     verticalPadding: AppSpacing.s14,
                     horizontalPadding: AppSpacing.s32,
