@@ -23,6 +23,12 @@ class _FakeStudyRepository implements StudyRepository {
 
   @override
   Future<void> cancelStudy() async {}
+
+  @override
+  Future<void> checkIn(int userId) async {}
+
+  @override
+  Future<void> checkOut(int userId) async {}
 }
 
 void main() {

@@ -6,6 +6,7 @@ import 'package:flooding_v2/feature/member/presentation/models/member_model.dart
 
 class MassageMemberMapper {
   static MemberModel toMember(MassageApplicant a) => MemberModel(
+        id: a.id,
         name: a.name,
         schoolNb: StudentFormatter.formatSchoolNumber(
           grade: a.grade,

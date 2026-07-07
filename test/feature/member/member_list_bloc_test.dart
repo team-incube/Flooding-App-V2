@@ -16,7 +16,7 @@ class _FakeGetMembers implements GetMembersUseCase {
 }
 
 MemberModel _m(String name, int nb) =>
-    MemberModel(name: name, schoolNb: nb, gender: Gender.female);
+    MemberModel(id: nb, name: name, schoolNb: nb, gender: Gender.female);
 
 void main() {
   final fresh = [_m('김민솔', 2403), _m('이재현', 1101)];

@@ -52,10 +52,6 @@ class _SongDetailViewState extends State<SongDetailView> {
     final myUserId = context.select<MeBloc, int?>(
       (bloc) => bloc.state.maybeWhen(loaded: (me) => me.id, orElse: () => null),
     );
-    // 기숙사 관리자·어드민은 모든 사용자의 곡을 삭제할 수 있다.
-    final role = context.role;
-    final canManageAll =
-        role == Role.admin || role == Role.dormitoryManager;
     return MultiBlocListener(
       listeners: [
         // 목록 조회 실패 — 화면은 기존 목록을 유지하고 사유만 스낵바로 안내한다.
@@ -126,7 +122,8 @@ class _SongDetailViewState extends State<SongDetailView> {
                 hasAny: state.totalCount > 0,
                 musics: musics,
                 myUserId: myUserId,
-                canManageAll: canManageAll,
+                // 기숙사 관리자·어드민은 모든 사용자의 곡을 삭제할 수 있다.
+                canManageAll: context.isManager,
               ),
             ),
           ],
