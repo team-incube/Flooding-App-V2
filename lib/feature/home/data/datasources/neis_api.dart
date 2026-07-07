@@ -13,8 +13,6 @@ abstract class NeisApi {
 
   @GET(_timetables)
   Future<TimetableListResponse> getTimeTables({
-    @Query('officeCode') required String officeCode,
-    @Query('schoolCode') required String schoolCode,
     @Query('grade') required int grade,
     @Query('classNumber') required int classNumber,
     @Query('date') required String date,

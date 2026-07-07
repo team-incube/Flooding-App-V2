@@ -30,10 +30,6 @@ class NeisRepositoryImpl implements NeisRepository {
 
   final NeisApi _api;
 
-  // GSM(광주소프트웨어마이스터고등학교) 고정 NEIS 식별 코드.
-  static const String _officeCode = 'F10';
-  static const String _schoolCode = '7380292';
-
   @override
   Future<TimetableData> fetchTimetable({
     required int grade,
@@ -42,8 +38,6 @@ class NeisRepositoryImpl implements NeisRepository {
   }) async {
     try {
       final response = await _api.getTimeTables(
-        officeCode: _officeCode,
-        schoolCode: _schoolCode,
         grade: grade,
         classNumber: classNumber,
         date: _formatDate(date),
