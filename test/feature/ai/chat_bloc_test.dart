@@ -21,6 +21,9 @@ class _FakeAiRepository implements AiRepository {
     if (error != null) throw error!;
     return reply;
   }
+
+  @override
+  Future<List<String>> recommendSongs() async => const [];
 }
 
 void main() {

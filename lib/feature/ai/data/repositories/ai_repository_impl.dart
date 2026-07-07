@@ -62,4 +62,26 @@ class AiRepositoryImpl implements AiRepository {
       throw api;
     }
   }
+
+  @override
+  Future<List<String>> recommendSongs() async {
+    try {
+      final response = await _api.recommendSong();
+      final links = response.data?.youtubeLinks ?? const [];
+      // 빈 링크는 유효하지 않으므로 걸러낸다.
+      return [
+        for (final url in links)
+          if (url.trim().isNotEmpty) url.trim(),
+      ];
+    } on DioException catch (e) {
+      final api = e.toApiException();
+      // 502: AI 추천 서버 오류 — 일반 fallback 대신 명확한 안내로 바꾼다.
+      if (api.statusCode == 502) {
+        throw const ApiException.message(
+          'AI 음악 추천 서버가 응답하지 않아요. 잠시 후 다시 시도해 주세요.',
+        );
+      }
+      throw api;
+    }
+  }
 }
