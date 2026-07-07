@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/enum/music_sort.dart';
+import '../../domain/models/music_sse_event.dart';
 
 part 'music_event.freezed.dart';
 
@@ -31,4 +32,10 @@ class MusicEvent with _$MusicEvent {
 
   /// [musicId] 곡의 기상음악 신청을 취소한다(본인 신청 곡만).
   const factory MusicEvent.cancelRequested(int musicId) = _CancelRequested;
+
+  /// 기상음악 실시간(SSE) 구독을 시작한다. 연결이 끊기면 자동 재연결한다.
+  const factory MusicEvent.subscriptionStarted() = _SubscriptionStarted;
+
+  /// (내부) SSE로 수신한 [event] 를 목록에 반영한다.
+  const factory MusicEvent.sseReceived(MusicSseEvent event) = _SseReceived;
 }

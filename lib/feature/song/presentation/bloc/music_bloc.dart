@@ -6,6 +6,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/logger.dart';
 import '../../data/models/wake_up_music.dart';
 import '../../domain/enum/music_sort.dart';
+import '../../domain/models/music_sse_event.dart';
 import '../../domain/repositories/music_repository.dart';
 import 'music_event.dart';
 import 'music_state.dart';
@@ -23,6 +24,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         searched: (query) => _onSearched(emit, query),
         likeToggled: (musicId) => _onLikeToggled(emit, musicId),
         cancelRequested: (musicId) => _onCancelRequested(emit, musicId),
+        subscriptionStarted: () => _onSubscriptionStarted(),
+        sseReceived: (sseEvent) => _onSseReceived(emit, sseEvent),
       );
     });
   }
@@ -31,6 +34,15 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
 
   /// 검색어 적용 전 전체 목록 — 필터는 이 목록에 다시 적용한다.
   List<WakeUpMusic> _allMusics = [];
+
+  /// 실시간(SSE) 구독. 재구독 시 이전 구독을 취소하고 새로 연결한다.
+  StreamSubscription<MusicSseEvent>? _sseSub;
+
+  /// 연결 끊김 후 재연결 예약 타이머.
+  Timer? _reconnectTimer;
+
+  /// close 이후 재연결이 다시 예약되지 않도록 막는 플래그.
+  bool _closed = false;
 
   // ── 목록 조회 ─────────────────────────────────────────────
 
@@ -266,6 +278,94 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         ),
       );
     }
+  }
+
+  // ── 실시간(SSE) 구독 ───────────────────────────────────────
+
+  /// SSE 구독을 (재)시작한다. 이벤트는 [MusicEvent.sseReceived] 로 되돌려
+  /// 다른 이벤트와 동일하게 순차 처리한다(핸들러를 오래 붙잡지 않는다).
+  Future<void> _onSubscriptionStarted() async {
+    await _sseSub?.cancel();
+    _reconnectTimer?.cancel();
+    _sseSub = _repository.subscribeMusicEvents().listen(
+      (event) => add(MusicEvent.sseReceived(event)),
+      onError: (Object e, StackTrace s) {
+        Logger.e('기상음악 SSE 오류', tag: 'MUSIC', error: e, stackTrace: s);
+        _scheduleReconnect();
+      },
+      onDone: _scheduleReconnect,
+      cancelOnError: true,
+    );
+  }
+
+  /// 연결이 끊기면 잠시 뒤 재연결을 예약한다(close 이후엔 하지 않는다).
+  void _scheduleReconnect() {
+    if (_closed) return;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(const Duration(seconds: 3), () {
+      if (_closed) return;
+      add(const MusicEvent.subscriptionStarted());
+    });
+  }
+
+  /// SSE 이벤트를 전체 목록([_allMusics])에 반영하고 필터를 재적용한다.
+  void _onSseReceived(Emitter<MusicState> emit, MusicSseEvent event) {
+    switch (event) {
+      // 구독 직후 오늘 전체 목록 — 신선한 조회처럼 목록을 교체한다.
+      case MusicListInitialized(:final musics):
+        _allMusics = musics;
+        emit(
+          state.copyWith(
+            listStatus: MusicListStatus.loaded,
+            musics: _applyFilter(_allMusics, state.query),
+            totalCount: _allMusics.length,
+            listError: null,
+          ),
+        );
+      // 신청 1건 — 이미 있으면 갱신, 없으면 추가(타 사용자 신청도 실시간 반영).
+      case MusicApplied(:final music):
+        final exists = _allMusics.any((m) => m.id == music.id);
+        _allMusics = exists
+            ? _replaceMusic(_allMusics, music.id, music)
+            : [..._allMusics, music];
+        emit(
+          state.copyWith(
+            musics: _applyFilter(_allMusics, state.query),
+            totalCount: _allMusics.length,
+          ),
+        );
+      // 취소 1건 — 목록에서 제거(이미 없으면 무시).
+      case MusicCancelled(:final musicId):
+        if (_allMusics.every((m) => m.id != musicId)) return;
+        _allMusics = [
+          for (final m in _allMusics)
+            if (m.id != musicId) m,
+        ];
+        emit(
+          state.copyWith(
+            musics: _applyFilter(_allMusics, state.query),
+            totalCount: _allMusics.length,
+          ),
+        );
+      // 좋아요 수 변경 — 총계만 서버 값으로 갱신(개인별 isLiked 는 유지).
+      case MusicLikeUpdated(:final musicId, :final likeCount):
+        final index = _allMusics.indexWhere((m) => m.id == musicId);
+        if (index == -1) return;
+        _allMusics = _replaceMusic(
+          _allMusics,
+          musicId,
+          _allMusics[index].copyWith(likeCount: likeCount),
+        );
+        emit(state.copyWith(musics: _applyFilter(_allMusics, state.query)));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _closed = true;
+    _reconnectTimer?.cancel();
+    _sseSub?.cancel();
+    return super.close();
   }
 
   String _messageOf(Object e) {
