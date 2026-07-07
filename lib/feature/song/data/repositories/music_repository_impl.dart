@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/auth_interceptor.dart' show SessionInvalidator;
+import '../../../../core/network/flooding_sse_client.dart';
 import '../../../../core/network/sse_client.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../auth/data/datasources/token_storage.dart';
@@ -41,12 +42,17 @@ class MusicRepositoryImpl implements MusicRepository {
       onSessionExpired: onSessionExpired,
       dio: dio,
     );
-    return MusicRepositoryImpl(MusicApi(client), client);
+    // SSE 는 수신 타임아웃 없는 전용 클라이언트로 분리한다(REST 와 별개).
+    final sseClient = FloodingSseClient.create(
+      tokenStorage: storage,
+      onSessionExpired: onSessionExpired,
+    );
+    return MusicRepositoryImpl(MusicApi(client), sseClient);
   }
 
   final MusicApi _api;
 
-  /// SSE 스트리밍 구독에 쓰는 인증 dio(같은 클라이언트를 공유한다).
+  /// SSE 스트리밍 구독 전용 인증 dio(REST 클라이언트와 분리).
   final Dio _dio;
 
   @override
