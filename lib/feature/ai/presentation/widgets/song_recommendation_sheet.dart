@@ -1,139 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/sheet/sheet.dart';
-
-/// 추천 곡 한 개.
-class SongRecommendation {
-  const SongRecommendation({
-    required this.title,
-    this.thumbnail,
-    this.duration,
-  });
-
-  final String title;
-
-  /// 곡 썸네일. null이면 회색 플레이스홀더를 보여준다.
-  final ImageProvider? thumbnail;
-
-  /// 영상 길이 표기(예: '3:08'). null이면 표시하지 않는다.
-  final String? duration;
-}
+import '../../domain/repositories/ai_repository.dart';
+import '../bloc/ai_song_bloc.dart';
+import '../bloc/ai_song_event.dart';
+import '../bloc/ai_song_state.dart';
+import '../models/song_recommendation.dart';
 
 /// 추천 곡을 받아 하나를 골라 신청하는 팝업.
 ///
-/// 팝업이 열리면 [loadSongs]로 추천을 불러온다(로딩 → 목록/오류). 카드를 눌러
-/// 곡을 선택하고, 선택 전에는 '신청'이 비활성 상태다. '신청'으로 선택한
+/// 열리면 [AiSongBloc] 이 추천을 불러온다(로딩 → 목록/오류). 카드를 눌러 곡을
+/// 선택하고, 선택 전에는 '신청'이 비활성 상태다. '신청'으로 선택한
 /// [SongRecommendation]을 반환한다.
-class SongRecommendationSheet extends StatefulWidget {
-  const SongRecommendationSheet({super.key, required this.loadSongs});
+class SongRecommendationSheet extends StatelessWidget {
+  const SongRecommendationSheet({super.key});
 
-  /// 추천 곡 목록을 비동기로 불러오는 콜백. 실패 시 예외를 던지면 오류 상태로
-  /// 표시하고 '다시 시도'를 제공한다.
-  final Future<List<SongRecommendation>> Function() loadSongs;
-
-  /// 노래 추천 팝업을 띄우고 신청한 곡을 반환한다.
-  /// 뒤로가기·바깥 탭으로 닫으면 null을 반환한다.
-  static Future<SongRecommendation?> show(
-    BuildContext context, {
-    required Future<List<SongRecommendation>> Function() loadSongs,
-  }) {
-    return showAppFormDialog<SongRecommendation>(
-      context,
-      builder: (_) => SongRecommendationSheet(loadSongs: loadSongs),
-    );
-  }
-
-  @override
-  State<SongRecommendationSheet> createState() =>
-      _SongRecommendationSheetState();
-}
-
-/// 추천 로딩 진행 상태.
-enum _RecommendStatus { loading, loaded, error }
-
-class _SongRecommendationSheetState extends State<SongRecommendationSheet> {
   // 리스트 영역의 최대 높이(디자인 기준).
   static const double _listMaxHeight = 376;
 
   // 로딩·오류 표시 영역의 고정 높이(팝업 크기가 급변하지 않도록).
   static const double _statusHeight = 200;
 
-  _RecommendStatus _status = _RecommendStatus.loading;
-  List<SongRecommendation> _songs = const [];
-  String? _error;
-  int? _selected;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    setState(() {
-      _status = _RecommendStatus.loading;
-      _error = null;
-      _selected = null;
-    });
-    try {
-      final songs = await widget.loadSongs();
-      if (!mounted) return;
-      setState(() {
-        _songs = songs;
-        _status = _RecommendStatus.loaded;
-      });
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = e.message;
-        _status = _RecommendStatus.error;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _error = '노래 추천을 불러오지 못했어요.';
-        _status = _RecommendStatus.error;
-      });
-    }
+  /// 노래 추천 팝업을 띄우고 신청한 곡을 반환한다.
+  ///
+  /// 팝업 수명 동안만 사는 [AiSongBloc] 을 [repository] 로 만들어 주입하고,
+  /// 열리자마자 추천을 요청한다. 뒤로가기·바깥 탭으로 닫으면 null을 반환한다.
+  static Future<SongRecommendation?> show(
+    BuildContext context, {
+    required AiRepository repository,
+  }) {
+    return showAppFormDialog<SongRecommendation>(
+      context,
+      builder: (_) => BlocProvider(
+        create: (_) =>
+            AiSongBloc(repository: repository)
+              ..add(const AiSongEvent.requested()),
+        child: const SongRecommendationSheet(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final canConfirm =
-        _status == _RecommendStatus.loaded && _selected != null;
-    return AppFormSheet(
-      header: const _Header(),
-      body: _buildBody(),
-      confirmLabel: '신청',
-      onConfirm: canConfirm
-          ? () => Navigator.of(context).pop(_songs[_selected!])
-          : null,
+    return BlocBuilder<AiSongBloc, AiSongState>(
+      builder: (context, state) {
+        final selected = state.selectedIndex;
+        final canConfirm =
+            state.status == AiSongStatus.loaded &&
+            selected != null &&
+            selected < state.songs.length;
+        return AppFormSheet(
+          header: const _Header(),
+          body: _buildBody(context, state),
+          confirmLabel: '신청',
+          onConfirm: canConfirm
+              ? () => Navigator.of(context).pop(state.songs[selected])
+              : null,
+        );
+      },
     );
   }
 
-  Widget _buildBody() {
-    switch (_status) {
-      case _RecommendStatus.loading:
+  Widget _buildBody(BuildContext context, AiSongState state) {
+    switch (state.status) {
+      case AiSongStatus.initial:
+      case AiSongStatus.loading:
         return const SizedBox(
           height: _statusHeight,
           child: Center(child: CircularProgressIndicator()),
         );
-      case _RecommendStatus.error:
+      case AiSongStatus.error:
         return SizedBox(
           height: _statusHeight,
           child: _ErrorView(
-            message: _error ?? '노래 추천을 불러오지 못했어요.',
-            onRetry: _load,
+            message: state.error ?? '노래 추천을 불러오지 못했어요.',
+            onRetry: () =>
+                context.read<AiSongBloc>().add(const AiSongEvent.requested()),
           ),
         );
-      case _RecommendStatus.loaded:
-        if (_songs.isEmpty) {
+      case AiSongStatus.loaded:
+        if (state.songs.isEmpty) {
           return const SizedBox(
             height: _statusHeight,
             child: Center(child: Text('추천할 곡을 찾지 못했어요.')),
@@ -144,13 +96,14 @@ class _SongRecommendationSheetState extends State<SongRecommendationSheet> {
           child: ListView.separated(
             shrinkWrap: true,
             padding: EdgeInsets.zero,
-            itemCount: _songs.length,
+            itemCount: state.songs.length,
             separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.s24),
             itemBuilder: (context, index) => _SongCard(
-              song: _songs[index],
-              selected: _selected == index,
-              onTap: () =>
-                  setState(() => _selected = _selected == index ? null : index),
+              song: state.songs[index],
+              selected: state.selectedIndex == index,
+              onTap: () => context.read<AiSongBloc>().add(
+                AiSongEvent.songSelected(index),
+              ),
             ),
           ),
         );

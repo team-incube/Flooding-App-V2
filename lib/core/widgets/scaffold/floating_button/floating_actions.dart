@@ -11,7 +11,6 @@ import '../../../constants/app_spacing.dart';
 import '../../../route/route_path.dart';
 import '../../../theme/color/app_colors.dart';
 import '../../../theme/icon/app_icon.dart';
-import '../../../utils/youtube.dart';
 
 
 /// 우측 하단에 세로로 쌓인 두 개의 원형 액션 버튼.
@@ -42,22 +41,15 @@ class FloatingActions extends StatefulWidget {
 class _FloatingActionsState extends State<FloatingActions> {
   /// 플로팅 AI 버튼 → 오늘의 노래 추천 팝업.
   ///
-  /// 팝업이 열리면 그 안에서 `POST /ai/song` 으로 추천 유튜브 링크를 받아
-  /// (로딩 → 목록) 표시하고, 사용자가 고른 링크는 기존 기상음악 신청
-  /// 흐름([MusicBloc])으로 신청한다.
+  /// 팝업 안의 `AiSongBloc` 이 추천을 불러와(로딩 → 목록) 표시하고, 사용자가
+  /// 고른 링크는 기존 기상음악 신청 흐름([MusicBloc])으로 신청한다.
   Future<void> _openSongRecommendation() async {
     final aiRepository = context.read<AiRepository>();
     final musicBloc = context.read<MusicBloc>();
 
     final selected = await SongRecommendationSheet.show(
       context,
-      loadSongs: () async {
-        final links = await aiRepository.recommendSongs();
-        return [
-          for (final url in links)
-            SongRecommendation(title: url, thumbnail: youtubeThumbnail(url)),
-        ];
-      },
+      repository: aiRepository,
     );
     if (selected == null) return;
 
