@@ -7,11 +7,11 @@ import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
 import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_state.dart';
-import 'package:flooding_v2/feature/dormitory/data/models/wake_up_music.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_bloc.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_event.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/bloc/music_state.dart';
-import 'package:flooding_v2/feature/dormitory/presentation/widgets/song_request_card.dart';
+import 'package:flooding_v2/feature/song/data/models/wake_up_music.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_event.dart';
+import 'package:flooding_v2/feature/song/presentation/bloc/music_state.dart';
+import 'package:flooding_v2/feature/song/presentation/widgets/song_request_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
