@@ -50,7 +50,7 @@ class _MassageRequestViewState extends State<MassageRequestView> {
               title: '조건에 맞는 학생이 없습니다.',
               subTitle: '필터 설정을 확인해 주세요.',
             ),
-            loaded: (_) => _emptyApplicants(),
+            loaded: (_, __) => _emptyApplicants(),
             error: (_) => _emptyApplicants(),
           ),
         );
