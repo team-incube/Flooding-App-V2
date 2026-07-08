@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/widgets/search_text_field.dart';
-import '../../../member/presentation/blocs/member_selection_bloc.dart';
-import '../../../member/presentation/blocs/member_selection_event.dart';
+import '../../../member/presentation/blocs/member_list_bloc.dart';
+import '../../../member/presentation/blocs/member_list_event.dart';
 import '../../../member/presentation/widgets/no_member_icon.dart';
 import '../../../member/presentation/widgets/request_member_list_layout.dart';
 import '../bloc/study_bloc.dart';
@@ -41,29 +41,12 @@ class _StudyRequestViewState extends State<StudyRequestView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<StudyBloc, StudyState>(
-      // 조회 실패는 스낵바로, 체크인/체크아웃 등 액션 결과는 스낵바 안내 후
-      // 선택 상태를 초기화한다.
       listenWhen: (prev, curr) =>
-          (curr.listStatus == StudyListStatus.error &&
-              prev.listStatus != StudyListStatus.error) ||
-          (curr.result != null && curr.result != prev.result),
+          curr.result != null &&
+          curr.result != prev.result &&
+          curr.result!.isAttendanceAction,
       listener: (context, state) {
-        final listError = state.listError;
-        if (state.listStatus == StudyListStatus.error && listError != null) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(listError)));
-        }
-        final result = state.result;
-        if (result != null) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(result.message)));
-          // 체크인/체크아웃 완료 후 선택 상태를 초기화한다.
-          context.read<MemberSelectionBloc>().add(
-            const MemberSelectionEvent.clear(),
-          );
-        }
+        context.read<MemberListBloc>().add(MemberListEvent.load());
       },
       builder: (context, state) {
         final isLoading =
@@ -102,3 +85,4 @@ class _StudyRequestViewState extends State<StudyRequestView> {
     );
   }
 }
+

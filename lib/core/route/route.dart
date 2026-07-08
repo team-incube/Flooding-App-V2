@@ -19,7 +19,6 @@ import 'package:flooding_v2/feature/massage/presentation/bloc/massage_state.dart
 import 'package:flooding_v2/feature/massage/presentation/widgets/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
-import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_bloc.dart';
 import 'package:flooding_v2/feature/song/data/repositories/music_repository_impl.dart';
 import 'package:flooding_v2/feature/song/domain/repositories/music_repository.dart';
 import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
@@ -108,7 +107,6 @@ GoRouter createAppRouter(AuthController auth) {
                     )..add(MemberListEvent.load());
                   },
                 ),
-                BlocProvider(create: (context) => MemberSelectionBloc()),
               ],
               child: const StudyRequestView(),
             ),

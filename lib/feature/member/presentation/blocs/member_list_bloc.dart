@@ -27,6 +27,7 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
         load: () => _onLoad(emit),
         filter: (grade, classNb, gender) =>
             _onFilter(emit, grade, classNb, gender),
+        toggleAttendance: (userId) => _onToggleAttendance(userId, emit),
       );
     });
   }
@@ -41,7 +42,7 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
     if (isInitial) emit(const MemberListState.loading());
     try {
       _allMembers = await _getMembers();
-      emit(MemberListState.loaded(memberList: _allMembers));
+      emit(MemberListState.loaded(memberList: _allMembers, fromServer: true));
     } on Exception catch (e) {
       // 이미 목록을 보여주고 있었다면(시드/재조회) 화면을 비우지 않고 유지한다.
       if (!isInitial) return;
@@ -56,6 +57,21 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
         ? raw.substring('Exception: '.length)
         : raw;
     return stripped.isEmpty ? '목록을 불러오지 못했어요.' : stripped;
+  }
+
+  void _onToggleAttendance(int userId, Emitter<MemberListState> emit) {
+    _allMembers = _allMembers.map((m) {
+      return m.id == userId ? m.copyWith(isAttended: !m.isAttended) : m;
+    }).toList();
+    state.maybeWhen(
+      filtered: (list) {
+        final updated = list.map((m) {
+          return m.id == userId ? m.copyWith(isAttended: !m.isAttended) : m;
+        }).toList();
+        emit(MemberListState.filtered(memberList: updated));
+      },
+      orElse: () => emit(MemberListState.loaded(memberList: _allMembers)),
+    );
   }
 
   void _onFilter(

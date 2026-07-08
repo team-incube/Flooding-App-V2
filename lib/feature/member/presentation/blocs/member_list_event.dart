@@ -15,4 +15,8 @@ class MemberListEvent with _$MemberListEvent {
     int? classNb,
     Gender? gender,
   }) = _Filter;
+
+  /// 특정 멤버의 출석 상태를 로컬에서 즉시 토글한다(낙관적 업데이트용).
+  factory MemberListEvent.toggleAttendance({required int userId}) =
+      _ToggleAttendance;
 }

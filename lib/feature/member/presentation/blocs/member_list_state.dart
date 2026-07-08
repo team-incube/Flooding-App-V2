@@ -14,6 +14,8 @@ class MemberListState with _$MemberListState {
 
   const factory MemberListState.loaded({
     required List<MemberModel> memberList,
+    /// 서버에서 재조회한 결과면 true, 로컬 낙관적 업데이트면 false.
+    @Default(false) bool fromServer,
   }) = _Loaded;
 
   const factory MemberListState.filtered({
