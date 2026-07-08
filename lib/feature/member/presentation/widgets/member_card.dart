@@ -18,17 +18,13 @@ class MemberCard extends StatelessWidget {
     required this.model,
     required this.number,
     this.showAttendanceBadge = false,
-  }) : onSelect = null,
-       isSelected = false,
-       enabled = true;
+  }) : onSelect = null;
 
   const MemberCard.button({
     super.key,
     required this.model,
     required this.number,
     required this.onSelect,
-    required this.isSelected,
-    this.enabled = true,
     this.showAttendanceBadge = false,
   });
 
@@ -36,13 +32,6 @@ class MemberCard extends StatelessWidget {
 
   final int number;
   final MemberModel model;
-
-  /// 체크인/체크아웃 대상으로 선택됐는지 — 테두리·그림자로 강조 표시한다.
-  final bool isSelected;
-
-  /// false 면 다른 출석 상태가 이미 선택 중이라는 뜻(혼합 선택 방지) — 흐리게
-  /// 표시하고 탭을 막는다.
-  final bool enabled;
   final MemberSelectAction? onSelect;
 
   /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 개념이 없는 기능(안마의자
@@ -51,10 +40,9 @@ class MemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TODO : 남성 Icon 등록시 SizedBox 교체
     final genderIcon = model.gender == Gender.female
-        ? AppIcon.female(size: AppSize.s12)
-        : const SizedBox.shrink();
+        ? AppIcon.female(size: AppSize.s16)
+        : AppIcon.male(size: AppSize.s16);
 
     final topLine = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,19 +62,6 @@ class MemberCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.lightSub4,
         borderRadius: BorderRadius.circular(AppRadius.s12),
-        border: Border.all(
-          color: isSelected ? AppColors.lightP1 : Colors.transparent,
-          width: 2,
-        ),
-        boxShadow: isSelected
-            ? [
-                BoxShadow(
-                  color: AppColors.lightP1.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
       ),
       padding: const EdgeInsets.all(AppSpacing.s16),
       child: Stack(
@@ -134,13 +109,10 @@ class MemberCard extends StatelessWidget {
     final onSelect = this.onSelect;
     if (onSelect == null) return card;
 
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: GestureDetector(
-        onTap: enabled ? () => onSelect(model.id, model.isAttended) : null,
-        behavior: HitTestBehavior.opaque,
-        child: card,
-      ),
+    return GestureDetector(
+      onTap: () => onSelect(model.id, model.isAttended),
+      behavior: HitTestBehavior.opaque,
+      child: card,
     );
   }
 }

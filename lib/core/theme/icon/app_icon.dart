@@ -46,9 +46,10 @@ class AppIcon {
       _svg('sparkle.svg', size: size, color: color);
   static Widget chatBot({double size = AppSize.s24, Color? color}) =>
       _svg('chat_bot.svg', size: size, color: color);
-  //TODO : male 아이콘 등록하기
   static Widget female({double size = AppSize.s24, Color? color}) =>
       _svg('female.svg', size: size, color: color);
+  static Widget male({double size = AppSize.s24, Color? color}) =>
+      _svg('male.svg', size: size, color: color);
   static Widget filter({double size = AppSize.s24, Color? color}) =>
       _svg('filter.svg', size: size, color: color);
   static Widget graduationCap({double size = AppSize.s24, Color? color}) =>
@@ -64,6 +65,12 @@ class AppIcon {
       _svg('back.svg', size: size, color: color);
   static Widget search({double size = AppSize.s24, Color? color}) =>
       _svg('search.svg', size: size, color: color);
+  static Widget medalGold({double size = AppSize.s24, Color? color}) =>
+      _svg('medal_gold.svg', size: size, color: color);
+  static Widget medalSilver({double size = AppSize.s24, Color? color}) =>
+      _svg('medal_silver.svg', size: size, color: color);
+  static Widget medalBronze({double size = AppSize.s24, Color? color}) =>
+      _svg('medal_bronze.svg', size: size, color: color);
 
 
 
