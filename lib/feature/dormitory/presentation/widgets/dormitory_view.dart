@@ -1,3 +1,4 @@
+import 'package:flooding_v2/feature/song/presentation/widgets/wake_music_card.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
@@ -15,6 +16,8 @@ class DormitoryView extends StatelessWidget {
           StudyCountCard(),
           SizedBox(height: AppSpacing.s16),
           MassageCountCard(),
+          SizedBox(height: AppSpacing.s16),
+          WakeMusicCard(),
         ],
       ),
     );
