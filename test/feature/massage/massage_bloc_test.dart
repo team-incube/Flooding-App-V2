@@ -42,7 +42,7 @@ void main() {
   DateTime closed() => DateTime.utc(2026, 6, 16, 10, 0);
 
   const applicants = [
-    MassageApplicant(id: 1, name: '김민솔', studentNumber: 2403, sex: 'WOMAN'),
+    MassageApplicant(name: '김민솔', studentNumber: 2403),
   ];
 
   group('MassageBloc 현황 폴링', () {
