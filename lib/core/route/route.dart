@@ -1,7 +1,5 @@
-import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
-import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_action_locations.dart';
 import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_actions.dart';
 import 'package:flooding_v2/feature/ai/data/repositories/ai_repository_impl.dart';
 import 'package:flooding_v2/feature/ai/presentation/bloc/chat_bloc.dart';
@@ -137,20 +135,12 @@ GoRouter createAppRouter(AuthController auth) {
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
-          final isDormManager = context.isManager;
 
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||
             RoutePath.requestMassage => const FloatingActions.aiChat(),
             _ => const FloatingActions.both(),
           };
-          final floatingButtonLocation = switch (location) {
-            RoutePath.requestStudy || RoutePath.requestMassage
-                when isDormManager =>
-              FloatingActionLocations.aiFloatingLocation,
-            _ => null,
-          };
-
           return MultiRepositoryProvider(
             providers: [
               RepositoryProvider<StudyRepository>(
@@ -202,7 +192,6 @@ GoRouter createAppRouter(AuthController auth) {
               ],
               child: BaseScaffold(
                 floatingActionButton: floatingButton,
-                floatingActionButtonLocation: floatingButtonLocation,
                 onLogout: auth.logout,
                 //TODO : 회원 탈퇴 기능
                 onWithdraw: auth.logout,
