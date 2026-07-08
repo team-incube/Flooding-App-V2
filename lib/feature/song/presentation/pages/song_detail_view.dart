@@ -11,6 +11,7 @@ import 'package:flooding_v2/feature/song/data/models/wake_up_music.dart';
 import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
 import 'package:flooding_v2/feature/song/presentation/bloc/music_event.dart';
 import 'package:flooding_v2/feature/song/presentation/bloc/music_state.dart';
+import 'package:flooding_v2/feature/song/presentation/widgets/calendar/song_calendar_dialog.dart';
 import 'package:flooding_v2/feature/song/presentation/widgets/song_request_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,7 +105,20 @@ class _SongDetailViewState extends State<SongDetailView> {
                   ),
                 ),
                 const Spacer(flex: 1),
-                IconButton(onPressed: () {}, icon: AppIcon.calendar()),
+                IconButton(
+                  onPressed: () async {
+                    final picked = await SongCalendarDialog.show(
+                      context,
+                      initialDate: context.read<MusicBloc>().state.date,
+                    );
+                    if (picked == null || !context.mounted) return;
+                    // 고른 날짜의 기상곡 목록을 재조회한다(조건은 상태에 유지됨).
+                    context.read<MusicBloc>().add(
+                      MusicEvent.listRequested(date: picked, refresh: true),
+                    );
+                  },
+                  icon: AppIcon.calendar(),
+                ),
               ],
             ),
             Padding(
