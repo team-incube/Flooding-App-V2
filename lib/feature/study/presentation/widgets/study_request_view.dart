@@ -56,6 +56,7 @@ class _StudyRequestViewState extends State<StudyRequestView> {
 
         return RequestMemberListLayout(
           title: '자습신청',
+          showMedal: true,
           searchBar: SearchTextField(
             textEditingController: searchController,
             hintText: '학생 이름, 학번을 입력해주세요',

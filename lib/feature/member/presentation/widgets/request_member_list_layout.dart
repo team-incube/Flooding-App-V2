@@ -24,6 +24,7 @@ class RequestMemberListLayout extends StatelessWidget {
     required this.searchBar,
     required this.title,
     required this.emptyIcon,
+    this.showMedal = false,
     this.onCheckIn,
     this.onCheckOut,
   });
@@ -31,6 +32,9 @@ class RequestMemberListLayout extends StatelessWidget {
   final Widget searchBar;
   final String title;
   final Widget emptyIcon;
+
+  /// 1~3등 메달 아이콘 노출 여부 — 자습처럼 등수 개념이 있는 화면에서만 true.
+  final bool showMedal;
 
   /// 미출석 학생을 선택했을 때 체크인 처리하는 콜백(사감 전용 기능).
   ///
@@ -69,6 +73,7 @@ class RequestMemberListLayout extends StatelessWidget {
               _MemberGridLayout(
                 memberList: memberList,
                 showAttendanceBadge: supportsAttendance,
+                showMedal: showMedal,
                 onCheckIn: canCheckAttendance ? onCheckIn : null,
                 onCheckOut: canCheckAttendance ? onCheckOut : null,
               ),
@@ -151,6 +156,7 @@ class _MemberGridLayout extends StatefulWidget {
   const _MemberGridLayout({
     required this.memberList,
     required this.showAttendanceBadge,
+    required this.showMedal,
     this.onCheckIn,
     this.onCheckOut,
   });
@@ -160,6 +166,7 @@ class _MemberGridLayout extends StatefulWidget {
   /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 기능이 있는 화면이면
   /// 역할과 무관하게 true(일반 학생도 출석 현황은 볼 수 있다).
   final bool showAttendanceBadge;
+  final bool showMedal;
 
   final void Function(List<int> userIds)? onCheckIn;
   final void Function(List<int> userIds)? onCheckOut;
@@ -213,6 +220,7 @@ class _MemberGridLayoutState extends State<_MemberGridLayout> {
           model: widget.memberList[index],
           number: index + 1,
           showAttendanceBadge: widget.showAttendanceBadge,
+          showMedal: widget.showMedal,
         ),
       );
     }
@@ -234,6 +242,7 @@ class _MemberGridLayoutState extends State<_MemberGridLayout> {
                   number: index + 1,
                   model: member,
                   showAttendanceBadge: widget.showAttendanceBadge,
+                  showMedal: widget.showMedal,
                   onSelect: (id, isAttended) {
                     setState(() => _pendingIds.add(id));
                     context.read<MemberListBloc>().add(

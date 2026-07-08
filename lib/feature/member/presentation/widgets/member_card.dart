@@ -18,6 +18,7 @@ class MemberCard extends StatelessWidget {
     required this.model,
     required this.number,
     this.showAttendanceBadge = false,
+    this.showMedal = false,
   }) : onSelect = null;
 
   const MemberCard.button({
@@ -26,6 +27,7 @@ class MemberCard extends StatelessWidget {
     required this.number,
     required this.onSelect,
     this.showAttendanceBadge = false,
+    this.showMedal = false,
   });
 
   static const Size fixedSize = Size(173, 165);
@@ -37,6 +39,9 @@ class MemberCard extends StatelessWidget {
   /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 개념이 없는 기능(안마의자
   /// 등)에서는 false 로 둬 의미 없는 언체크 아이콘이 뜨지 않게 한다.
   final bool showAttendanceBadge;
+
+  /// 1~3등 메달 아이콘 노출 여부 — 등수 개념이 있는 자습 신청에서만 true.
+  final bool showMedal;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +111,7 @@ class MemberCard extends StatelessWidget {
       ),
     );
 
-    final medal = _medal(number);
+    final medal = showMedal ? _medal(number) : null;
     final cardWithMedal = medal == null
         ? card
         : Stack(
