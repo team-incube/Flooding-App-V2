@@ -5,6 +5,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/utils/pkce.dart';
+import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/primary_action_button.dart';
 import '../auth_controller.dart';
 import 'oauth_webview_page.dart';
@@ -74,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
       return const Scaffold(
         backgroundColor: AppColors.lightBackground,
         body: Center(
-          child: CircularProgressIndicator(color: AppColors.lightP1),
+          child: AppLoadingIndicator(),
         ),
       );
     }

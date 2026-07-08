@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/theme/icon/app_icon.dart';
+import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/search_text_field.dart';
 import '../../../member/presentation/blocs/member_list_bloc.dart';
 import '../../../member/presentation/blocs/member_list_event.dart';
@@ -66,7 +67,7 @@ class _StudyRequestViewState extends State<StudyRequestView> {
             StudyEvent.checkOutRequested(userIds: userIds),
           ),
           emptyIcon: isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: AppLoadingIndicator())
               : state.applicantCount > 0
               // 신청자는 있으나 필터 결과만 비어 있는 경우.
               ? NoMemberIcon(

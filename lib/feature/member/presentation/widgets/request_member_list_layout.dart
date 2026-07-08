@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../blocs/member_list_bloc.dart';
@@ -247,7 +248,7 @@ class _MemberGridLayoutState extends State<_MemberGridLayout> {
               ),
               if (isPending)
                 const Positioned.fill(
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(child: AppLoadingIndicator()),
                 ),
             ],
           ),
