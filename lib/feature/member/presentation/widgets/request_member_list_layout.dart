@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -178,29 +176,6 @@ class _MemberGridLayout extends StatefulWidget {
 class _MemberGridLayoutState extends State<_MemberGridLayout> {
   /// API 호출 중인 사용자 ID 집합. 응답 전까지 카드를 dimming + 탭 차단.
   final Set<int> _pendingIds = {};
-  StreamSubscription<MemberListState>? _sub;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _sub?.cancel();
-    // 서버 재조회 완료(fromServer: true) 시 모든 pending 을 해제한다.
-    _sub = context.read<MemberListBloc>().stream.listen((state) {
-      state.whenOrNull(
-        loaded: (_, fromServer) {
-          if (fromServer && _pendingIds.isNotEmpty) {
-            setState(() => _pendingIds.clear());
-          }
-        },
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,45 +200,53 @@ class _MemberGridLayoutState extends State<_MemberGridLayout> {
       );
     }
 
-    return SliverGrid.builder(
-      gridDelegate: gridDelegate,
-      itemCount: widget.memberList.length,
-      itemBuilder: (_, index) {
-        final member = widget.memberList[index];
-        final isPending = _pendingIds.contains(member.id);
-        return AbsorbPointer(
-          absorbing: isPending,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Opacity(
-                opacity: isPending ? 0.45 : 1.0,
-                child: MemberCard.button(
-                  number: index + 1,
-                  model: member,
-                  showAttendanceBadge: widget.showAttendanceBadge,
-                  showMedal: widget.showMedal,
-                  onSelect: (id, isAttended) {
-                    setState(() => _pendingIds.add(id));
-                    context.read<MemberListBloc>().add(
-                      MemberListEvent.toggleAttendance(userId: id),
-                    );
-                    if (isAttended) {
-                      widget.onCheckOut?.call([id]);
-                    } else {
-                      widget.onCheckIn?.call([id]);
-                    }
-                  },
-                ),
-              ),
-              if (isPending)
-                const Positioned.fill(
-                  child: Center(child: AppLoadingIndicator()),
-                ),
-            ],
-          ),
-        );
+    // 서버 재조회 완료(fromServer: true) 시 모든 pending 을 해제한다.
+    return BlocListener<MemberListBloc, MemberListState>(
+      listenWhen: (_, curr) =>
+          curr.whenOrNull(loaded: (_, fromServer) => fromServer) ?? false,
+      listener: (_, __) {
+        if (_pendingIds.isNotEmpty) setState(() => _pendingIds.clear());
       },
+      child: SliverGrid.builder(
+        gridDelegate: gridDelegate,
+        itemCount: widget.memberList.length,
+        itemBuilder: (_, index) {
+          final member = widget.memberList[index];
+          final isPending = _pendingIds.contains(member.id);
+          return AbsorbPointer(
+            absorbing: isPending,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Opacity(
+                  opacity: isPending ? 0.45 : 1.0,
+                  child: MemberCard.button(
+                    number: index + 1,
+                    model: member,
+                    showAttendanceBadge: widget.showAttendanceBadge,
+                    showMedal: widget.showMedal,
+                    onSelect: (id, isAttended) {
+                      setState(() => _pendingIds.add(id));
+                      context.read<MemberListBloc>().add(
+                        MemberListEvent.toggleAttendance(userId: id),
+                      );
+                      if (isAttended) {
+                        widget.onCheckOut?.call([id]);
+                      } else {
+                        widget.onCheckIn?.call([id]);
+                      }
+                    },
+                  ),
+                ),
+                if (isPending)
+                  const Positioned.fill(
+                    child: Center(child: AppLoadingIndicator()),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

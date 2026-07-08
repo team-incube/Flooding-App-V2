@@ -32,7 +32,7 @@ void main() {
     await pumpEventQueue();
 
     expect(statuses.first, const MemberListState.loading());
-    expect(bloc.state, MemberListState.loaded(memberList: fresh));
+    expect(bloc.state, MemberListState.loaded(memberList: fresh, fromServer: true));
 
     await sub.cancel();
     await bloc.close();
@@ -55,7 +55,7 @@ void main() {
 
     // loading 을 거치지 않고 곧장 새 값으로만 갱신한다.
     expect(statuses.contains(const MemberListState.loading()), isFalse);
-    expect(bloc.state, MemberListState.loaded(memberList: fresh));
+    expect(bloc.state, MemberListState.loaded(memberList: fresh, fromServer: true));
 
     await sub.cancel();
     await bloc.close();
