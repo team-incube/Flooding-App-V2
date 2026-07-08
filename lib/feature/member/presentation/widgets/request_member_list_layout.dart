@@ -226,6 +226,7 @@ class _MemberGridLayoutState extends State<_MemberGridLayout> {
         return AbsorbPointer(
           absorbing: isPending,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Opacity(
                 opacity: isPending ? 0.45 : 1.0,
