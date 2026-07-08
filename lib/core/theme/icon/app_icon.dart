@@ -65,12 +65,12 @@ class AppIcon {
       _svg('back.svg', size: size, color: color);
   static Widget search({double size = AppSize.s24, Color? color}) =>
       _svg('search.svg', size: size, color: color);
-  static Widget medalGold({double size = AppSize.s24, Color? color}) =>
-      _svg('medal_gold.svg', size: size, color: color);
-  static Widget medalSilver({double size = AppSize.s24, Color? color}) =>
-      _svg('medal_silver.svg', size: size, color: color);
-  static Widget medalBronze({double size = AppSize.s24, Color? color}) =>
-      _svg('medal_bronze.svg', size: size, color: color);
+  static Widget medalGold({double size = AppSize.s24, double? width, double? height, Color? color}) =>
+      _svgRect('medal_gold.svg', width: width ?? size, height: height ?? size, color: color);
+  static Widget medalSilver({double size = AppSize.s24, double? width, double? height, Color? color}) =>
+      _svgRect('medal_silver.svg', width: width ?? size, height: height ?? size, color: color);
+  static Widget medalBronze({double size = AppSize.s24, double? width, double? height, Color? color}) =>
+      _svgRect('medal_bronze.svg', width: width ?? size, height: height ?? size, color: color);
 
 
 
@@ -92,12 +92,14 @@ class AppIcon {
   static Widget avatar({double size = AppSize.s52}) =>
       _svg('avatar.svg', size: size);
 
-  /// SVG 위젯 생성 헬퍼.
-  static Widget _svg(String name, {required double size, Color? color}) {
+  static Widget _svg(String name, {required double size, Color? color}) =>
+      _svgRect(name, width: size, height: size, color: color);
+
+  static Widget _svgRect(String name, {required double width, required double height, Color? color}) {
     return SvgPicture.asset(
       '$_base/$name',
-      width: size,
-      height: size,
+      width: width,
+      height: height,
       colorFilter: color == null
           ? null
           : ColorFilter.mode(color, BlendMode.srcIn),

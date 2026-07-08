@@ -128,9 +128,9 @@ class MemberCard extends StatelessWidget {
   }
 
   static Widget? _medal(int number) => switch (number) {
-    1 => AppIcon.medalGold(size: AppSize.s60),
-    2 => AppIcon.medalSilver(size: AppSize.s60),
-    3 => AppIcon.medalBronze(size: AppSize.s60),
+    1 => AppIcon.medalGold(width: 56, height: 80),
+    2 => AppIcon.medalSilver(width: 56, height: 80),
+    3 => AppIcon.medalBronze(width: 56, height: 80),
     _ => null,
   };
 }
