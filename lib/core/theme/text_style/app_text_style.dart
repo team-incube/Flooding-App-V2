@@ -84,4 +84,12 @@ class AppTextStyle {
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
+  // small title
+
+  static const TextStyle smallTitle = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 14,
+    fontWeight: semiBold, // SemiBold
+    height: _lineHeight,
+  );
 }
