@@ -106,13 +106,31 @@ class MemberCard extends StatelessWidget {
       ),
     );
 
+    final medal = _medal(number);
+    final cardWithMedal = medal == null
+        ? card
+        : Stack(
+            clipBehavior: Clip.none,
+            children: [
+              card,
+              Positioned(right: 0, bottom: 0, child: medal),
+            ],
+          );
+
     final onSelect = this.onSelect;
-    if (onSelect == null) return card;
+    if (onSelect == null) return cardWithMedal;
 
     return GestureDetector(
       onTap: () => onSelect(model.id, model.isAttended),
       behavior: HitTestBehavior.opaque,
-      child: card,
+      child: cardWithMedal,
     );
   }
+
+  static Widget? _medal(int number) => switch (number) {
+    1 => AppIcon.medalGold(size: AppSize.s60),
+    2 => AppIcon.medalSilver(size: AppSize.s60),
+    3 => AppIcon.medalBronze(size: AppSize.s60),
+    _ => null,
+  };
 }
