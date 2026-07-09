@@ -55,8 +55,7 @@ class _SongDetailViewState extends State<SongDetailView> {
   }
 
   /// [date] 가 오늘(또는 미지정 — 서버 기본이 당일)인지 여부.
-  static bool _isToday(DateTime? date) {
-    if (date == null) return true;
+  static bool _isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year &&
         date.month == now.month &&
