@@ -5,6 +5,7 @@ import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
 import 'package:flooding_v2/core/widgets/search_text_field.dart';
+import 'package:flooding_v2/core/widgets/sheet/sheet.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_state.dart';
 import 'package:flooding_v2/feature/song/data/models/wake_up_music.dart';
@@ -37,6 +38,36 @@ class _SongDetailViewState extends State<SongDetailView> {
   void dispose() {
     _songSearchController.dispose();
     super.dispose();
+  }
+
+  /// 달력 팝업으로 조회 날짜를 바꾼다. 취소(바깥 탭·뒤로가기)하면 그대로 둔다.
+  ///
+  /// 다른 날짜의 목록은 기존 목록과 무관하므로 refresh 가 아닌 최초 조회로
+  /// 처리해(인디케이터 노출) 이전 날짜의 곡이 잠시 남아 보이지 않게 한다.
+  Future<void> _pickDate(BuildContext context, DateTime? current) async {
+    final bloc = context.read<MusicBloc>();
+    final picked = await DatePickerSheet.show(
+      context,
+      initialDate: current ?? DateTime.now(),
+    );
+    if (picked == null) return;
+    bloc.add(MusicEvent.listRequested(date: picked));
+  }
+
+  /// [date] 가 오늘(또는 미지정 — 서버 기본이 당일)인지 여부.
+  static bool _isToday(DateTime? date) {
+    if (date == null) return true;
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+  }
+
+  /// 헤더에 표시할 `MM.dd` 라벨.
+  static String _formatDate(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '$month.$day';
   }
 
   void _showSnack(BuildContext context, String? message) {
@@ -104,7 +135,18 @@ class _SongDetailViewState extends State<SongDetailView> {
                   ),
                 ),
                 const Spacer(flex: 1),
-                IconButton(onPressed: () {}, icon: AppIcon.calendar()),
+                // 오늘이 아닌 날짜를 보고 있을 때만, 어느 날짜인지 함께 알린다.
+                if (!_isToday(state.date))
+                  Text(
+                    _formatDate(state.date!),
+                    style: AppTextStyle.caption1.copyWith(
+                      color: AppColors.lightSub2,
+                    ),
+                  ),
+                IconButton(
+                  onPressed: () => _pickDate(context, state.date),
+                  icon: AppIcon.calendar(),
+                ),
               ],
             ),
             Padding(
