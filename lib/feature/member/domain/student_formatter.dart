@@ -10,4 +10,10 @@ class StudentFormatter {
     }
     return studentNumber;
   }
+
+  static int parseGrade(int studentNumber) => studentNumber ~/ 1000;
+
+  static int parseClassNumber(int studentNumber) => (studentNumber ~/ 100) % 10;
+
+  static int parseNumber(int studentNumber) => studentNumber % 100;
 }
