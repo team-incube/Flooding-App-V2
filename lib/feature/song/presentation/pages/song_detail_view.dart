@@ -44,7 +44,7 @@ class _SongDetailViewState extends State<SongDetailView> {
   ///
   /// 다른 날짜의 목록은 기존 목록과 무관하므로 refresh 가 아닌 최초 조회로
   /// 처리해(인디케이터 노출) 이전 날짜의 곡이 잠시 남아 보이지 않게 한다.
-  Future<void> _pickDate(BuildContext context, DateTime? current) async {
+  Future<void> _pickDate(DateTime? current) async {
     final bloc = context.read<MusicBloc>();
     final picked = await DatePickerSheet.show(
       context,
@@ -144,7 +144,7 @@ class _SongDetailViewState extends State<SongDetailView> {
                     ),
                   ),
                 IconButton(
-                  onPressed: () => _pickDate(context, state.date),
+                  onPressed: () => _pickDate(state.date),
                   icon: AppIcon.calendar(),
                 ),
               ],
