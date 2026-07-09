@@ -135,9 +135,9 @@ class _SongDetailViewState extends State<SongDetailView> {
                 ),
                 const Spacer(flex: 1),
                 // 오늘이 아닌 날짜를 보고 있을 때만, 어느 날짜인지 함께 알린다.
-                if (!_isToday(state.date))
+                if (state.date case final date? when !_isToday(date))
                   Text(
-                    _formatDate(state.date!),
+                    _formatDate(date),
                     style: AppTextStyle.caption1.copyWith(
                       color: AppColors.lightSub2,
                     ),
