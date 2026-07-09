@@ -1,7 +1,5 @@
-import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/scaffold/base_scaffold.dart';
-import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_action_locations.dart';
 import 'package:flooding_v2/core/widgets/scaffold/floating_button/floating_actions.dart';
 import 'package:flooding_v2/feature/ai/data/repositories/ai_repository_impl.dart';
 import 'package:flooding_v2/feature/ai/presentation/bloc/chat_bloc.dart';
@@ -19,7 +17,6 @@ import 'package:flooding_v2/feature/massage/presentation/bloc/massage_state.dart
 import 'package:flooding_v2/feature/massage/presentation/widgets/massage_request_view.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_bloc.dart';
 import 'package:flooding_v2/feature/member/presentation/blocs/member_list_event.dart';
-import 'package:flooding_v2/feature/member/presentation/blocs/member_selection_bloc.dart';
 import 'package:flooding_v2/feature/song/data/repositories/music_repository_impl.dart';
 import 'package:flooding_v2/feature/song/domain/repositories/music_repository.dart';
 import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
@@ -108,7 +105,6 @@ GoRouter createAppRouter(AuthController auth) {
                     )..add(MemberListEvent.load());
                   },
                 ),
-                BlocProvider(create: (context) => MemberSelectionBloc()),
               ],
               child: const StudyRequestView(),
             ),
@@ -139,20 +135,12 @@ GoRouter createAppRouter(AuthController auth) {
         ],
         builder: (context, state, child) {
           final location = state.uri.path;
-          final isDormManager = context.isManager;
 
           final floatingButton = switch (location) {
             RoutePath.requestStudy ||
             RoutePath.requestMassage => const FloatingActions.aiChat(),
             _ => const FloatingActions.both(),
           };
-          final floatingButtonLocation = switch (location) {
-            RoutePath.requestStudy || RoutePath.requestMassage
-                when isDormManager =>
-              FloatingActionLocations.aiFloatingLocation,
-            _ => null,
-          };
-
           return MultiRepositoryProvider(
             providers: [
               RepositoryProvider<StudyRepository>(
@@ -204,7 +192,6 @@ GoRouter createAppRouter(AuthController auth) {
               ],
               child: BaseScaffold(
                 floatingActionButton: floatingButton,
-                floatingActionButtonLocation: floatingButtonLocation,
                 onLogout: auth.logout,
                 //TODO : 회원 탈퇴 기능
                 onWithdraw: auth.logout,

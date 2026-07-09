@@ -17,7 +17,9 @@ class StudyCountCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<StudyBloc, StudyState>(
       listenWhen: (prev, curr) =>
-          curr.result != null && curr.result != prev.result,
+          curr.result != null &&
+          curr.result != prev.result &&
+          !(curr.result!.isAttendanceAction),
       listener: (context, state) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(state.result!.message)),

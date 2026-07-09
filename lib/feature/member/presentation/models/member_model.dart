@@ -16,4 +16,12 @@ class MemberModel {
     required this.gender,
     this.isAttended = false,
   });
+
+  MemberModel copyWith({bool? isAttended}) => MemberModel(
+        id: id,
+        name: name,
+        schoolNb: schoolNb,
+        gender: gender,
+        isAttended: isAttended ?? this.isAttended,
+      );
 }

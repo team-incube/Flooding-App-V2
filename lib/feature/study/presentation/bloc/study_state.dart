@@ -17,10 +17,17 @@ enum StudyListStatus { initial, loading, refreshing, loaded, error }
 /// 매번 새 인스턴스로 생성해 동일 메시지라도 상태 변화를 구분할 수 있게 한다
 /// (BlocListener 가 결과 식별자로 중복 안내를 거른다).
 class StudyActionResult {
-  StudyActionResult({required this.success, required this.message});
+  StudyActionResult({
+    required this.success,
+    required this.message,
+    this.isAttendanceAction = false,
+  });
 
   final bool success;
   final String message;
+
+  /// 사감의 체크인/체크아웃 결과면 true, 학생의 신청/취소 결과면 false.
+  final bool isAttendanceAction;
 }
 
 /// 자습 신청 액션 상태와 신청자 목록 상태를 함께 담는다.

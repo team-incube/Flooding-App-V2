@@ -18,43 +18,36 @@ class MemberCard extends StatelessWidget {
     required this.model,
     required this.number,
     this.showAttendanceBadge = false,
-  }) : onSelect = null,
-       isSelected = false,
-       enabled = true;
+    this.showMedal = false,
+  }) : onSelect = null;
 
   const MemberCard.button({
     super.key,
     required this.model,
     required this.number,
     required this.onSelect,
-    required this.isSelected,
-    this.enabled = true,
     this.showAttendanceBadge = false,
+    this.showMedal = false,
   });
 
   static const Size fixedSize = Size(173, 165);
 
   final int number;
   final MemberModel model;
-
-  /// 체크인/체크아웃 대상으로 선택됐는지 — 테두리·그림자로 강조 표시한다.
-  final bool isSelected;
-
-  /// false 면 다른 출석 상태가 이미 선택 중이라는 뜻(혼합 선택 방지) — 흐리게
-  /// 표시하고 탭을 막는다.
-  final bool enabled;
   final MemberSelectAction? onSelect;
 
   /// 출석 완료 배지(체크 아이콘) 노출 여부 — 출석 개념이 없는 기능(안마의자
   /// 등)에서는 false 로 둬 의미 없는 언체크 아이콘이 뜨지 않게 한다.
   final bool showAttendanceBadge;
 
+  /// 1~3등 메달 아이콘 노출 여부 — 등수 개념이 있는 자습 신청에서만 true.
+  final bool showMedal;
+
   @override
   Widget build(BuildContext context) {
-    //TODO : 남성 Icon 등록시 SizedBox 교체
     final genderIcon = model.gender == Gender.female
-        ? AppIcon.female(size: AppSize.s12)
-        : const SizedBox.shrink();
+        ? AppIcon.female(size: AppSize.s16)
+        : AppIcon.male(size: AppSize.s16);
 
     final topLine = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,19 +67,6 @@ class MemberCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.lightSub4,
         borderRadius: BorderRadius.circular(AppRadius.s12),
-        border: Border.all(
-          color: isSelected ? AppColors.lightP1 : Colors.transparent,
-          width: 2,
-        ),
-        boxShadow: isSelected
-            ? [
-                BoxShadow(
-                  color: AppColors.lightP1.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
       ),
       padding: const EdgeInsets.all(AppSpacing.s16),
       child: Stack(
@@ -131,16 +111,31 @@ class MemberCard extends StatelessWidget {
       ),
     );
 
-    final onSelect = this.onSelect;
-    if (onSelect == null) return card;
+    final medal = showMedal ? _medal(number) : null;
+    final cardWithMedal = medal == null
+        ? card
+        : Stack(
+            clipBehavior: Clip.none,
+            children: [
+              card,
+              Positioned(right: 0, bottom: 0, child: medal),
+            ],
+          );
 
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: GestureDetector(
-        onTap: enabled ? () => onSelect(model.id, model.isAttended) : null,
-        behavior: HitTestBehavior.opaque,
-        child: card,
-      ),
+    final onSelect = this.onSelect;
+    if (onSelect == null) return cardWithMedal;
+
+    return GestureDetector(
+      onTap: () => onSelect(model.id, model.isAttended),
+      behavior: HitTestBehavior.opaque,
+      child: cardWithMedal,
     );
   }
+
+  static Widget? _medal(int number) => switch (number) {
+    1 => AppIcon.medalGold(width: 56, height: 80),
+    2 => AppIcon.medalSilver(width: 56, height: 80),
+    3 => AppIcon.medalBronze(width: 56, height: 80),
+    _ => null,
+  };
 }

@@ -266,11 +266,10 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
         result: StudyActionResult(
           success: successCount == userIds.length,
           message: message,
+          isAttendanceAction: true,
         ),
       ),
     );
-    // 체크인/체크아웃 결과가 목록(출석 배지)에 즉시 반영되도록 새로고침한다.
-    add(const StudyEvent.applicantsRequested(refresh: true));
   }
 
   StudyActionStatus _openStatus() => _openStatusFor(_policy, _clock);

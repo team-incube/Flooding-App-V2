@@ -28,8 +28,8 @@ abstract class StudyApplicant with _$StudyApplicant {
     /// 자습 금지 여부.
     bool? isBanned,
 
-    /// 자습 체크인(출석) 완료 여부.
-    bool? isAttended,
+    /// 자습 체크인(출석) 완료 여부 — 서버 응답 키: `isChecked`.
+    @JsonKey(name: 'isChecked') bool? isAttended,
     String? profileImageUrl,
   }) = _StudyApplicant;
 

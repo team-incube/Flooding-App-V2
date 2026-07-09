@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/theme/icon/app_icon.dart';
+import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/search_text_field.dart';
 import '../../../member/presentation/blocs/member_list_bloc.dart';
 import '../../../member/presentation/blocs/member_list_state.dart';
@@ -50,7 +51,7 @@ class _MassageRequestViewState extends State<MassageRequestView> {
               title: '조건에 맞는 학생이 없습니다.',
               subTitle: '필터 설정을 확인해 주세요.',
             ),
-            loaded: (_) => _emptyApplicants(),
+            loaded: (_, __) => _emptyApplicants(),
             error: (_) => _emptyApplicants(),
           ),
         );
@@ -59,7 +60,7 @@ class _MassageRequestViewState extends State<MassageRequestView> {
   }
 
   Widget _loading() =>
-      const Center(child: CircularProgressIndicator());
+      const Center(child: AppLoadingIndicator());
 
   Widget _emptyApplicants() => NoMemberIcon(
     icon: AppIcon.chair(size: AppSize.s100),

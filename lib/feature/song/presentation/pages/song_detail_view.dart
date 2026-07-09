@@ -4,6 +4,7 @@ import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/icon/app_icon.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
+import 'package:flooding_v2/core/widgets/app_loading_indicator.dart';
 import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/core/widgets/sheet/sheet.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
@@ -182,7 +183,7 @@ class _SongDetailViewState extends State<SongDetailView> {
     required bool canManageAll,
   }) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: AppLoadingIndicator());
     }
     if (musics.isEmpty) {
       // 전체가 비었는지, 검색 결과만 비었는지 구분해 안내한다.

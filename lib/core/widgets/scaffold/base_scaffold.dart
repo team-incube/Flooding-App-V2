@@ -30,7 +30,6 @@ class BaseScaffold extends StatelessWidget {
     this.onLogout,
     this.onWithdraw,
     this.floatingActionButton,
-    this.floatingActionButtonLocation,
     this.backgroundColor,
   });
 
@@ -47,7 +46,6 @@ class BaseScaffold extends StatelessWidget {
   final Future<void> Function()? onWithdraw;
 
   final Widget? floatingActionButton;
-  final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Color? backgroundColor;
 
   @override
@@ -82,7 +80,6 @@ class BaseScaffold extends StatelessWidget {
       // (디자인: BackGroundColor #F7F7F9 50%).
       drawerScrimColor: Colors.transparent,
       floatingActionButton: floatingActionButton,
-      floatingActionButtonLocation: floatingActionButtonLocation,
     );
   }
 
