@@ -309,8 +309,22 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     });
   }
 
+  /// 오늘 목록을 보고 있는지 여부(날짜 미지정이면 서버 기본인 당일).
+  bool get _isViewingToday {
+    final date = state.date;
+    if (date == null) return true;
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+  }
+
   /// SSE 이벤트를 전체 목록([_allMusics])에 반영하고 필터를 재적용한다.
   void _onSseReceived(Emitter<MusicState> emit, MusicSseEvent event) {
+    // SSE 는 당일 신청만 흘려보내므로, 지난 날짜를 조회 중일 땐 반영하지 않는다.
+    // (다시 오늘로 돌아오면 listRequested 로 최신 목록을 새로 받는다.)
+    if (!_isViewingToday) return;
+
     event.when(
       // 구독 직후 오늘 전체 목록 — 신선한 조회처럼 목록을 교체한다.
       listInitialized: (musics) {
