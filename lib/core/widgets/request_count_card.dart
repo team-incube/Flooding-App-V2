@@ -61,8 +61,9 @@ class RequestCountCard extends StatefulWidget {
 }
 
 class _RequestCountCardState extends State<RequestCountCard> {
-  // 말풍선 위치를 카드 안에서 아이콘 기준 상대 좌표로만 계산하기 위한 키.
   final _iconKey = GlobalKey();
+  // 말풍선 z-order 기준이 되는 카드 전체 Stack 키.
+  final _stackKey = GlobalKey();
   Timer? _timer;
   bool _isShowingInformation = false;
 
@@ -127,15 +128,33 @@ class _RequestCountCardState extends State<RequestCountCard> {
         requiredHeight + _gap;
   }
 
-  /// 화면 폭 기준 가운데 정렬된 상자의 왼쪽 끝 — 아이콘을 담은 로컬 Stack
-  /// 기준 상대 좌표로 변환해서 반환한다(Positioned.left 에 그대로 쓴다).
-  double _centeredLocalLeft(double boxWidth) {
+  /// 화면 폭 기준 가운데 정렬된 상자의 왼쪽 끝 — 카드 전체 Stack 기준
+  /// 상대 좌표로 변환해서 반환한다(Positioned.left 에 그대로 쓴다).
+  double _centeredStackLeft(double boxWidth) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final boxGlobalLeft = (screenWidth - boxWidth) / 2;
+    final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (stackBox == null || !stackBox.hasSize) return 0;
+    final stackGlobalLeft = stackBox.localToGlobal(Offset.zero).dx;
+    return boxGlobalLeft - stackGlobalLeft;
+  }
+
+  /// 말풍선 top 위치 — 카드 Stack 기준 상대 좌표.
+  double _bubbleTop(bool pointingDown, double bubbleHeight) {
     final iconBox = _iconKey.currentContext?.findRenderObject() as RenderBox?;
-    if (iconBox == null || !iconBox.hasSize) return 0;
-    final iconGlobalLeft = iconBox.localToGlobal(Offset.zero).dx;
-    return boxGlobalLeft - iconGlobalLeft;
+    final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (iconBox == null ||
+        !iconBox.hasSize ||
+        stackBox == null ||
+        !stackBox.hasSize) {
+      return 0;
+    }
+    final iconLocalTop =
+        iconBox.localToGlobal(Offset.zero).dy -
+        stackBox.localToGlobal(Offset.zero).dy;
+    return pointingDown
+        ? iconLocalTop - bubbleHeight - _gap
+        : iconLocalTop + _iconSize + _gap;
   }
 
   /// 가운데 정렬된 상자의 왼쪽 끝에서 아이콘 중심까지의 거리 — 꼬투리가
@@ -156,19 +175,20 @@ class _RequestCountCardState extends State<RequestCountCard> {
     final pointingDown = measured == null ? true : _hasRoomAbove(measured.height);
 
     return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // 카드 전체를 Stack 으로 감싸서 말풍선을 마지막 자식(최상위 z-order)으로
+      // 올린다 — 아이콘만 감싸는 작은 Stack 에서는 Column 의 뒤 자식(텍스트·
+      // 진행바·버튼)이 말풍선 위를 덮어버리는 문제가 생겼다.
+      child: Stack(
+        key: _stackKey,
+        clipBehavior: Clip.none,
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CardHeader(icon: widget.icon, title: widget.title),
-              const SizedBox(width: AppSpacing.s6),
-              // 아이콘만 감싸는 로컬 Stack — Positioned 자식(말풍선)은 이
-              // Stack 의 크기 계산에 들어가지 않으므로(clipBehavior.none 과
-              // 함께) 아무리 커도 카드 레이아웃이 늘어나지 않는다.
-              Stack(
-                clipBehavior: Clip.none,
+              Row(
                 children: [
+                  CardHeader(icon: widget.icon, title: widget.title),
+                  const SizedBox(width: AppSpacing.s6),
                   IconButton(
                     key: _iconKey,
                     style: IconButton.styleFrom(
@@ -179,49 +199,48 @@ class _RequestCountCardState extends State<RequestCountCard> {
                     onPressed: _showComment,
                     icon: AppIcon.warning(size: _iconSize),
                   ),
-                  if (measured != null)
-                    Positioned(
-                      left: _centeredLocalLeft(measured.width),
-                      bottom: pointingDown ? _iconSize + _gap : null,
-                      top: pointingDown ? null : _iconSize + _gap,
-                      child: SizedBox(
-                        width: measured.width,
-                        child: _InformationBubble(
-                          text: widget.information,
-                          pointingDown: pointingDown,
-                          tailDx: _tailDx(measured.width),
-                        ),
-                      ),
-                    ),
+                  const Spacer(),
+                  _SeeAllLink(
+                    onPressed:
+                        widget.onSeeAllPressed ?? () => context.push(widget.path),
+                  ),
                 ],
               ),
-              const Spacer(),
-              _SeeAllLink(
-                onPressed:
-                    widget.onSeeAllPressed ?? () => context.push(widget.path),
+              const SizedBox(height: AppSpacing.s8),
+              Center(
+                child: Text(
+                  '${widget.current}/${widget.total}',
+                  style: AppTextStyle.title1.copyWith(
+                    color: AppColors.lightMainText,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              AppProgressBar(current: widget.current, total: widget.total),
+              const SizedBox(height: AppSpacing.s8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: PrimaryActionButton(
+                  label: widget.actionLabel,
+                  enabled: widget.actionEnabled,
+                  onPressed: widget.onActionPressed,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s8),
-          Center(
-            child: Text(
-              '${widget.current}/${widget.total}',
-              style: AppTextStyle.title1.copyWith(
-                color: AppColors.lightMainText,
+          if (measured != null)
+            Positioned(
+              left: _centeredStackLeft(measured.width),
+              top: _bubbleTop(pointingDown, measured.height),
+              child: SizedBox(
+                width: measured.width,
+                child: _InformationBubble(
+                  text: widget.information,
+                  pointingDown: pointingDown,
+                  tailDx: _tailDx(measured.width),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          AppProgressBar(current: widget.current, total: widget.total),
-          const SizedBox(height: AppSpacing.s8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: PrimaryActionButton(
-              label: widget.actionLabel,
-              enabled: widget.actionEnabled,
-              onPressed: widget.onActionPressed,
-            ),
-          ),
         ],
       ),
     );
