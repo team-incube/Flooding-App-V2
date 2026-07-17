@@ -135,8 +135,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
     final boxGlobalLeft = (screenWidth - boxWidth) / 2;
     final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
     if (stackBox == null || !stackBox.hasSize) return 0;
-    final stackGlobalLeft = stackBox.localToGlobal(Offset.zero).dx;
-    return boxGlobalLeft - stackGlobalLeft;
+    return stackBox.globalToLocal(Offset(boxGlobalLeft, 0)).dx;
   }
 
   /// 말풍선 top 위치 — 카드 Stack 기준 상대 좌표.
@@ -149,9 +148,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
         !stackBox.hasSize) {
       return 0;
     }
-    final iconLocalTop =
-        iconBox.localToGlobal(Offset.zero).dy -
-        stackBox.localToGlobal(Offset.zero).dy;
+    final iconLocalTop = iconBox.localToGlobal(Offset.zero, ancestor: stackBox).dy;
     return pointingDown
         ? iconLocalTop - bubbleHeight - _gap
         : iconLocalTop + _iconSize + _gap;
