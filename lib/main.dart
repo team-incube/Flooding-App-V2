@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/core/network/network_error_reporter.dart';
 import 'package:flooding_v2/core/route/route.dart';
-import 'package:flooding_v2/core/theme/config/dark_theme.dart';
 import 'package:flooding_v2/core/theme/config/light_theme.dart';
 import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/auth/presentation/auth_controller.dart';
@@ -90,8 +89,10 @@ class _FloodingAppState extends State<FloodingApp> {
           title: 'flooding_v2',
           debugShowCheckedModeBanner: false,
           theme: LightTheme.theme,
-          darkTheme: DarkTheme.theme,
-          themeMode: ThemeMode.system,
+          // 앱 UI 가 라이트 전용이라 라이트로 고정한다. system 으로 두면 기기가
+          // 다크일 때 ThemeData 만 다크로 바뀌어, 페이지 트랜지션이 배경으로
+          // 쓰는 colorScheme.surface 가 검정이 되면서 전환 중 검은 영역이 비친다.
+          themeMode: ThemeMode.light,
           routerConfig: _router,
         ),
       ),
