@@ -33,8 +33,39 @@ import 'package:flooding_v2/feature/study/presentation/bloc/study_bloc.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_event.dart';
 import 'package:flooding_v2/feature/study/presentation/bloc/study_state.dart';
 import 'package:flooding_v2/feature/study/presentation/widgets/study_request_view.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+/// 화면(페이지)이 바뀔 때마다 포커스를 해제한다.
+///
+/// `push` 로 쌓인 화면에서 돌아오면 ModalRoute 가 이전 route 의 FocusScopeNode
+/// 를 되살리면서 마지막 `focusedChild`(예: 홈 기상음악 URL 입력창)에 포커스가
+/// 자동 복원되고 키보드까지 다시 올라온다. 화면 전환 시점에 한 번 풀어 준다.
+///
+/// 대상은 [PageRoute] 뿐이다. 바텀시트·다이얼로그 같은 팝업도 route 로 push
+/// 되는데, 이들까지 풀어 버리면 시트를 열고 닫았을 뿐인데 원래 입력창의 포커스
+/// 가 사라진다(예: 프로필 사진 시트).
+class _UnfocusOnRouteChange extends NavigatorObserver {
+  void _unfocusIfPage(Route<dynamic>? route) {
+    if (route is! PageRoute) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  // push 시점에 풀어 두면 이전 route 의 focusedChild 자체가 비워져, 복귀할 때
+  // 되살릴 포커스가 남지 않는다(pop/replace 는 보조 안전망).
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _unfocusIfPage(route);
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _unfocusIfPage(route);
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) =>
+      _unfocusIfPage(newRoute);
+}
 
 /// 인증 상태에 따라 라우팅을 가드하는 go_router 를 생성한다.
 ///
@@ -51,6 +82,7 @@ GoRouter createAppRouter(AuthController auth) {
   return GoRouter(
     initialLocation: RoutePath.home,
     refreshListenable: auth,
+    observers: [_UnfocusOnRouteChange()],
     redirect: (context, state) {
       final loggedIn = auth.status == AuthStatus.authenticated;
       final loggingIn = state.matchedLocation == RoutePath.login;
