@@ -27,8 +27,30 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
   static const List<int> _floors = [2, 3, 4];
   static const List<int> _periods = [8, 9, 10, 11];
 
+  // 교시별 신청 마감 시각 — 지나면 해당 교시 칩이 비활성화된다.
+  static const Map<int, TimeOfDay> _periodDeadlines = {
+    8: TimeOfDay(hour: 16, minute: 40),
+    9: TimeOfDay(hour: 17, minute: 40),
+    10: TimeOfDay(hour: 19, minute: 30),
+    11: TimeOfDay(hour: 20, minute: 30),
+  };
+
   int? _floor;
   final Set<int> _selectedPeriods = {};
+
+  bool _isPeriodClosed(int period) {
+    final deadline = _periodDeadlines[period];
+    if (deadline == null) return false;
+    final now = DateTime.now();
+    final deadlineTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      deadline.hour,
+      deadline.minute,
+    );
+    return now.isAfter(deadlineTime);
+  }
 
   // 학년별 배정 층(3학년→2층, 2학년→3층, 1학년→4층) — 처음 한 번만 자동 선택하고,
   // 이후 사용자가 직접 누르면 그것이 보이도록 한다.
@@ -91,6 +113,7 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
                   SelectableChip(
                     label: '$period',
                     selected: _selectedPeriods.contains(period),
+                    disabled: _isPeriodClosed(period),
                     onTap: () => setState(() {
                       if (!_selectedPeriods.remove(period)) {
                         _selectedPeriods.add(period);
