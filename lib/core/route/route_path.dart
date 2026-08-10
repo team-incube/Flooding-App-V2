@@ -7,6 +7,7 @@ abstract final class RoutePath {
   /// 홈(초기 진입점). 미인증 시 redirect 가 [login] 으로 보낸다.
   static const String home = '/home';
   static const String dormitory = '/dormitory';
+  static const String school = '/school';
   static const String requestStudy = '/request_study';
   static const String requestMassage = '/request_massage';
   static const songRequestDetail = '/song_request_detail';

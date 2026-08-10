@@ -71,7 +71,8 @@ class AppIcon {
       _svgRect('medal_silver.svg', width: width ?? size, height: height ?? size, color: color);
   static Widget medalBronze({double size = AppSize.s24, double? width, double? height, Color? color}) =>
       _svgRect('medal_bronze.svg', width: width ?? size, height: height ?? size, color: color);
-
+  static Widget home({double size = AppSize.s24, double? width, double? height, Color? color}) =>
+      _svgRect('home.svg', width: width ?? size, height: height ?? size, color: color);
 
 
   // 메뉴 드로어

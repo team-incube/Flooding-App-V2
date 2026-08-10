@@ -123,6 +123,13 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selected: RoutePath.dormitory == location,
                       onTap: () => context.go(RoutePath.dormitory),
                     ),
+                    const SizedBox(height: AppSpacing.s6),
+                    _NavItem(
+                      icon: AppIcon.graduationCap,
+                      label: '학교',
+                      selected: RoutePath.school == location,
+                      onTap: () => context.go(RoutePath.school),
+                    ),
                   ],
                 ),
                 const Spacer(),
