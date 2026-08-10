@@ -9,6 +9,7 @@ import 'package:flooding_v2/feature/auth/presentation/pages/login_page.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
 import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
 import 'package:flooding_v2/feature/massage/data/repositories/massage_repository_impl.dart';
+import 'package:flooding_v2/feature/school/presentation/widgets/school_view.dart';
 import 'package:flooding_v2/feature/massage/domain/repositories/massage_repository.dart';
 import 'package:flooding_v2/feature/massage/domain/usecases/get_massage_applicants_usecase.dart';
 import 'package:flooding_v2/feature/massage/presentation/bloc/massage_bloc.dart';
@@ -22,7 +23,7 @@ import 'package:flooding_v2/feature/song/domain/repositories/music_repository.da
 import 'package:flooding_v2/feature/song/presentation/bloc/music_bloc.dart';
 import 'package:flooding_v2/feature/song/presentation/bloc/music_event.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
-import 'package:flooding_v2/feature/song/presentation/pages/song_detail_view.dart';
+import 'package:flooding_v2/feature/song/presentation/widgets/song_detail_view.dart';
 import 'package:flooding_v2/feature/home/data/repositories/neis_repository_impl.dart';
 import 'package:flooding_v2/feature/home/domain/usecases/get_next_period_usecase.dart';
 import 'package:flooding_v2/feature/home/presentation/bloc/timetable_bloc.dart';
@@ -81,6 +82,10 @@ GoRouter createAppRouter(AuthController auth) {
           GoRoute(
             path: RoutePath.dormitory,
             builder: (context, state) => const DormitoryView(),
+          ),
+          GoRoute(
+            path: RoutePath.school,
+            builder: (context, state) => const SchoolView(),
           ),
           GoRoute(
             path: RoutePath.requestStudy,
