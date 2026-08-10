@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
+import '../../../../core/widgets/selectable_chip.dart';
 import '../../../../core/widgets/sheet/sheet.dart';
 
 /// 성별 필터 값.
@@ -102,7 +102,7 @@ class _FilterSheetState extends State<FilterSheet> {
             label: '학년',
             children: [
               for (final g in _grades)
-                _FilterChip(
+                SelectableChip(
                   label: '$g',
                   selected: _grade == g,
                   onTap: () => setState(() => _grade = _grade == g ? null : g),
@@ -114,7 +114,7 @@ class _FilterSheetState extends State<FilterSheet> {
             label: '반',
             children: [
               for (final c in _classes)
-                _FilterChip(
+                SelectableChip(
                   label: '$c',
                   selected: _classNumber == c,
                   onTap: () => setState(
@@ -128,7 +128,7 @@ class _FilterSheetState extends State<FilterSheet> {
             label: '성별',
             children: [
               for (final gender in Gender.values)
-                _FilterChip(
+                SelectableChip(
                   label: gender.label,
                   selected: _gender == gender,
                   onTap: () => setState(
@@ -188,49 +188,6 @@ class _FilterGroup extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-/// 선택 가능한 필터 칩(미선택: 테두리, 선택: 메인 컬러 채움).
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final background = selected ? AppColors.lightP1 : Colors.transparent;
-    final textColor = selected ? AppColors.lightBgSurface : AppColors.lightSub1;
-    final border = selected ? null : Border.all(color: AppColors.lightSub2);
-
-    return Material(
-      color: background,
-      borderRadius: BorderRadius.circular(AppRadius.s8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.s8),
-        child: Container(
-          decoration: BoxDecoration(
-            border: border,
-            borderRadius: BorderRadius.circular(AppRadius.s8),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.s16,
-            vertical: AppSpacing.s8,
-          ),
-          child: Text(
-            label,
-            style: AppTextStyle.text3.copyWith(color: textColor),
-          ),
-        ),
-      ),
     );
   }
 }
