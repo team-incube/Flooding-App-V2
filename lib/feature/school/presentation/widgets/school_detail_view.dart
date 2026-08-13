@@ -76,11 +76,12 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
             .where((student) => !selectedIds.contains(student.id))
             .toList();
       });
-    } catch (_) {
+    } on Exception catch (_) {
       if (!mounted) return;
-      setState(() {
-        _searchResults = [];
-      });
+      setState(() => _searchResults = []);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('검색에 실패했어요')));
     }
   }
 
