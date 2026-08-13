@@ -9,6 +9,7 @@ import 'package:flooding_v2/feature/auth/presentation/pages/login_page.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
 import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
 import 'package:flooding_v2/feature/massage/data/repositories/massage_repository_impl.dart';
+import 'package:flooding_v2/feature/school/presentation/widgets/school_detail_view.dart';
 import 'package:flooding_v2/feature/school/presentation/widgets/school_view.dart';
 import 'package:flooding_v2/feature/massage/domain/repositories/massage_repository.dart';
 import 'package:flooding_v2/feature/massage/domain/usecases/get_massage_applicants_usecase.dart';
@@ -86,6 +87,10 @@ GoRouter createAppRouter(AuthController auth) {
           GoRoute(
             path: RoutePath.school,
             builder: (context, state) => const SchoolView(),
+          ),
+          GoRoute(
+            path: RoutePath.schoolDetail,
+            builder: (context, state) => const SchoolDetailView(),
           ),
           GoRoute(
             path: RoutePath.requestStudy,

@@ -2,9 +2,11 @@ import 'package:flooding_v2/core/constants/app_radius.dart';
 import 'package:flooding_v2/core/constants/app_spacing.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
+import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/primary_action_button.dart';
 import 'package:flooding_v2/feature/school/presentation/widgets/homebase_reservation_List_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'homebase_seat_select_card.dart';
 import '../models/homebase_reservation_model.dart';
@@ -58,7 +60,7 @@ class _SchoolViewState extends State<SchoolView> {
           ),
           PrimaryActionButton(
             label: '예약하기',
-            onPressed: () {},
+            onPressed: () => context.push(RoutePath.schoolDetail),
             expand: true,
             verticalPadding: AppSpacing.s16,
             horizontalPadding: AppSpacing.s24,
