@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 
 import 'homebase_seat_select_card.dart';
 import '../models/homebase_reservation_model.dart';
+import '../models/school_seat_selection.dart';
 
 class SchoolView extends StatefulWidget {
   const SchoolView({super.key});
@@ -60,7 +61,10 @@ class _SchoolViewState extends State<SchoolView> {
           ),
           PrimaryActionButton(
             label: '예약하기',
-            onPressed: () => context.push(RoutePath.schoolDetail),
+            onPressed: () => context.push(
+              RoutePath.schoolDetail,
+              extra: SchoolSeatSelection(floor: _floor, periods: _periods),
+            ),
             expand: true,
             verticalPadding: AppSpacing.s16,
             horizontalPadding: AppSpacing.s24,

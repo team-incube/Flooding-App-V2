@@ -17,7 +17,12 @@ import 'homebase_seat_select_card.dart';
 import 'selected_student_chip.dart';
 
 class SchoolDetailView extends StatefulWidget {
-  const SchoolDetailView({super.key});
+  const SchoolDetailView({super.key, this.initialFloor, this.initialPeriods});
+
+  /// 목록 화면(SchoolView)에서 이미 골라둔 층/교시 — 있으면 이 화면의 선택
+  /// 카드에 그대로 반영한다.
+  final int? initialFloor;
+  final Set<int>? initialPeriods;
 
   @override
   State<SchoolDetailView> createState() => _SchoolDetailViewState();
@@ -141,10 +146,12 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: AppSpacing.s16),
-                  const HomeBaseSeatSelectCard(
+                  HomeBaseSeatSelectCard(
                     showTableNumber: true,
                     showCard: false,
                     groupSpacing: AppSpacing.s16,
+                    initialFloor: widget.initialFloor,
+                    initialPeriods: widget.initialPeriods,
                   ),
                   const SizedBox(height: AppSpacing.s16),
                   SearchTextField(

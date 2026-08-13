@@ -20,7 +20,15 @@ class HomeBaseSeatSelectCard extends StatefulWidget {
     this.onTableNumberChanged,
     this.showCard = true,
     this.groupSpacing = AppSpacing.s8,
+    this.initialFloor,
+    this.initialPeriods,
   });
+
+  /// 이전 화면(SchoolView)에서 이미 골라둔 층 — 있으면 학년별 기본값보다 우선한다.
+  final int? initialFloor;
+
+  /// 이전 화면(SchoolView)에서 이미 골라둔 교시 — 있으면 학년별 기본값보다 우선한다.
+  final Set<int>? initialPeriods;
 
   /// 층/교시 선택이 바뀔 때마다 호출된다 — 예약현황 목록 필터링에 쓰인다.
   final void Function(int? floor, Set<int> periods)? onSelectionChanged;
@@ -56,8 +64,8 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
     11: TimeOfDay(hour: 20, minute: 30),
   };
 
-  int? _floor;
-  final Set<int> _selectedPeriods = {};
+  late int? _floor = widget.initialFloor;
+  late final Set<int> _selectedPeriods = {...?widget.initialPeriods};
   int? _tableNumber;
 
   bool _isPeriodClosed(int period) {
@@ -75,8 +83,9 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
   }
 
   // 학년별 배정 층(3학년→2층, 2학년→3층, 1학년→4층) — 처음 한 번만 자동 선택하고,
-  // 이후 사용자가 직접 누르면 그것이 보이도록 한다.
-  bool _hasAutoSelectedFloor = false;
+  // 이후 사용자가 직접 누르면 그것이 보이도록 한다. 이전 화면에서 이미 층을
+  // 넘겨받았다면(initialFloor) 학년 기본값으로 덮어쓰지 않는다.
+  late bool _hasAutoSelectedFloor = widget.initialFloor != null;
 
   @override
   void initState() {
