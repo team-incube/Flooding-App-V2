@@ -44,6 +44,10 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   Timer? _debounce;
   List<SearchUser> _searchResults = [];
 
+  // 검색 응답이 요청 순서와 다르게 도착해도(레이스 컨디션) 가장 최근에 보낸
+  // 요청의 결과만 반영하도록 매 요청마다 증가시켜 비교한다.
+  int _searchRequestId = 0;
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -63,13 +67,15 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
       setState(() => _searchResults = []);
       return;
     }
+    final requestId = ++_searchRequestId;
     try {
       final isStudentNumber = _digitsOnly.hasMatch(query);
       final page = await context.read<UserService>().searchUsers(
         name: isStudentNumber ? null : query,
         studentNumber: isStudentNumber ? query : null,
       );
-      if (!mounted) return;
+      // 그 사이 새 요청이 나갔다면 이 응답은 이미 낡은 것이니 버린다.
+      if (!mounted || requestId != _searchRequestId) return;
       final selectedIds = _selectedStudents.map((s) => s.id).toSet();
       setState(() {
         _searchResults = page.content
@@ -77,7 +83,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
             .toList();
       });
     } on Exception catch (_) {
-      if (!mounted) return;
+      if (!mounted || requestId != _searchRequestId) return;
       setState(() => _searchResults = []);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
