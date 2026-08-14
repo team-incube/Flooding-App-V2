@@ -10,9 +10,13 @@ import 'package:flooding_v2/core/widgets/primary_action_button.dart';
 import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/feature/auth/data/models/search_user.dart';
 import 'package:flooding_v2/feature/auth/data/user_service.dart';
+import 'package:flooding_v2/feature/school/data/models/homebase_member.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../bloc/school_bloc.dart';
+import '../bloc/school_event.dart';
+import '../bloc/school_state.dart';
 import 'homebase_seat_select_card.dart';
 import 'selected_student_chip.dart';
 
@@ -45,6 +49,10 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   final _studentSearchController = TextEditingController();
   final _reasonController = TextEditingController();
   final List<SearchUser> _selectedStudents = [];
+
+  late int? _floor = widget.initialFloor;
+  late final Set<int> _periods = {...?widget.initialPeriods};
+  int? _tableNumber;
 
   Timer? _debounce;
   List<SearchUser> _searchResults = [];
@@ -90,10 +98,47 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
     } on Exception catch (_) {
       if (!mounted || requestId != _searchRequestId) return;
       setState(() => _searchResults = []);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('검색에 실패했어요')));
+      _showSnack('검색에 실패했어요');
     }
+  }
+
+  void _showSnack(String? message) {
+    if (message == null) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// 필수 입력을 검증하고 홈베이스 예약 생성을 요청한다.
+  void _submit() {
+    if (_floor == null || _periods.isEmpty || _tableNumber == null) {
+      _showSnack('층·교시·테이블 번호를 선택해주세요.');
+      return;
+    }
+    if (_selectedStudents.isEmpty) {
+      _showSnack('학생을 1명 이상 선택해주세요.');
+      return;
+    }
+    final reason = _reasonController.text.trim();
+    if (reason.isEmpty) {
+      _showSnack('이용 사유를 입력해주세요.');
+      return;
+    }
+    context.read<SchoolBloc>().add(
+      SchoolEvent.reservationCreated(
+        floor: _floor!,
+        tableNumber: _tableNumber!,
+        periods: _periods,
+        reason: reason,
+        members: [
+          for (final student in _selectedStudents)
+            HomebaseMember(
+              studentNumber: student.studentNumber.toString(),
+              name: student.name,
+            ),
+        ],
+      ),
+    );
   }
 
   void _selectStudent(SearchUser student) {
@@ -117,136 +162,155 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _dismissSearchResults,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: AppIcon.back(),
-                ),
-                const SizedBox(width: AppSpacing.s4),
-                Text(
-                  '홈베이스 예약',
-                  style: AppTextStyle.text2.copyWith(
-                    color: AppColors.lightMainText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocListener<SchoolBloc, SchoolState>(
+      listenWhen: (prev, curr) =>
+          curr.result != null && !identical(prev.result, curr.result),
+      listener: (context, state) {
+        _showSnack(state.result?.message);
+        if (state.result?.success ?? false) Navigator.pop(context);
+      },
+      child: GestureDetector(
+        onTap: _dismissSearchResults,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+              child: Row(
                 children: [
-                  const SizedBox(height: AppSpacing.s16),
-                  HomeBaseSeatSelectCard(
-                    showTableNumber: true,
-                    showCard: false,
-                    groupSpacing: AppSpacing.s16,
-                    initialFloor: widget.initialFloor,
-                    initialPeriods: widget.initialPeriods,
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: AppIcon.back(),
                   ),
-                  const SizedBox(height: AppSpacing.s16),
-                  SearchTextField(
-                    textEditingController: _studentSearchController,
-                    hintText: '학생 이름, 학번을 입력해주세요.',
-                    onChanged: _onQueryChanged,
-                  ),
-                  if (_searchResults.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.s8),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxHeight: _resultListMaxHeight,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightBgSurface,
-                        borderRadius: BorderRadius.circular(AppRadius.s12),
-                        border: const Border(
-                          top: BorderSide(color: AppColors.lightSub4),
-                          left: BorderSide(color: AppColors.lightSub4),
-                          right: BorderSide(color: AppColors.lightSub4),
-                        ),
-                      ),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.s16,
-                        ),
-                        itemCount: _searchResults.length,
-                        separatorBuilder: (context, index) => const Divider(
-                          height: _resultDividerHeight,
-                          thickness: 1,
-                          color: AppColors.lightSub4,
-                        ),
-                        itemBuilder: (context, index) {
-                          final student = _searchResults[index];
-                          return InkWell(
-                            onTap: () => _selectStudent(student),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppSpacing.s16),
-                              child: Text(
-                                '${student.studentNumber} ${student.name}',
-                                style: AppTextStyle.text4.copyWith(
-                                  color: AppColors.lightMainText,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                  const SizedBox(width: AppSpacing.s4),
+                  Text(
+                    '홈베이스 예약',
+                    style: AppTextStyle.text2.copyWith(
+                      color: AppColors.lightMainText,
                     ),
-                  ],
-                  const SizedBox(height: AppSpacing.s16),
-                  CountedTextField(
-                    controller: _reasonController,
-                    hintText: '이용 사유를 입력해주세요.',
-                    maxLength: _reasonMaxLength,
                   ),
-                  if (_selectedStudents.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.s16),
-                    Wrap(
-                      spacing: AppSpacing.s4,
-                      runSpacing: AppSpacing.s8,
-                      children: [
-                        for (final student in _selectedStudents)
-                          SelectedStudentChip(
-                            student: student,
-                            onRemove: () => _removeStudent(student),
-                          ),
-                      ],
-                    ),
-                  ],
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s16),
-          PrimaryActionButton(
-            label: '예약하기',
-            // TODO: 예약 신청 API 연동 후 제출 동작 연결
-            onPressed: () {},
-            expand: true,
-            verticalPadding: AppSpacing.s16,
-            horizontalPadding: AppSpacing.s24,
-            borderRadius: AppRadius.s8,
-          ),
-          const SizedBox(height: AppSpacing.s4),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              '※ 홈베이스 신청시 연속 신청이 가능해요.',
-              style: AppTextStyle.text4.copyWith(color: AppColors.lightSub2),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: AppSpacing.s16),
+                    HomeBaseSeatSelectCard(
+                      showTableNumber: true,
+                      showCard: false,
+                      groupSpacing: AppSpacing.s16,
+                      initialFloor: widget.initialFloor,
+                      initialPeriods: widget.initialPeriods,
+                      onSelectionChanged: (floor, periods) => setState(() {
+                        _floor = floor;
+                        _periods
+                          ..clear()
+                          ..addAll(periods);
+                      }),
+                      onTableNumberChanged: (tableNumber) =>
+                          setState(() => _tableNumber = tableNumber),
+                    ),
+                    const SizedBox(height: AppSpacing.s16),
+                    SearchTextField(
+                      textEditingController: _studentSearchController,
+                      hintText: '학생 이름, 학번을 입력해주세요.',
+                      onChanged: _onQueryChanged,
+                    ),
+                    if (_searchResults.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.s8),
+                      Container(
+                        constraints: const BoxConstraints(
+                          maxHeight: _resultListMaxHeight,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.lightBgSurface,
+                          borderRadius: BorderRadius.circular(AppRadius.s12),
+                          border: const Border(
+                            top: BorderSide(color: AppColors.lightSub4),
+                            left: BorderSide(color: AppColors.lightSub4),
+                            right: BorderSide(color: AppColors.lightSub4),
+                          ),
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.s16,
+                          ),
+                          itemCount: _searchResults.length,
+                          separatorBuilder: (context, index) => const Divider(
+                            height: _resultDividerHeight,
+                            thickness: 1,
+                            color: AppColors.lightSub4,
+                          ),
+                          itemBuilder: (context, index) {
+                            final student = _searchResults[index];
+                            return InkWell(
+                              onTap: () => _selectStudent(student),
+                              child: Padding(
+                                padding: const EdgeInsets.all(AppSpacing.s16),
+                                child: Text(
+                                  '${student.studentNumber} ${student.name}',
+                                  style: AppTextStyle.text4.copyWith(
+                                    color: AppColors.lightMainText,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.s16),
+                    CountedTextField(
+                      controller: _reasonController,
+                      hintText: '이용 사유를 입력해주세요.',
+                      maxLength: _reasonMaxLength,
+                    ),
+                    if (_selectedStudents.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.s16),
+                      Wrap(
+                        spacing: AppSpacing.s4,
+                        runSpacing: AppSpacing.s8,
+                        children: [
+                          for (final student in _selectedStudents)
+                            SelectedStudentChip(
+                              student: student,
+                              onRemove: () => _removeStudent(student),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s16),
-        ],
+            const SizedBox(height: AppSpacing.s16),
+            BlocBuilder<SchoolBloc, SchoolState>(
+              buildWhen: (prev, curr) => prev.isSubmitting != curr.isSubmitting,
+              builder: (context, state) => PrimaryActionButton(
+                label: state.isSubmitting ? '처리 중...' : '예약하기',
+                enabled: !state.isSubmitting,
+                onPressed: _submit,
+                expand: true,
+                verticalPadding: AppSpacing.s16,
+                horizontalPadding: AppSpacing.s24,
+                borderRadius: AppRadius.s8,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s4),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                '※ 홈베이스 신청시 연속 신청이 가능해요.',
+                style: AppTextStyle.text4.copyWith(color: AppColors.lightSub2),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s16),
+          ],
+        ),
       ),
     );
   }
