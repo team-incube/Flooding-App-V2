@@ -1,30 +1,58 @@
-# Flutter Project Template
+# 🏠 Flooding
 
-템플릿을 복사한 뒤 아래 스크립트 한 번만 실행하면 패키지명과 번들 ID를 한꺼번에 바꿀 수 있습니다.
+Flooding은 광주소프트웨어마이스터고등학교 기숙사 생활을 하나의 앱으로 관리하기 위해 만든 Flutter 애플리케이션입니다.
+자습실, 안마의자, 기상송, 홈베이스 신청까지 기숙사에서 자주 쓰는 신청 절차를 한곳에 모아,
+학생들이 각자 상황을 실시간으로 확인하고 처리할 수 있게 하는 것이 목표입니다.
 
-```bash
-./scripts/rename_project.sh <dart_package_name> <android_package> "<app_display_name>" [ios_bundle_id]
-```
+## 😥 기획 배경
 
-예시:
+* 자습실·안마의자·기상송 신청이 각각 따로, 그것도 수기 위주로 처리되던 구조였습니다.
+* 홈베이스 좌석이 지금 얼마나 차 있는지 실시간으로 확인할 방법이 마땅치 않았습니다.
+* 신청·인증 절차가 앱 하나로 묶여 있지 않아서 관리하는 쪽도, 이용하는 쪽도 번거로웠습니다.
 
-```bash
-./scripts/rename_project.sh my_app com.mycompany.myapp "My App"
-```
+## 🚀 해결 방법
 
-변경되는 항목:
+* DataGSM 계정으로 바로 로그인하도록 해서 별도 가입 절차를 없앴습니다.
+* 자습실·안마의자·기상송·홈베이스 신청을 전부 한 앱 안에서 처리하도록 묶었습니다.
+* 홈베이스는 층·교시·테이블 단위로 좌석 상태를 실시간으로 보여주고 바로 예약할 수 있게 했습니다.
+* 이용 중 궁금한 게 생기면 앱 안 AI 챗봇에 바로 물어볼 수 있도록 붙였습니다.
 
-- `pubspec.yaml` 패키지명
-- Dart import 경로
-- Android `namespace`, `applicationId`, Kotlin package 경로
-- iOS `PRODUCT_BUNDLE_IDENTIFIER`
-- 앱 표시 이름(`android:label`, `CFBundleDisplayName`, `CFBundleName`)
-- `MaterialApp.title`
+## ✨ 주요 기능
 
-실행 후:
+* DataGSM OAuth 로그인
+* 자습실 신청 및 입/퇴실 체크
+* 안마의자 예약
+* 기상송 신청(곡/URL 제출)
+* 홈베이스 층·교시·테이블 선택, 좌석 예약, 학생 검색 후 동반 신청
+* AI 챗봇
+* 기숙사 층/방 정보 및 인원 조회, (관리자용) 출결·권한 관리
 
-```bash
-flutter pub get
-flutter clean
-flutter run
-```
+## 🏗️ 구조
+
+**상태관리 — flutter_bloc**
+화면(위젯)과 비즈니스 로직을 Event / State / Bloc으로 나눠서, 로직만 따로 테스트하고 화면은 상태 변화만 받아 그리도록 했습니다.
+
+**모듈 구성 — feature 단위**
+`lib/feature/<domain>` 아래에 presentation(pages/widgets/bloc/models), data(datasources/models), domain(repositories/usecases)을 나눠서, 도메인마다 독립적으로 손댈 수 있게 구성했습니다.
+
+## 🛠️ 기술 스택
+
+| 영역 | 사용 기술 |
+| --- | --- |
+| 프레임워크 | Flutter (Dart) |
+| 상태관리 | flutter_bloc |
+| 라우팅 | go_router (ShellRoute, 인증 기반 리다이렉트) |
+| 네트워킹 | dio, retrofit |
+| 코드 생성 | freezed, json_serializable, build_runner |
+| 개발 환경 | FVM (SDK 버전 고정) |
+
+## 🔑 이 프로젝트만의 특징
+
+* 기숙사 신청을 화면 하나가 아니라 자습실/안마의자/기상송/홈베이스 전체로 묶은 통합 앱입니다.
+* 홈베이스는 층·교시·테이블 단위 실시간 예약과 동반 학생 검색까지 지원합니다.
+* feature 단위 Bloc 구조라 새 기능을 추가하거나 유지보수할 때 도메인 간 영향을 최소화할 수 있습니다.
+* 실제 학교 현장에서 바로 쓸 수 있는 완성도를 목표로 만들었습니다.
+
+---
+
+수기·개별 신청 중심이던 기숙사 생활 관리를, 하나의 앱으로 정리해 운영 효율과 학생 편의를 함께 챙긴 프로젝트입니다.
