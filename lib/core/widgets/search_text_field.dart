@@ -4,6 +4,7 @@ import '../constants/app_radius.dart';
 import '../constants/app_size.dart';
 import '../constants/app_spacing.dart';
 import '../theme/color/app_colors.dart';
+import '../theme/icon/app_icon.dart';
 import '../theme/text_style/app_text_style.dart';
 
 class SearchTextField extends StatelessWidget {
@@ -24,21 +25,33 @@ class SearchTextField extends StatelessWidget {
       height: AppSize.s52,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
       decoration: BoxDecoration(
-        color: AppColors.lightBgSurface,
+        color: AppColors.lightBackground,
         borderRadius: BorderRadius.circular(AppRadius.s8),
         border: Border.all(color: AppColors.lightSub2),
       ),
       alignment: Alignment.centerLeft,
-      child: TextField(
-        controller: textEditingController,
-        onChanged: onChanged,
-        style: AppTextStyle.text3.copyWith(color: AppColors.lightMainText),
-        decoration: InputDecoration(
-          isCollapsed: true,
-          border: InputBorder.none,
-          hintText: hintText,
-          hintStyle: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
-        ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: textEditingController,
+              onChanged: onChanged,
+              style: AppTextStyle.text3.copyWith(
+                color: AppColors.lightMainText,
+              ),
+              decoration: InputDecoration(
+                isCollapsed: true,
+                border: InputBorder.none,
+                hintText: hintText,
+                hintStyle: AppTextStyle.text3.copyWith(
+                  color: AppColors.lightSub2,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.s8),
+          AppIcon.search(size: AppSize.s20),
+        ],
       ),
     );
   }

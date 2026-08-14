@@ -13,19 +13,48 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // 홈베이스 좌석(층·교시) 선택 카드. 층은 단일 선택, 교시는 다중 선택으로 구현하였습니다.
 class HomeBaseSeatSelectCard extends StatefulWidget {
-  const HomeBaseSeatSelectCard({super.key, this.onSelectionChanged});
+  const HomeBaseSeatSelectCard({
+    super.key,
+    this.onSelectionChanged,
+    this.showTableNumber = false,
+    this.onTableNumberChanged,
+    this.showCard = true,
+    this.groupSpacing = AppSpacing.s8,
+    this.initialFloor,
+    this.initialPeriods,
+  });
+
+  /// 이전 화면(SchoolView)에서 이미 골라둔 층 — 있으면 학년별 기본값보다 우선한다.
+  final int? initialFloor;
+
+  /// 이전 화면(SchoolView)에서 이미 골라둔 교시 — 있으면 학년별 기본값보다 우선한다.
+  final Set<int>? initialPeriods;
 
   /// 층/교시 선택이 바뀔 때마다 호출된다 — 예약현황 목록 필터링에 쓰인다.
   final void Function(int? floor, Set<int> periods)? onSelectionChanged;
 
+  /// 테이블 번호 그룹 노출 여부 — 목록/필터 화면(SchoolView)에서는 false,
+  /// 예약 상세 화면(SchoolDetailView)에서는 true로 켠다.
+  final bool showTableNumber;
+
+  /// 카드(배경·그림자) + "홈베이스" 헤더로 감쌀지 여부 — 목록/필터 화면에서는
+  /// true, 예약 상세 화면에서는 글자·칩만 노출하도록 false로 켠다.
+  final bool showCard;
+
+  /// 층/교시/테이블 번호 그룹 사이 세로 간격.
+  final double groupSpacing;
+
+  /// 테이블 번호 선택이 바뀔 때마다 호출된다([showTableNumber]가 true일 때만 의미 있다).
+  final ValueChanged<int?>? onTableNumberChanged;
+
   @override
-  State<HomeBaseSeatSelectCard> createState() =>
-      _HomeBaseSeatSelectCardState();
+  State<HomeBaseSeatSelectCard> createState() => _HomeBaseSeatSelectCardState();
 }
 
 class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
   static const List<int> _floors = [2, 3, 4];
   static const List<int> _periods = [8, 9, 10, 11];
+  static const List<int> _tableNumbers = [1, 2, 3, 4];
 
   // 교시별 신청 마감 시각 — 지나면 해당 교시 칩이 비활성화된다.
   static const Map<int, TimeOfDay> _periodDeadlines = {
@@ -35,8 +64,9 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
     11: TimeOfDay(hour: 20, minute: 30),
   };
 
-  int? _floor;
-  final Set<int> _selectedPeriods = {};
+  late int? _floor = widget.initialFloor;
+  late final Set<int> _selectedPeriods = {...?widget.initialPeriods};
+  int? _tableNumber;
 
   bool _isPeriodClosed(int period) {
     final deadline = _periodDeadlines[period];
@@ -53,8 +83,9 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
   }
 
   // 학년별 배정 층(3학년→2층, 2학년→3층, 1학년→4층) — 처음 한 번만 자동 선택하고,
-  // 이후 사용자가 직접 누르면 그것이 보이도록 한다.
-  bool _hasAutoSelectedFloor = false;
+  // 이후 사용자가 직접 누르면 그것이 보이도록 한다. 이전 화면에서 이미 층을
+  // 넘겨받았다면(initialFloor) 학년 기본값으로 덮어쓰지 않는다.
+  late bool _hasAutoSelectedFloor = widget.initialFloor != null;
 
   @override
   void initState() {
@@ -82,50 +113,69 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
 
   @override
   Widget build(BuildContext context) {
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.showCard) ...[
+          const CardHeader(icon: AppIcon.home, title: '홈베이스'),
+          const SizedBox(height: AppSpacing.s16),
+        ],
+        _SelectGroup(
+          label: '층',
+          children: [
+            for (final floor in _floors)
+              SelectableChip(
+                label: '$floor',
+                selected: _floor == floor,
+                onTap: () => setState(() {
+                  _floor = _floor == floor ? null : floor;
+                  _notifySelectionChanged();
+                }),
+              ),
+          ],
+        ),
+        SizedBox(height: widget.groupSpacing),
+        _SelectGroup(
+          label: '교시',
+          children: [
+            for (final period in _periods)
+              SelectableChip(
+                label: '$period',
+                selected: _selectedPeriods.contains(period),
+                disabled: _isPeriodClosed(period),
+                onTap: () => setState(() {
+                  if (!_selectedPeriods.remove(period)) {
+                    _selectedPeriods.add(period);
+                  }
+                  _notifySelectionChanged();
+                }),
+              ),
+          ],
+        ),
+        if (widget.showTableNumber) ...[
+          SizedBox(height: widget.groupSpacing),
+          _SelectGroup(
+            label: '테이블 번호',
+            children: [
+              for (final table in _tableNumbers)
+                SelectableChip(
+                  label: '$table',
+                  selected: _tableNumber == table,
+                  onTap: () => setState(() {
+                    _tableNumber = _tableNumber == table ? null : table;
+                    widget.onTableNumberChanged?.call(_tableNumber);
+                  }),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+
     return BlocListener<MeBloc, MeState>(
       listener: (context, state) =>
           state.whenOrNull(loaded: _applyDefaultFloor),
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CardHeader(icon: AppIcon.home, title: '홈베이스'),
-            const SizedBox(height: AppSpacing.s16),
-            _SelectGroup(
-              label: '층',
-              children: [
-                for (final floor in _floors)
-                  SelectableChip(
-                    label: '$floor',
-                    selected: _floor == floor,
-                    onTap: () => setState(() {
-                      _floor = _floor == floor ? null : floor;
-                      _notifySelectionChanged();
-                    }),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.s8),
-            _SelectGroup(
-              label: '교시',
-              children: [
-                for (final period in _periods)
-                  SelectableChip(
-                    label: '$period',
-                    selected: _selectedPeriods.contains(period),
-                    disabled: _isPeriodClosed(period),
-                    onTap: () => setState(() {
-                      if (!_selectedPeriods.remove(period)) {
-                        _selectedPeriods.add(period);
-                      }
-                      _notifySelectionChanged();
-                    }),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      child: widget.showCard ? AppCard(child: content) : content,
     );
   }
 }

@@ -9,6 +9,7 @@ import 'datasources/token_storage.dart';
 import 'datasources/user_api.dart';
 import 'flooding_authed_client.dart';
 import 'models/me.dart';
+import 'models/search_user.dart';
 
 /// 세션 유효성 검사 결과.
 enum SessionCheck {
@@ -74,6 +75,24 @@ class UserService implements SessionValidator {
       throw Exception('프로필 사진 URL 을 받지 못했어요.');
     }
     return url;
+  }
+
+  /// 학생 검색 — [name](부분 일치) 또는 [studentNumber](전방 일치)로 필터링한다.
+  /// 둘 다 비우면 전체 학생을 [page]/[size] 기준으로 페이지네이션해 돌려준다.
+  /// 실패 시 [DioException] 등을 그대로 던진다.
+  Future<SearchUsersPage> searchUsers({
+    String? name,
+    String? studentNumber,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final response = await _api.searchUsers(
+      name: name,
+      studentNumber: studentNumber,
+      page: page,
+      size: size,
+    );
+    return response.data ?? const SearchUsersPage();
   }
 
   /// 앱 진입 시 세션 유효성을 검사한다 — `/users/me` 의 401 여부로 판정한다.

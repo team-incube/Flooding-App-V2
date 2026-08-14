@@ -6,12 +6,14 @@ import 'package:retrofit/retrofit.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../models/me.dart';
 import '../models/profile_image_response.dart';
+import '../models/search_user.dart';
 
 part 'user_api.g.dart';
 
 /// 사용자 API 경로 — 공통 prefix([ApiEndpoints.users])를 합성한다.
 const String _me = '${ApiEndpoints.users}/me';
 const String _profileImage = '${ApiEndpoints.users}/me/profile-image';
+const String _search = ApiEndpoints.users;
 
 /// Flooding 백엔드 사용자(`/users`) API.
 ///
@@ -31,4 +33,15 @@ abstract class UserApi {
   Future<ProfileImageResponse> uploadProfileImage(
     @Part(name: 'image') File image,
   );
+
+  /// 학생 검색 — [name] 은 부분 일치, [studentNumber] 는 전방 일치.
+  /// 둘 다 생략하면 전체 학생을 페이지네이션해 반환한다. ADMIN 은 결과에서 제외된다.
+  @GET(_search)
+  Future<SearchUsersResponse> searchUsers({
+    @Query('name') String? name,
+    @Query('studentNumber') String? studentNumber,
+    @Query('page') int page = 0,
+    @Query('size') int size = 20,
+    @Query('sort') String sort = 'studentNumber,asc',
+  });
 }

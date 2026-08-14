@@ -8,6 +8,7 @@ abstract final class RoutePath {
   static const String home = '/home';
   static const String dormitory = '/dormitory';
   static const String school = '/school';
+  static const String schoolDetail = '/school_detail';
   static const String requestStudy = '/request_study';
   static const String requestMassage = '/request_massage';
   static const songRequestDetail = '/song_request_detail';
