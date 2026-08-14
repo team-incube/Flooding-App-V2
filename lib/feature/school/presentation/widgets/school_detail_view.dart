@@ -123,7 +123,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
             child: Row(
               children: [
                 GestureDetector(
