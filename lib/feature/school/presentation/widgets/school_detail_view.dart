@@ -109,7 +109,6 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
-  /// 필수 입력을 검증하고 홈베이스 예약 생성을 요청한다.
   void _submit() {
     if (_floor == null || _periods.isEmpty || _tableNumber == null) {
       _showSnack('층·교시·테이블 번호를 선택해주세요.');

@@ -20,7 +20,6 @@ import '../models/homebase_reservation.dart';
 class SchoolRepositoryImpl implements SchoolRepository {
   SchoolRepositoryImpl(this._api);
 
-  /// 실제 네트워크 클라이언트를 구성하는 팩토리.
   factory SchoolRepositoryImpl.create({
     Dio? dio,
     TokenStorage? tokenStorage,

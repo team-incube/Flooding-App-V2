@@ -5,8 +5,6 @@ import 'homebase_member.dart';
 part 'homebase_reservation.freezed.dart';
 part 'homebase_reservation.g.dart';
 
-/// 홈베이스 예약 1건(`GetHomebaseResponse`).
-///
 /// `reservationDate` 는 서버가 `yyyy-MM-dd` 문자열로 내려준다.
 @freezed
 abstract class HomebaseReservation with _$HomebaseReservation {

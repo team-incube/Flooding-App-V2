@@ -24,20 +24,11 @@ class SchoolActionResult {
 @freezed
 abstract class SchoolState with _$SchoolState {
   const factory SchoolState({
-    /// 예약 목록 조회 상태.
     @Default(SchoolListStatus.initial) SchoolListStatus listStatus,
-
-    /// 오늘 홈베이스 예약 목록.
     @Default(<HomebaseReservationModel>[])
     List<HomebaseReservationModel> reservations,
-
-    /// 목록 조회 실패 메시지.
     String? listError,
-
-    /// 예약 생성 요청 처리 중 여부.
     @Default(false) bool isSubmitting,
-
-    /// 직전 생성/삭제 결과(1회성 안내용).
     SchoolActionResult? result,
   }) = _SchoolState;
 }

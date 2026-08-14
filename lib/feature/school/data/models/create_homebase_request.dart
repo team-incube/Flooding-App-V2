@@ -5,8 +5,6 @@ import 'homebase_member.dart';
 part 'create_homebase_request.freezed.dart';
 part 'create_homebase_request.g.dart';
 
-/// `POST /homebase/{homebaseId}` 요청 본문(`CreateHomebaseRequest`).
-///
 /// [reservationDate] 는 `yyyy-MM-dd` 문자열로 보낸다.
 @freezed
 abstract class CreateHomebaseRequest with _$CreateHomebaseRequest {

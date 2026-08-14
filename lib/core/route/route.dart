@@ -251,10 +251,9 @@ GoRouter createAppRouter(AuthController auth) {
                         ..add(const MusicEvent.subscriptionStarted()),
                 ),
                 BlocProvider(
-                  // 홈/기숙사에 노출되는 카운트 카드가 없어 Study/Massage 와 달리
-                  // 셸 진입 시 즉시 로드하지 않는다 — SchoolView 진입 시점에 조회한다.
-                  // school·schoolDetail 라우트가 이 인스턴스를 공유해야 하므로
-                  // (예약 생성 후 목록 새로고침) 셸 레벨에 둔다.
+                  // school·schoolDetail 라우트가 공유해야 하므로(예약 생성 후
+                  // 목록 새로고침) 셸 레벨에 두되, 홈/기숙사 카운트 카드가
+                  // 없어 Study/Massage 와 달리 즉시 로드하지는 않는다.
                   create: (ctx) =>
                       SchoolBloc(repository: ctx.read<SchoolRepository>()),
                 ),

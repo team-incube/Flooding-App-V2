@@ -26,7 +26,6 @@ class SchoolEvent with _$SchoolEvent {
     required List<HomebaseMember> members,
   }) = _ReservationCreated;
 
-  /// [reservationId] 예약을 삭제한다.
   const factory SchoolEvent.reservationDeleted({required int reservationId}) =
       _ReservationDeleted;
 }
