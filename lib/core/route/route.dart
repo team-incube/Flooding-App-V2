@@ -9,6 +9,9 @@ import 'package:flooding_v2/feature/auth/presentation/pages/login_page.dart';
 import 'package:flooding_v2/feature/dormitory/presentation/widgets/dormitory_view.dart';
 import 'package:flooding_v2/feature/home/presentation/widgets/home_view.dart';
 import 'package:flooding_v2/feature/massage/data/repositories/massage_repository_impl.dart';
+import 'package:flooding_v2/feature/school/data/repositories/school_repository_impl.dart';
+import 'package:flooding_v2/feature/school/domain/repositories/school_repository.dart';
+import 'package:flooding_v2/feature/school/presentation/bloc/school_bloc.dart';
 import 'package:flooding_v2/feature/school/presentation/models/school_seat_selection.dart';
 import 'package:flooding_v2/feature/school/presentation/widgets/school_detail_view.dart';
 import 'package:flooding_v2/feature/school/presentation/widgets/school_view.dart';
@@ -206,6 +209,11 @@ GoRouter createAppRouter(AuthController auth) {
                   onSessionExpired: auth.expireSession,
                 ),
               ),
+              RepositoryProvider<SchoolRepository>(
+                create: (_) => SchoolRepositoryImpl.create(
+                  onSessionExpired: auth.expireSession,
+                ),
+              ),
               RepositoryProvider<MusicRepository>(
                 create: (_) => MusicRepositoryImpl.create(
                   onSessionExpired: auth.expireSession,
@@ -241,6 +249,13 @@ GoRouter createAppRouter(AuthController auth) {
                       MusicBloc(repository: ctx.read<MusicRepository>())
                         ..add(const MusicEvent.listRequested())
                         ..add(const MusicEvent.subscriptionStarted()),
+                ),
+                BlocProvider(
+                  // school·schoolDetail 라우트가 공유해야 하므로(예약 생성 후
+                  // 목록 새로고침) 셸 레벨에 두되, 홈/기숙사 카운트 카드가
+                  // 없어 Study/Massage 와 달리 즉시 로드하지는 않는다.
+                  create: (ctx) =>
+                      SchoolBloc(repository: ctx.read<SchoolRepository>()),
                 ),
               ],
               child: BaseScaffold(

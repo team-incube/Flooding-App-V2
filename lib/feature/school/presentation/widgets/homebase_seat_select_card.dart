@@ -8,6 +8,7 @@ import 'package:flooding_v2/core/widgets/selectable_chip.dart';
 import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_state.dart';
+import 'package:flooding_v2/feature/school/domain/homebase_seat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -52,9 +53,9 @@ class HomeBaseSeatSelectCard extends StatefulWidget {
 }
 
 class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
-  static const List<int> _floors = [2, 3, 4];
+  static const List<int> _floors = HomebaseSeat.floors;
   static const List<int> _periods = [8, 9, 10, 11];
-  static const List<int> _tableNumbers = [1, 2, 3, 4];
+  static const List<int> _tableNumbers = HomebaseSeat.tableNumbers;
 
   // 교시별 신청 마감 시각 — 지나면 해당 교시 칩이 비활성화된다.
   static const Map<int, TimeOfDay> _periodDeadlines = {

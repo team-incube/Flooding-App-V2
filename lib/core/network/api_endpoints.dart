@@ -19,4 +19,7 @@ class ApiEndpoints {
 
   /// neis 도메인 공통 prefix — 급식 목록 조회 등.
   static const String neis = '/v2/neis';
+
+  /// 홈베이스 도메인 공통 prefix — 홈베이스 예약 생성/조회/삭제.
+  static const String homebase = '/homebase';
 }
