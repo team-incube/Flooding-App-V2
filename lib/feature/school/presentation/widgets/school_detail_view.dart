@@ -36,10 +36,10 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   static const _debounceDuration = Duration(milliseconds: 300);
   static final _digitsOnly = RegExp(r'^\d+$');
 
-  // 검색 결과는 최대 5줄만 보이고 나머지는 스크롤된다.
-  static const int _visibleResultCount = 5;
-  static const double _resultRowHeight = 54;
-  static const double _resultDividerHeight = 24;
+  // 검색 결과는 최대 3줄만 보이고 나머지는 스크롤된다.
+  static const int _visibleResultCount = 3;
+  static const double _resultRowHeight = 38;
+  static const double _resultDividerHeight = 16;
   static const double _resultListMaxHeight =
       _resultRowHeight * _visibleResultCount +
       _resultDividerHeight * (_visibleResultCount - 1);
@@ -48,6 +48,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
 
   final _studentSearchController = TextEditingController();
   final _reasonController = TextEditingController();
+  final _searchResultsKey = GlobalKey();
   final List<SearchUser> _selectedStudents = [];
 
   late int? _floor = widget.initialFloor;
@@ -95,6 +96,20 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
             .where((student) => !selectedIds.contains(student.id))
             .toList();
       });
+      // 소프트 키보드가 떠 있는 동안엔 결과 목록이 화면 아래로 밀려 안 보일 수
+      // 있어, 렌더링 직후 결과 영역을 화면 안으로 스크롤해 들어온다.
+      if (_searchResults.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final resultsContext = _searchResultsKey.currentContext;
+          if (resultsContext != null) {
+            Scrollable.ensureVisible(
+              resultsContext,
+              alignment: 1,
+              duration: const Duration(milliseconds: 200),
+            );
+          }
+        });
+      }
     } on Exception catch (_) {
       if (!mounted || requestId != _searchRequestId) return;
       setState(() => _searchResults = []);
@@ -213,55 +228,77 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                           setState(() => _tableNumber = tableNumber),
                     ),
                     const SizedBox(height: AppSpacing.s16),
-                    SearchTextField(
-                      textEditingController: _studentSearchController,
-                      hintText: '학생 이름, 학번을 입력해주세요.',
-                      onChanged: _onQueryChanged,
-                    ),
-                    if (_searchResults.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.s8),
-                      Container(
-                        constraints: const BoxConstraints(
-                          maxHeight: _resultListMaxHeight,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.lightBgSurface,
-                          borderRadius: BorderRadius.circular(AppRadius.s12),
-                          border: const Border(
-                            top: BorderSide(color: AppColors.lightSub4),
-                            left: BorderSide(color: AppColors.lightSub4),
-                            right: BorderSide(color: AppColors.lightSub4),
+                    // 검색창·검색 아이콘·결과 목록을 탭해도 화면 전체의
+                    // "바깥 탭 시 닫기" 제스처로 새지 않도록 여기서 흡수한다.
+                    GestureDetector(
+                      onTap: () {},
+                      behavior: HitTestBehavior.opaque,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SearchTextField(
+                            textEditingController: _studentSearchController,
+                            hintText: '학생 이름, 학번을 입력해주세요.',
+                            onChanged: _onQueryChanged,
                           ),
-                        ),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.s16,
-                          ),
-                          itemCount: _searchResults.length,
-                          separatorBuilder: (context, index) => const Divider(
-                            height: _resultDividerHeight,
-                            thickness: 1,
-                            color: AppColors.lightSub4,
-                          ),
-                          itemBuilder: (context, index) {
-                            final student = _searchResults[index];
-                            return InkWell(
-                              onTap: () => _selectStudent(student),
-                              child: Padding(
-                                padding: const EdgeInsets.all(AppSpacing.s16),
-                                child: Text(
-                                  '${student.studentNumber} ${student.name}',
-                                  style: AppTextStyle.text4.copyWith(
-                                    color: AppColors.lightMainText,
+                          if (_searchResults.isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.s8),
+                            Container(
+                              key: _searchResultsKey,
+                              constraints: const BoxConstraints(
+                                maxHeight: _resultListMaxHeight,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.lightBgSurface,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.s12,
+                                ),
+                                border: const Border(
+                                  top: BorderSide(color: AppColors.lightSub4),
+                                  left: BorderSide(
+                                    color: AppColors.lightSub4,
+                                  ),
+                                  right: BorderSide(
+                                    color: AppColors.lightSub4,
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: AppSpacing.s8,
+                                ),
+                                itemCount: _searchResults.length,
+                                separatorBuilder: (context, index) =>
+                                    const Divider(
+                                      height: _resultDividerHeight,
+                                      thickness: 1,
+                                      color: AppColors.lightSub4,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final student = _searchResults[index];
+                                  return InkWell(
+                                    onTap: () => _selectStudent(student),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.s16,
+                                        vertical: AppSpacing.s8,
+                                      ),
+                                      child: Text(
+                                        '${student.studentNumber} ${student.name}',
+                                        style: AppTextStyle.text4.copyWith(
+                                          color: AppColors.lightMainText,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                    ],
+                    ),
                     const SizedBox(height: AppSpacing.s16),
                     CountedTextField(
                       controller: _reasonController,
