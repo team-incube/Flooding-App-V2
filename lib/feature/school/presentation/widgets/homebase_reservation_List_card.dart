@@ -11,10 +11,19 @@ class HomebaseReservationListCard extends StatelessWidget {
   const HomebaseReservationListCard({
     super.key,
     required this.reservations,
+    required this.canManageAll,
+    required this.mySchoolNb,
     required this.onDelete,
   });
 
   final List<HomebaseReservationModel> reservations;
+
+  /// 기숙사 관리자·어드민은 모든 예약을 삭제할 수 있다.
+  final bool canManageAll;
+
+  /// 로그인한 사용자의 학번. 신청자 목록에 이 값이 있는 예약에만 삭제 버튼을 노출한다.
+  final int? mySchoolNb;
+
   final void Function(int id) onDelete;
 
   @override
@@ -31,6 +40,12 @@ class HomebaseReservationListCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.s8),
             HomebaseReservationContainer(
               reservation: reservation,
+              canDelete:
+                  canManageAll ||
+                  (mySchoolNb != null &&
+                      reservation.students.any(
+                        (student) => student.schoolNb == mySchoolNb,
+                      )),
               onDelete: () => onDelete(reservation.id),
             ),
           ],
