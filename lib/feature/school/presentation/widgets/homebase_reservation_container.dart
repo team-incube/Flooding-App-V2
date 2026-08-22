@@ -10,10 +10,15 @@ class HomebaseReservationContainer extends StatelessWidget {
   const HomebaseReservationContainer({
     super.key,
     required this.reservation,
+    required this.canDelete,
     required this.onDelete,
   });
 
   final HomebaseReservationModel reservation;
+
+  /// 관리자이거나 본인이 신청한 예약일 때만 true.
+  final bool canDelete;
+
   final VoidCallback onDelete;
 
   @override
@@ -43,16 +48,18 @@ class HomebaseReservationContainer extends StatelessWidget {
                     color: AppColors.lightMainText,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.s8),
-                IconButton(
-                  onPressed: onDelete,
-                  icon: AppIcon.trash(color: AppColors.negative),
-                  style: IconButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                if (canDelete) ...[
+                  const SizedBox(width: AppSpacing.s8),
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: AppIcon.trash(color: AppColors.negative),
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
             const SizedBox(height: AppSpacing.s8),

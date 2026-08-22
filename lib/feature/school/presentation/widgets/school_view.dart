@@ -1,10 +1,13 @@
 import 'package:flooding_v2/core/constants/app_radius.dart';
 import 'package:flooding_v2/core/constants/app_spacing.dart';
+import 'package:flooding_v2/core/enum/role.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
 import 'package:flooding_v2/core/theme/text_style/app_text_style.dart';
 import 'package:flooding_v2/core/route/route_path.dart';
 import 'package:flooding_v2/core/widgets/app_loading_indicator.dart';
 import 'package:flooding_v2/core/widgets/primary_action_button.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
+import 'package:flooding_v2/feature/auth/presentation/bloc/me_state.dart';
 import 'package:flooding_v2/feature/school/presentation/widgets/homebase_reservation_List_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +64,13 @@ class _SchoolViewState extends State<SchoolView> {
 
   @override
   Widget build(BuildContext context) {
+    // 기숙사 관리자·어드민은 모든 예약을, 일반 사용자는 본인 학번이 신청자
+    // 목록에 있는 예약만 삭제할 수 있다.
+    final mySchoolNb = context.select<MeBloc, int?>(
+      (bloc) => bloc.state.maybeWhen(loaded: (me) => me.studentNumber, orElse: () => null),
+    );
+    final canManageAll = context.isManager;
+
     return BlocListener<SchoolBloc, SchoolState>(
       listenWhen: (prev, curr) =>
           curr.result != null && !identical(prev.result, curr.result),
@@ -96,6 +106,8 @@ class _SchoolViewState extends State<SchoolView> {
                         else
                           HomebaseReservationListCard(
                             reservations: filtered,
+                            canManageAll: canManageAll,
+                            mySchoolNb: mySchoolNb,
                             onDelete: (id) => context.read<SchoolBloc>().add(
                               SchoolEvent.reservationDeleted(reservationId: id),
                             ),
