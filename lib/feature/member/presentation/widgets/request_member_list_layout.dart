@@ -135,9 +135,9 @@ class _TopBar extends StatelessWidget {
         ),
       ],
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(AppSize.s84),
+        preferredSize: Size.fromHeight(AppSize.s84),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+          padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
           child: searchBar,
         ),
       ),

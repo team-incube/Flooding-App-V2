@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.s24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.center,
               style: AppTextStyle.text2.copyWith(color: AppColors.lightSub1),
             ),
-            const SizedBox(height: AppSpacing.s24),
+            SizedBox(height: AppSpacing.s24),
             PrimaryActionButton(
               label: '다시 로그인',
               expand: true,

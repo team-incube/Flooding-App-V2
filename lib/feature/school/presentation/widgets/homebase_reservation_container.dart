@@ -49,7 +49,7 @@ class HomebaseReservationContainer extends StatelessWidget {
                   ),
                 ),
                 if (canDelete) ...[
-                  const SizedBox(width: AppSpacing.s8),
+                  SizedBox(width: AppSpacing.s8),
                   IconButton(
                     onPressed: onDelete,
                     icon: AppIcon.trash(color: AppColors.negative),
@@ -62,12 +62,12 @@ class HomebaseReservationContainer extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: AppSpacing.s8),
+            SizedBox(height: AppSpacing.s8),
             Text(
               studentsText,
               style: AppTextStyle.text4.copyWith(color: AppColors.lightSub1),
             ),
-            const SizedBox(height: AppSpacing.s4),
+            SizedBox(height: AppSpacing.s4),
             Text(
               '교시: $periodsText',
               style: AppTextStyle.text4.copyWith(color: AppColors.lightSub2),

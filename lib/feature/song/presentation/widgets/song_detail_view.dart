@@ -127,7 +127,7 @@ class _SongDetailViewState extends State<SongDetailView> {
                   onTap: () => Navigator.pop(context),
                   child: AppIcon.back(),
                 ),
-                const SizedBox(width: AppSpacing.s4),
+                SizedBox(width: AppSpacing.s4),
                 Text(
                   '음악신청',
                   style: AppTextStyle.text2.copyWith(
@@ -150,7 +150,7 @@ class _SongDetailViewState extends State<SongDetailView> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+              padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
               child: SearchTextField(
                 textEditingController: _songSearchController,
                 hintText: '학생 이름, 노래 제목을 입력해주세요',
@@ -211,7 +211,7 @@ class _SongDetailViewState extends State<SongDetailView> {
               context.read<MusicBloc>().add(MusicEvent.cancelRequested(music.id)),
         );
       },
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s16),
+      separatorBuilder: (_, __) => SizedBox(height: AppSpacing.s16),
       itemCount: musics.length,
     );
   }
@@ -231,7 +231,7 @@ class _EmptyMessage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppIcon.speaker(size: AppSize.s100),
-          const SizedBox(height: AppSpacing.s12),
+          SizedBox(height: AppSpacing.s12),
           Text(
             message,
             style: AppTextStyle.text2.copyWith(color: AppColors.lightSub2),

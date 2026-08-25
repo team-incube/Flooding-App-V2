@@ -10,14 +10,14 @@ class DormitoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
+    return SingleChildScrollView(
       child: Column(
         children: [
-          StudyCountCard(),
+          const StudyCountCard(),
           SizedBox(height: AppSpacing.s16),
-          MassageCountCard(),
+          const MassageCountCard(),
           SizedBox(height: AppSpacing.s16),
-          WakeMusicCard(),
+          const WakeMusicCard(),
         ],
       ),
     );

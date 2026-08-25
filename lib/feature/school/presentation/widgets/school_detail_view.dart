@@ -189,14 +189,14 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+              padding: EdgeInsets.symmetric(vertical: AppSpacing.s4),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: AppIcon.back(),
                   ),
-                  const SizedBox(width: AppSpacing.s4),
+                  SizedBox(width: AppSpacing.s4),
                   Text(
                     '홈베이스 예약',
                     style: AppTextStyle.text2.copyWith(
@@ -211,7 +211,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: AppSpacing.s16),
+                    SizedBox(height: AppSpacing.s16),
                     HomeBaseSeatSelectCard(
                       showTableNumber: true,
                       showCard: false,
@@ -227,7 +227,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                       onTableNumberChanged: (tableNumber) =>
                           setState(() => _tableNumber = tableNumber),
                     ),
-                    const SizedBox(height: AppSpacing.s16),
+                    SizedBox(height: AppSpacing.s16),
                     // 검색창·검색 아이콘·결과 목록을 탭해도 화면 전체의
                     // "바깥 탭 시 닫기" 제스처로 새지 않도록 여기서 흡수한다.
                     GestureDetector(
@@ -242,7 +242,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                             onChanged: _onQueryChanged,
                           ),
                           if (_searchResults.isNotEmpty) ...[
-                            const SizedBox(height: AppSpacing.s8),
+                            SizedBox(height: AppSpacing.s8),
                             Container(
                               key: _searchResultsKey,
                               constraints: const BoxConstraints(
@@ -265,7 +265,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                               ),
                               child: ListView.separated(
                                 shrinkWrap: true,
-                                padding: const EdgeInsets.symmetric(
+                                padding: EdgeInsets.symmetric(
                                   vertical: AppSpacing.s8,
                                 ),
                                 itemCount: _searchResults.length,
@@ -280,7 +280,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                                   return InkWell(
                                     onTap: () => _selectStudent(student),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
+                                      padding: EdgeInsets.symmetric(
                                         horizontal: AppSpacing.s16,
                                         vertical: AppSpacing.s8,
                                       ),
@@ -299,14 +299,14 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.s16),
+                    SizedBox(height: AppSpacing.s16),
                     CountedTextField(
                       controller: _reasonController,
                       hintText: '이용 사유를 입력해주세요.',
                       maxLength: _reasonMaxLength,
                     ),
                     if (_selectedStudents.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.s16),
+                      SizedBox(height: AppSpacing.s16),
                       Wrap(
                         spacing: AppSpacing.s4,
                         runSpacing: AppSpacing.s8,
@@ -323,7 +323,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.s16),
+            SizedBox(height: AppSpacing.s16),
             BlocBuilder<SchoolBloc, SchoolState>(
               buildWhen: (prev, curr) => prev.isSubmitting != curr.isSubmitting,
               builder: (context, state) => PrimaryActionButton(
@@ -336,7 +336,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                 borderRadius: AppRadius.s8,
               ),
             ),
-            const SizedBox(height: AppSpacing.s4),
+            SizedBox(height: AppSpacing.s4),
             Align(
               alignment: Alignment.bottomLeft,
               child: Text(
@@ -344,7 +344,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                 style: AppTextStyle.text4.copyWith(color: AppColors.lightSub2),
               ),
             ),
-            const SizedBox(height: AppSpacing.s16),
+            SizedBox(height: AppSpacing.s16),
           ],
         ),
       ),

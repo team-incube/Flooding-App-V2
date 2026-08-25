@@ -81,7 +81,7 @@ class _Uploader extends StatelessWidget {
         height: _height,
         width: double.infinity,
         child: CustomPaint(
-          painter: const _DashedBorderPainter(
+          painter: _DashedBorderPainter(
             color: AppColors.lightP1,
             radius: AppRadius.s8,
           ),
@@ -109,7 +109,7 @@ class _EmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AppIcon.camera(color: AppColors.lightSub2),
-          const SizedBox(height: AppSpacing.s6),
+          SizedBox(height: AppSpacing.s6),
           Text(
             '프로필 사진을 등록해보세요',
             style: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
