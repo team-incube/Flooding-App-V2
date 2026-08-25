@@ -32,7 +32,9 @@ class _SongDetailViewState extends State<SongDetailView> {
     super.initState();
     // 셸 진입 시 이미 1회 로드되므로, 화면 진입의 재조회는 인디케이터 없이
     // 값만 갱신한다(refresh) — 홈에서 신청한 곡이 바로 반영되도록.
-    context.read<MusicBloc>().add(const MusicEvent.listRequested(refresh: true));
+    context.read<MusicBloc>().add(
+      const MusicEvent.listRequested(refresh: true),
+    );
   }
 
   @override
@@ -111,64 +113,68 @@ class _SongDetailViewState extends State<SongDetailView> {
       ],
       child: BlocBuilder<MusicBloc, MusicState>(
         builder: (context, state) {
-        final isLoading =
-            state.listStatus == MusicListStatus.initial ||
-            state.listStatus == MusicListStatus.loading ||
-            (state.listStatus == MusicListStatus.refreshing &&
-                state.totalCount == 0);
+          final isLoading =
+              state.listStatus == MusicListStatus.initial ||
+              state.listStatus == MusicListStatus.loading ||
+              (state.listStatus == MusicListStatus.refreshing &&
+                  state.totalCount == 0);
 
-        final musics = state.musics;
+          final musics = state.musics;
 
-        return Column(
-          children: [
-            Row(
+          return SafeArea(
+            top: false,
+            child: Column(
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: AppIcon.back(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: AppIcon.back(),
+                    ),
+                    SizedBox(width: AppSpacing.s4),
+                    Text(
+                      '음악신청',
+                      style: AppTextStyle.text2.copyWith(
+                        color: AppColors.lightMainText,
+                      ),
+                    ),
+                    const Spacer(flex: 1),
+                    // 오늘이 아닌 날짜를 보고 있을 때만, 어느 날짜인지 함께 알린다.
+                    if (state.date case final date? when !_isToday(date))
+                      Text(
+                        _formatDate(date),
+                        style: AppTextStyle.caption1.copyWith(
+                          color: AppColors.lightSub2,
+                        ),
+                      ),
+                    IconButton(
+                      onPressed: () => _pickDate(state.date),
+                      icon: AppIcon.calendar(),
+                    ),
+                  ],
                 ),
-                SizedBox(width: AppSpacing.s4),
-                Text(
-                  '음악신청',
-                  style: AppTextStyle.text2.copyWith(
-                    color: AppColors.lightMainText,
-                  ),
-                ),
-                const Spacer(flex: 1),
-                // 오늘이 아닌 날짜를 보고 있을 때만, 어느 날짜인지 함께 알린다.
-                if (state.date case final date? when !_isToday(date))
-                  Text(
-                    _formatDate(date),
-                    style: AppTextStyle.caption1.copyWith(
-                      color: AppColors.lightSub2,
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
+                  child: SearchTextField(
+                    textEditingController: _songSearchController,
+                    hintText: '학생 이름, 노래 제목을 입력해주세요',
+                    onChanged: (value) => context.read<MusicBloc>().add(
+                      MusicEvent.searched(value),
                     ),
                   ),
-                IconButton(
-                  onPressed: () => _pickDate(state.date),
-                  icon: AppIcon.calendar(),
+                ),
+                Expanded(
+                  child: _buildBody(
+                    isLoading: isLoading,
+                    hasAny: state.totalCount > 0,
+                    musics: musics,
+                    myUserId: myUserId,
+                    // 기숙사 관리자·어드민은 모든 사용자의 곡을 삭제할 수 있다.
+                    canManageAll: context.isManager,
+                  ),
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
-              child: SearchTextField(
-                textEditingController: _songSearchController,
-                hintText: '학생 이름, 노래 제목을 입력해주세요',
-                onChanged: (value) =>
-                    context.read<MusicBloc>().add(MusicEvent.searched(value)),
-              ),
-            ),
-            Expanded(
-              child: _buildBody(
-                isLoading: isLoading,
-                hasAny: state.totalCount > 0,
-                musics: musics,
-                myUserId: myUserId,
-                // 기숙사 관리자·어드민은 모든 사용자의 곡을 삭제할 수 있다.
-                canManageAll: context.isManager,
-              ),
-            ),
-          ],
           );
         },
       ),
@@ -207,8 +213,9 @@ class _SongDetailViewState extends State<SongDetailView> {
           onLikePressed: () =>
               context.read<MusicBloc>().add(MusicEvent.likeToggled(music.id)),
           canDelete: canDelete,
-          onDeletePressed: () =>
-              context.read<MusicBloc>().add(MusicEvent.cancelRequested(music.id)),
+          onDeletePressed: () => context.read<MusicBloc>().add(
+            MusicEvent.cancelRequested(music.id),
+          ),
         );
       },
       separatorBuilder: (_, __) => SizedBox(height: AppSpacing.s16),

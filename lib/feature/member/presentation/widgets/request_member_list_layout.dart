@@ -61,28 +61,33 @@ class RequestMemberListLayout extends StatelessWidget {
             ) ??
             [];
 
-        return CustomScrollView(
-          physics: memberList.isNotEmpty
-              ? const ClampingScrollPhysics()
-              : const NeverScrollableScrollPhysics(),
-          slivers: [
-            _TopBar(searchBar: searchBar, title: title),
-            if (memberList.isNotEmpty) ...{
-              _MemberGridLayout(
-                memberList: memberList,
-                showAttendanceBadge: supportsAttendance,
-                showMedal: showMedal,
-                onCheckIn: canCheckAttendance ? onCheckIn : null,
-                onCheckOut: canCheckAttendance ? onCheckOut : null,
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: _bottomPadding)),
-            } else ...{
-              const SliverToBoxAdapter(
-                child: SizedBox(height: _emptyTopPadding),
-              ),
-              SliverFillRemaining(child: Center(child: emptyIcon)),
-            },
-          ],
+        return SafeArea(
+          top: false,
+          child: CustomScrollView(
+            physics: memberList.isNotEmpty
+                ? const ClampingScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
+            slivers: [
+              _TopBar(searchBar: searchBar, title: title),
+              if (memberList.isNotEmpty) ...{
+                _MemberGridLayout(
+                  memberList: memberList,
+                  showAttendanceBadge: supportsAttendance,
+                  showMedal: showMedal,
+                  onCheckIn: canCheckAttendance ? onCheckIn : null,
+                  onCheckOut: canCheckAttendance ? onCheckOut : null,
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: _bottomPadding),
+                ),
+              } else ...{
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: _emptyTopPadding),
+                ),
+                SliverFillRemaining(child: Center(child: emptyIcon)),
+              },
+            ],
+          ),
         );
       },
     );

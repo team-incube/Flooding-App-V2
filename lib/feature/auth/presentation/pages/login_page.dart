@@ -74,31 +74,31 @@ class _LoginPageState extends State<LoginPage> {
     if (_authenticating) {
       return const Scaffold(
         backgroundColor: AppColors.lightBackground,
-        body: Center(
-          child: AppLoadingIndicator(),
-        ),
+        body: Center(child: AppLoadingIndicator()),
       );
     }
 
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: AppSpacing.s24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              widget.controller.error ?? '로그인이 필요합니다.',
-              textAlign: TextAlign.center,
-              style: AppTextStyle.text2.copyWith(color: AppColors.lightSub1),
-            ),
-            SizedBox(height: AppSpacing.s24),
-            PrimaryActionButton(
-              label: '다시 로그인',
-              expand: true,
-              onPressed: _login,
-            ),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                widget.controller.error ?? '로그인이 필요합니다.',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.text2.copyWith(color: AppColors.lightSub1),
+              ),
+              SizedBox(height: AppSpacing.s24),
+              PrimaryActionButton(
+                label: '다시 로그인',
+                expand: true,
+                onPressed: _login,
+              ),
+            ],
+          ),
         ),
       ),
     );
