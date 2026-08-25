@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/core/network/network_error_reporter.dart';
@@ -85,26 +86,33 @@ class _FloodingAppState extends State<FloodingApp> {
       value: _userService,
       child: BlocProvider.value(
         value: _meBloc,
-        child: MaterialApp.router(
-          title: 'flooding_v2',
-          debugShowCheckedModeBanner: false,
-          theme: LightTheme.theme,
-          // 앱 UI 가 라이트 전용이라 라이트로 고정한다. system 으로 두면 기기가
-          // 다크일 때 ThemeData 만 다크로 바뀌어, 페이지 트랜지션이 배경으로
-          // 쓰는 colorScheme.surface 가 검정이 되면서 전환 중 검은 영역이 비친다.
-          themeMode: ThemeMode.light,
-          routerConfig: _router,
-          // 기기별 접근성 글꼴 확대 설정이 그대로 흘러들어와 카드/버튼이 깨지는 것을
-          // 막기 위해 스케일을 0.85~1.3 범위로 제한한다.
-          builder: (context, child) {
-            final clampedScaler = MediaQuery.textScalerOf(
-              context,
-            ).clamp(minScaleFactor: 0.85, maxScaleFactor: 1.3);
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: clampedScaler),
-              child: child!,
-            );
-          },
+        // 402x874 (Figma 디자인 기준 프레임)를 기준으로 화면 폭에 비례해
+        // AppSize/AppSpacing/AppRadius/AppTextStyle 을 스케일링한다.
+        child: ScreenUtilInit(
+          designSize: const Size(402, 874),
+          builder: (context, child) => MaterialApp.router(
+            title: 'flooding_v2',
+            debugShowCheckedModeBanner: false,
+            theme: LightTheme.theme,
+            // 앱 UI 가 라이트 전용이라 라이트로 고정한다. system 으로 두면 기기가
+            // 다크일 때 ThemeData 만 다크로 바뀌어, 페이지 트랜지션이 배경으로
+            // 쓰는 colorScheme.surface 가 검정이 되면서 전환 중 검은 영역이 비친다.
+            themeMode: ThemeMode.light,
+            routerConfig: _router,
+            // 기기별 접근성 글꼴 확대 설정이 그대로 흘러들어와 카드/버튼이 깨지는 것을
+            // 막기 위해 스케일을 0.85~1.3 범위로 제한한다.
+            builder: (context, child) {
+              final clampedScaler = MediaQuery.textScalerOf(
+                context,
+              ).clamp(minScaleFactor: 0.85, maxScaleFactor: 1.3);
+              return MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: clampedScaler),
+                child: child!,
+              );
+            },
+          ),
         ),
       ),
     );
