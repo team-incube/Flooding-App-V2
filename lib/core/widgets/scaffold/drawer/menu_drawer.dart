@@ -92,7 +92,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.s24,
               vertical: AppSpacing.s40,
             ),
@@ -105,7 +105,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   profileImageUrl: widget.profileImageUrl,
                   onEdit: widget.onProfileEdit,
                 ),
-                const SizedBox(height: AppSpacing.s24),
+                SizedBox(height: AppSpacing.s24),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -115,7 +115,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selected: RoutePath.home == location,
                       onTap: () => context.go(RoutePath.home),
                     ),
-                    const SizedBox(height: AppSpacing.s6),
+                    SizedBox(height: AppSpacing.s6),
                     _NavItem(
                       icon: AppIcon.dormitoryOutline,
                       selectedIcon: AppIcon.dormitoryFill,
@@ -123,7 +123,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selected: RoutePath.dormitory == location,
                       onTap: () => context.go(RoutePath.dormitory),
                     ),
-                    const SizedBox(height: AppSpacing.s6),
+                    SizedBox(height: AppSpacing.s6),
                     _NavItem(
                       icon: AppIcon.graduationCap,
                       label: '학교',
@@ -173,7 +173,7 @@ class _ProfileCard extends StatelessWidget {
     return Row(
       children: [
         _ProfileAvatar(profileImageUrl: profileImageUrl, onEdit: onEdit),
-        const SizedBox(width: AppSpacing.s16),
+        SizedBox(width: AppSpacing.s16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +185,7 @@ class _ProfileCard extends StatelessWidget {
                   color: AppColors.lightMainText,
                 ),
               ),
-              const SizedBox(height: AppSpacing.s4),
+              SizedBox(height: AppSpacing.s4),
               Row(
                 spacing: AppSpacing.s4,
                 children: [
@@ -296,14 +296,14 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.s16,
           vertical: AppSpacing.s12,
         ),
         child: Row(
           children: [
             iconBuilder(size: AppSize.s24, color: color),
-            const SizedBox(width: AppSpacing.s24),
+            SizedBox(width: AppSpacing.s24),
             Text(label, style: AppTextStyle.text2.copyWith(color: color)),
           ],
         ),
@@ -326,7 +326,7 @@ class _BottomItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.s16,
           vertical: AppSpacing.s12,
         ),
@@ -334,7 +334,7 @@ class _BottomItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             icon(size: AppSize.s24, color: AppColors.lightSub2),
-            const SizedBox(width: AppSpacing.s8),
+            SizedBox(width: AppSpacing.s8),
             Text(
               label,
               style: AppTextStyle.text2.copyWith(color: AppColors.lightSub2),

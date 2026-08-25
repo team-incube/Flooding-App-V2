@@ -38,7 +38,7 @@ class AppProgressBar extends StatelessWidget {
               ),
             ),
           if (filledFlex > 0 && emptyFlex > 0)
-            const SizedBox(width: AppSpacing.s2),
+            SizedBox(width: AppSpacing.s2),
           if (emptyFlex > 0)
             Expanded(
               flex: emptyFlex,

@@ -15,18 +15,18 @@ class PrimaryActionButton extends StatelessWidget {
     this.onPressed,
     this.enabled = true,
     this.expand = false,
-    this.horizontalPadding = AppSpacing.s16,
-    this.verticalPadding = AppSpacing.s10,
-    this.borderRadius = AppRadius.s6,
+    this.horizontalPadding,
+    this.verticalPadding,
+    this.borderRadius,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool enabled;
   final bool expand;
-  final double horizontalPadding;
-  final double verticalPadding;
-  final double borderRadius;
+  final double? horizontalPadding;
+  final double? verticalPadding;
+  final double? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +40,17 @@ class PrimaryActionButton extends StatelessWidget {
       content = Center(child: content);
     }
 
+    final resolvedBorderRadius = borderRadius ?? AppRadius.s6;
     final button = Material(
       color: background,
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(resolvedBorderRadius),
       child: InkWell(
         onTap: enabled ? onPressed : null,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(resolvedBorderRadius),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
+            horizontal: horizontalPadding ?? AppSpacing.s16,
+            vertical: verticalPadding ?? AppSpacing.s10,
           ),
           child: content,
         ),

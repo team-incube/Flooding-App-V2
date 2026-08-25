@@ -11,21 +11,21 @@ class CardHeader extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
-    this.iconSize = AppSize.s24,
+    this.iconSize,
   });
 
   /// 헤더 아이콘 팩토리. 예) `AppIcon.calendar`.
   final AppIconBuilder icon;
   final String title;
-  final double iconSize;
+  final double? iconSize;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        icon(size: iconSize),
-        const SizedBox(width: AppSpacing.s4),
+        icon(size: iconSize ?? AppSize.s24),
+        SizedBox(width: AppSpacing.s4),
         Text(
           title,
           style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),

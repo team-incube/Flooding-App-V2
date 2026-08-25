@@ -22,12 +22,7 @@ class AppFormSheet extends StatelessWidget {
     required this.onConfirm,
     this.backLabel = '뒤로가기',
     this.onBack,
-    this.contentPadding = const EdgeInsets.fromLTRB(
-      AppSpacing.s24,
-      AppSpacing.s24,
-      AppSpacing.s24,
-      0,
-    ),
+    this.contentPadding,
   });
 
   /// 상단 영역(제목 또는 네비게이터 등).
@@ -50,7 +45,7 @@ class AppFormSheet extends StatelessWidget {
 
   /// 헤더·본문 영역의 안쪽 여백(하단 버튼 영역은 제외). 캘린더처럼 더 넓은
   /// 콘텐츠는 좌우 여백을 줄여 넘겨준다.
-  final EdgeInsetsGeometry contentPadding;
+  final EdgeInsetsGeometry? contentPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -64,19 +59,26 @@ class AppFormSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: contentPadding,
+            padding:
+                contentPadding ??
+                EdgeInsets.fromLTRB(
+                  AppSpacing.s24,
+                  AppSpacing.s24,
+                  AppSpacing.s24,
+                  0,
+                ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 header,
-                const SizedBox(height: AppSpacing.s24),
+                SizedBox(height: AppSpacing.s24),
                 body,
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.s24),
+            padding: EdgeInsets.all(AppSpacing.s24),
             child: SheetActionButtons(
               confirmLabel: confirmLabel,
               onConfirm: onConfirm,
@@ -130,7 +132,7 @@ Future<T?> showAppFormDialog<T>(
     builder: (context) => Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+      insetPadding: EdgeInsets.symmetric(horizontal: AppSpacing.s16),
       child: builder(context),
     ),
   );

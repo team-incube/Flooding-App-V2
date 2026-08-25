@@ -67,7 +67,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
   Timer? _timer;
   bool _isShowingInformation = false;
 
-  static const double _iconSize = AppSize.s18;
+  static double get _iconSize => AppSize.s18;
   // 말풍선과 아이콘 사이 최소 간격.
   static const double _gap = 6.0;
   // 화면 가장자리에서 최소한 이만큼은 띄운다(좌우 대칭 — 중앙 정렬 기준).
@@ -185,7 +185,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
               Row(
                 children: [
                   CardHeader(icon: widget.icon, title: widget.title),
-                  const SizedBox(width: AppSpacing.s6),
+                  SizedBox(width: AppSpacing.s6),
                   IconButton(
                     key: _iconKey,
                     style: IconButton.styleFrom(
@@ -203,7 +203,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.s8),
+              SizedBox(height: AppSpacing.s8),
               Center(
                 child: Text(
                   '${widget.current}/${widget.total}',
@@ -212,9 +212,9 @@ class _RequestCountCardState extends State<RequestCountCard> {
                   ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.s8),
+              SizedBox(height: AppSpacing.s8),
               AppProgressBar(current: widget.current, total: widget.total),
-              const SizedBox(height: AppSpacing.s8),
+              SizedBox(height: AppSpacing.s8),
               Align(
                 alignment: Alignment.centerRight,
                 child: PrimaryActionButton(
@@ -263,7 +263,7 @@ class _SeeAllLink extends StatelessWidget {
               color: AppColors.lightHintText,
             ),
           ),
-          const SizedBox(width: AppSpacing.s4),
+          SizedBox(width: AppSpacing.s4),
           AppIcon.chevronRight(size: AppSize.s14, color: AppColors.lightSub2),
         ],
       ),
@@ -282,8 +282,8 @@ class _InformationBubble extends StatelessWidget {
   static const _tailHeight = 8.0;
   // _RequestCountCardState._hasRoomAbove 도 같은 값으로 높이를 미리 재야
   // 실제 렌더 크기와 어긋나지 않는다.
-  static const _horizontalPadding = AppSpacing.s16;
-  static const _verticalPadding = AppSpacing.s8;
+  static double get _horizontalPadding => AppSpacing.s16;
+  static double get _verticalPadding => AppSpacing.s8;
 
   const _InformationBubble({
     required this.text,
@@ -297,13 +297,13 @@ class _InformationBubble extends StatelessWidget {
       painter: _InformationBubblePainter(tailDx: tailDx, pointingDown: pointingDown),
       child: Padding(
         padding: pointingDown
-            ? const EdgeInsets.fromLTRB(
+            ? EdgeInsets.fromLTRB(
                 _horizontalPadding,
                 _verticalPadding,
                 _horizontalPadding,
                 _verticalPadding + _tailHeight,
               )
-            : const EdgeInsets.fromLTRB(
+            : EdgeInsets.fromLTRB(
                 _horizontalPadding,
                 _verticalPadding + _tailHeight,
                 _horizontalPadding,
