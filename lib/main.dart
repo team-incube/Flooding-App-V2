@@ -99,16 +99,13 @@ class _FloodingAppState extends State<FloodingApp> {
             // 쓰는 colorScheme.surface 가 검정이 되면서 전환 중 검은 영역이 비친다.
             themeMode: ThemeMode.light,
             routerConfig: _router,
-            // 기기별 접근성 글꼴 확대 설정이 그대로 흘러들어와 카드/버튼이 깨지는 것을
-            // 막기 위해 스케일을 0.85~1.3 범위로 제한한다.
+            // 디자인 기준 글자 크기를 항상 그대로 보여주기 위해 기기 접근성 글꼴
+            // 확대 설정을 무시한다(screenutil로 화면 비례 스케일은 이미 적용됨).
             builder: (context, child) {
-              final clampedScaler = MediaQuery.textScalerOf(
-                context,
-              ).clamp(minScaleFactor: 0.85, maxScaleFactor: 1.3);
               return MediaQuery(
                 data: MediaQuery.of(
                   context,
-                ).copyWith(textScaler: clampedScaler),
+                ).copyWith(textScaler: TextScaler.noScaling),
                 child: child!,
               );
             },
