@@ -4,6 +4,7 @@ import '../../../core/config/env.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
+import '../../../core/utils/token_utils.dart';
 import '../data/datagsm_auth_service.dart';
 import '../data/datasources/token_storage.dart';
 import '../data/flooding_auth_service.dart';
@@ -83,10 +84,12 @@ class AuthController extends ChangeNotifier {
   ///
   /// 저장된 토큰이 없으면 미인증. 토큰이 있으면 `/users/me` 로 세션 유효성을
   /// 검사해, 401 이면 토큰을 비우고 미인증(로그인 화면)으로 보낸다.
-  /// 네트워크 등으로 판단이 불가하면 오프라인 사용자를 막지 않도록 진입을 허용한다.
+  /// 네트워크 등으로 판단이 불가하면, 저장된 토큰이 로컬에서 아직 만료되지
+  /// 않은 이상 오프라인 사용자를 막지 않도록 진입을 허용한다 — 서버 응답이
+  /// 느리다는 이유만으로 매번 재로그인을 시키지 않기 위함이다.
   Future<void> bootstrap() async {
-    final hasToken = await _tokenStorage.hasToken();
-    if (!hasToken) {
+    final accessToken = await _tokenStorage.readAccessToken();
+    if (accessToken == null) {
       _set(AuthStatus.unauthenticated);
       return;
     }
@@ -98,7 +101,11 @@ class AuthController extends ChangeNotifier {
       return;
     }
     if (result.check == SessionCheck.networkError) {
-      _fail(ApiException.networkMessage);
+      if (TokenUtils.isExpired(accessToken)) {
+        _fail(ApiException.networkMessage);
+      } else {
+        _setAuthenticated();
+      }
       return;
     }
     // 검사용 호출이 받아온 내 정보를 보관해, 진입 직후 재조회를 생략한다.

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../utils/logger.dart';
+import '../utils/token_utils.dart';
 
 /// 저장된 토큰을 읽어오는 콜백.
 typedef TokenProvider = Future<String?> Function();
@@ -49,7 +50,29 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final accessToken = await _accessTokenProvider();
+    var accessToken = await _accessTokenProvider();
+
+    // 만료된 걸 로컬에서 미리 알 수 있으면, 401을 기다렸다가 갱신하는 대신
+    // 요청 전에 먼저 갱신해 왕복 한 번을 줄인다.
+    if (accessToken != null && TokenUtils.isExpired(accessToken)) {
+      final refreshToken = await _refreshTokenProvider();
+      if (refreshToken != null) {
+        try {
+          accessToken = await _refreshOnce(refreshToken);
+        } catch (e) {
+          Logger.e('요청 전 토큰 선제 갱신 실패 — 세션 종료', tag: 'AUTH', error: e);
+          await _onSessionExpired();
+          return handler.reject(
+            DioException(
+              requestOptions: options,
+              type: DioExceptionType.cancel,
+              error: '인증 토큰 갱신에 실패했습니다.',
+            ),
+          );
+        }
+      }
+    }
+
     if (accessToken != null) {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
