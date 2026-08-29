@@ -38,8 +38,8 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
 
   // 검색 결과는 최대 3줄만 보이고 나머지는 스크롤된다.
   static const int _visibleResultCount = 3;
-  static const double _resultRowHeight = 38;
-  static const double _resultDividerHeight = 16;
+  static const double _resultRowHeight = AppSpacing.s16 * 2 + 20;
+  static const double _resultDividerHeight = 1;
   static const double _resultListMaxHeight =
       _resultRowHeight * _visibleResultCount +
       _resultDividerHeight * (_visibleResultCount - 1);
@@ -265,9 +265,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                               ),
                               child: ListView.separated(
                                 shrinkWrap: true,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: AppSpacing.s8,
-                                ),
+                                padding: EdgeInsets.zero,
                                 itemCount: _searchResults.length,
                                 separatorBuilder: (context, index) =>
                                     const Divider(
@@ -280,9 +278,8 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                                   return InkWell(
                                     onTap: () => _selectStudent(student),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: AppSpacing.s16,
-                                        vertical: AppSpacing.s8,
+                                      padding: const EdgeInsets.all(
+                                        AppSpacing.s16,
                                       ),
                                       child: Text(
                                         '${student.studentNumber} ${student.name}',
