@@ -136,7 +136,7 @@ class _ChatHeader extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => context.pop(),
-            child: AppIcon.chevronLeft(color: AppColors.lightMainText),
+            child: AppIcon.chevronLeft(),
           ),
           const SizedBox(width: AppSpacing.s4),
           Text(
