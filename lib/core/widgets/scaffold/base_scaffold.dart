@@ -152,7 +152,7 @@ class _FloodingLogoAppBar extends StatelessWidget
               splashFactory: NoSplash.splashFactory,
             ),
             onPressed: onMenuTap ?? () => Scaffold.of(context).openEndDrawer(),
-            icon: AppIcon.dehaze(color: AppColors.lightMainText),
+            icon: AppIcon.dehaze(),
           ),
         ],
       ),
