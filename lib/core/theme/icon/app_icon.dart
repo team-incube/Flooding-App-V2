@@ -46,6 +46,8 @@ class AppIcon {
       _svg('sparkle.svg', size: size, color: color);
   static Widget chatBot({double size = AppSize.s24, Color? color}) =>
       _svg('chat_bot.svg', size: size, color: color);
+  static Widget sendArrow({double size = AppSize.s24, Color? color}) =>
+      _svg('send_arrow.svg', size: size, color: color);
   static Widget female({double size = AppSize.s24, Color? color}) =>
       _svg('female.svg', size: size, color: color);
   static Widget male({double size = AppSize.s24, Color? color}) =>
@@ -54,6 +56,8 @@ class AppIcon {
       _svg('filter.svg', size: size, color: color);
   static Widget graduationCap({double size = AppSize.s24, Color? color}) =>
       _svg('graduation_cap.svg', size: size, color: color);
+  static Widget graduationCapFill({double size = AppSize.s24, Color? color}) =>
+      _svg('graduation_cap_fill.svg', size: size, color: color);
   /// 프로필 편집 뱃지 아이콘.
   static Widget profileEdit({double size = AppSize.s24, Color? color}) =>
       _svg('profile_edit.svg', size: size, color: color);
@@ -78,6 +82,8 @@ class AppIcon {
   // 메뉴 드로어
   static Widget navHome({double size = AppSize.s24, Color? color}) =>
       _svg('nav_home.svg', size: size, color: color);
+  static Widget navHomeFill({double size = AppSize.s24, Color? color}) =>
+      _svg('nav_home_fill.svg', size: size, color: color);
   static Widget dormitoryOutline({double size = AppSize.s24, Color? color}) =>
       _svg('dormitory_outline.svg', size: size, color: color);
   static Widget dormitoryFill({double size = AppSize.s24, Color? color}) =>

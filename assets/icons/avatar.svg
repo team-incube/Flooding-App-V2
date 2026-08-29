@@ -1,12 +1,14 @@
-<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_3304_17792)">
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Profile">
+<g clip-path="url(#clip0_0_58)">
 <rect width="52" height="52" rx="26" fill="#E2E2EE"/>
-<ellipse cx="26.0001" cy="45.0244" rx="18.3902" ry="10.7805" fill="#F7F7F9"/>
-<circle cx="26.0001" cy="22.8292" r="8.87805" fill="#F7F7F9"/>
+<ellipse id="Ellipse 396" cx="26" cy="45.0244" rx="18.3902" ry="10.7805" fill="#F7F7F9"/>
+<circle id="Ellipse 398" cx="26" cy="22.8293" r="8.87805" fill="#F7F7F9"/>
 </g>
 <rect x="1.26829" y="1.26829" width="49.4634" height="49.4634" rx="24.7317" stroke="#E2E2EE" stroke-width="2.53659"/>
+</g>
 <defs>
-<clipPath id="clip0_3304_17792">
+<clipPath id="clip0_0_58">
 <rect width="52" height="52" rx="26" fill="white"/>
 </clipPath>
 </defs>
