@@ -44,7 +44,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
         borderRadius: BorderRadius.circular(AppRadius.s12),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s24),
+        padding: EdgeInsets.all(AppSpacing.s24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -79,7 +79,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.s24),
+            SizedBox(height: AppSpacing.s24),
             _TagLine<int>(
               title: '학년',
               initValue: grade,
@@ -88,7 +88,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                 grade = value;
               },
             ),
-            const SizedBox(height: AppSpacing.s24),
+            SizedBox(height: AppSpacing.s24),
             _TagLine<int>(
               title: '반',
               initValue: classNb,
@@ -97,7 +97,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                 classNb = value;
               },
             ),
-            const SizedBox(height: AppSpacing.s24),
+            SizedBox(height: AppSpacing.s24),
             _TagLine<String>(
               title: '성별',
               initValue: gender,
@@ -106,7 +106,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                 gender = value;
               },
             ),
-            const SizedBox(height: AppSpacing.s24),
+            SizedBox(height: AppSpacing.s24),
 
             Row(
               children: [
@@ -120,7 +120,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                     backgroundColor: AppColors.lightP3,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.s8),
+                SizedBox(width: AppSpacing.s8),
                 Expanded(
                   child: PrimaryActionButton(
                     label: '적용',
@@ -211,7 +211,7 @@ class _TagLineState<T> extends State<_TagLine<T>> {
         },
         borderRadius: radius,
         child: Ink(
-          padding: const EdgeInsets.symmetric(
+          padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.s16,
             vertical: AppSpacing.s8,
           ),

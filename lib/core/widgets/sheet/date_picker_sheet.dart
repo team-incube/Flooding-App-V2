@@ -66,7 +66,7 @@ class _DatePickerSheetState extends State<DatePickerSheet> {
   @override
   Widget build(BuildContext context) {
     return AppFormSheet(
-      contentPadding: const EdgeInsets.fromLTRB(
+      contentPadding: EdgeInsets.fromLTRB(
         AppSpacing.s12,
         AppSpacing.s24,
         AppSpacing.s12,
@@ -81,7 +81,7 @@ class _DatePickerSheetState extends State<DatePickerSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const _WeekdayRow(labels: _weekdayLabels),
-          const SizedBox(height: AppSpacing.s8),
+          SizedBox(height: AppSpacing.s8),
           _CalendarGrid(
             month: _selected,
             selected: _selected,
@@ -113,12 +113,12 @@ class _DateNavigator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _Chevron(onTap: onPrev, pointsLeft: true),
-        const SizedBox(width: AppSpacing.s8),
+        SizedBox(width: AppSpacing.s8),
         Text(
           label,
           style: AppTextStyle.text2.copyWith(color: AppColors.lightSub1),
         ),
-        const SizedBox(width: AppSpacing.s8),
+        SizedBox(width: AppSpacing.s8),
         _Chevron(onTap: onNext),
       ],
     );
@@ -217,7 +217,7 @@ class _CalendarGrid extends StatelessWidget {
       weeks.add(
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: cells),
       );
-      if (week < 5) weeks.add(const SizedBox(height: AppSpacing.s12));
+      if (week < 5) weeks.add(SizedBox(height: AppSpacing.s12));
     }
 
     return Container(
@@ -225,7 +225,7 @@ class _CalendarGrid extends StatelessWidget {
         color: AppColors.lightBackground,
         borderRadius: BorderRadius.circular(AppRadius.s8),
       ),
-      padding: const EdgeInsets.all(AppSpacing.s8),
+      padding: EdgeInsets.all(AppSpacing.s8),
       child: Column(mainAxisSize: MainAxisSize.min, children: weeks),
     );
   }

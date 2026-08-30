@@ -95,9 +95,9 @@ class _SchoolViewState extends State<SchoolView> {
                             _periods = periods;
                           }),
                         ),
-                        const SizedBox(height: AppSpacing.s16),
+                        SizedBox(height: AppSpacing.s16),
                         if (isLoading)
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(
                               vertical: AppSpacing.s24,
                             ),
@@ -130,7 +130,7 @@ class _SchoolViewState extends State<SchoolView> {
                   horizontalPadding: AppSpacing.s24,
                   borderRadius: AppRadius.s8,
                 ),
-                const SizedBox(height: AppSpacing.s4),
+                SizedBox(height: AppSpacing.s4),
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: Text(
@@ -140,7 +140,7 @@ class _SchoolViewState extends State<SchoolView> {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.s16),
+                SizedBox(height: AppSpacing.s16),
               ],
             ),
           );

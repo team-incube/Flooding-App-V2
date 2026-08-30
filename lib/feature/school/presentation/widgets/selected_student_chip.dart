@@ -18,7 +18,7 @@ class SelectedStudentChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.s24,
         vertical: AppSpacing.s12,
       ),
@@ -34,7 +34,7 @@ class SelectedStudentChip extends StatelessWidget {
             '${student.studentNumber} ${student.name}',
             style: AppTextStyle.text4.copyWith(color: AppColors.lightSub1),
           ),
-          const SizedBox(width: AppSpacing.s8),
+          SizedBox(width: AppSpacing.s8),
           GestureDetector(
             onTap: onRemove,
             behavior: HitTestBehavior.opaque,

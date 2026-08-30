@@ -28,13 +28,13 @@ class ChatInputBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s12),
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.s12),
         color: AppColors.lightBackground,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(child: _InputField(controller: controller, hint: hintText)),
-            const SizedBox(width: AppSpacing.s8),
+            SizedBox(width: AppSpacing.s8),
             _SendButton(controller: controller, onSend: onSend),
           ],
         ),
@@ -52,8 +52,8 @@ class _InputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: AppSize.s52),
-      padding: const EdgeInsets.symmetric(
+      constraints: BoxConstraints(minHeight: AppSize.s52),
+      padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.s16,
         vertical: AppSpacing.s14,
       ),

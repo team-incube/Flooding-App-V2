@@ -18,6 +18,7 @@ class AppIcon {
   static const String _base = 'assets/icons';
 
   // 공통
+
   static Widget logo({double size = AppSize.s24, Color? color}) =>
       _svg('logo.svg', size: size, color: color);
   static Widget calendar({double size = AppSize.s24, Color? color}) =>
@@ -58,28 +59,30 @@ class AppIcon {
       _svg('graduation_cap.svg', size: size, color: color);
   static Widget graduationCapFill({double size = AppSize.s24, Color? color}) =>
       _svg('graduation_cap_fill.svg', size: size, color: color);
+  
   /// 프로필 편집 뱃지 아이콘.
-  static Widget profileEdit({double size = AppSize.s24, Color? color}) =>
-      _svg('profile_edit.svg', size: size, color: color);
-  static Widget heart({double size = AppSize.s24, Color? color}) =>
-      _svg('heart.svg', size: size, color: color);
-  static Widget filledHeart({double size = AppSize.s24, Color? color}) =>
-      _svg('filled_heart.svg', size: size, color: color);
-  static Widget back({double size = AppSize.s24, Color? color}) =>
-      _svg('back.svg', size: size, color: color);
-  static Widget search({double size = AppSize.s24, Color? color}) =>
-      _svg('search.svg', size: size, color: color);
-  static Widget medalGold({double size = AppSize.s24, double? width, double? height, Color? color}) =>
-      _svgRect('medal_gold.svg', width: width ?? size, height: height ?? size, color: color);
-  static Widget medalSilver({double size = AppSize.s24, double? width, double? height, Color? color}) =>
-      _svgRect('medal_silver.svg', width: width ?? size, height: height ?? size, color: color);
-  static Widget medalBronze({double size = AppSize.s24, double? width, double? height, Color? color}) =>
-      _svgRect('medal_bronze.svg', width: width ?? size, height: height ?? size, color: color);
-  static Widget home({double size = AppSize.s24, double? width, double? height, Color? color}) =>
-      _svgRect('home.svg', width: width ?? size, height: height ?? size, color: color);
+  static Widget profileEdit({double? size, Color? color}) =>
+      _svg('profile_edit.svg', size: size ?? AppSize.s24, color: color);
+  static Widget heart({double? size, Color? color}) =>
+      _svg('heart.svg', size: size ?? AppSize.s24, color: color);
+  static Widget filledHeart({double? size, Color? color}) =>
+      _svg('filled_heart.svg', size: size ?? AppSize.s24, color: color);
+  static Widget back({double? size, Color? color}) =>
+      _svg('back.svg', size: size ?? AppSize.s24, color: color);
+  static Widget search({double? size, Color? color}) =>
+      _svg('search.svg', size: size ?? AppSize.s24, color: color);
+  static Widget medalGold({double? size, double? width, double? height, Color? color}) =>
+      _svgRect('medal_gold.svg', width: width ?? size ?? AppSize.s24, height: height ?? size ?? AppSize.s24, color: color);
+  static Widget medalSilver({double? size, double? width, double? height, Color? color}) =>
+      _svgRect('medal_silver.svg', width: width ?? size ?? AppSize.s24, height: height ?? size ?? AppSize.s24, color: color);
+  static Widget medalBronze({double? size, double? width, double? height, Color? color}) =>
+      _svgRect('medal_bronze.svg', width: width ?? size ?? AppSize.s24, height: height ?? size ?? AppSize.s24, color: color);
+  static Widget home({double? size, double? width, double? height, Color? color}) =>
+      _svgRect('home.svg', width: width ?? size ?? AppSize.s24, height: height ?? size ?? AppSize.s24, color: color);
 
 
   // 메뉴 드로어
+
   static Widget navHome({double size = AppSize.s24, Color? color}) =>
       _svg('nav_home.svg', size: size, color: color);
   static Widget navHomeFill({double size = AppSize.s24, Color? color}) =>
@@ -96,8 +99,8 @@ class AppIcon {
       _svg('trash.svg', size: size, color: color);
 
   /// 프로필 기본 아바타(52px, 풀컬러라 색 인자는 두지 않는다).
-  static Widget avatar({double size = AppSize.s52}) =>
-      _svg('avatar.svg', size: size);
+  static Widget avatar({double? size}) =>
+      _svg('avatar.svg', size: size ?? AppSize.s52);
 
   static Widget _svg(String name, {required double size, Color? color}) =>
       _svgRect(name, width: size, height: size, color: color);

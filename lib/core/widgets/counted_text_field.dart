@@ -46,7 +46,7 @@ class _CountedTextFieldState extends State<CountedTextField> {
         Container(
           width: double.infinity,
           height: 120,
-          padding: const EdgeInsets.all(AppSpacing.s16),
+          padding: EdgeInsets.all(AppSpacing.s16),
           decoration: BoxDecoration(
             color: AppColors.lightBackground,
             borderRadius: BorderRadius.circular(AppRadius.s8),
@@ -68,7 +68,7 @@ class _CountedTextFieldState extends State<CountedTextField> {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.s4),
+        SizedBox(height: AppSpacing.s4),
         Text(
           '${widget.controller.text.length}/${widget.maxLength}',
           style: AppTextStyle.caption2.copyWith(color: AppColors.lightSub2),

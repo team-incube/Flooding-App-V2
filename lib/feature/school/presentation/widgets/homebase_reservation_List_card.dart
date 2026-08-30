@@ -37,14 +37,14 @@ class HomebaseReservationListCard extends StatelessWidget {
             style: AppTextStyle.text2.copyWith(color: AppColors.lightMainText),
           ),
           if (reservations.isEmpty) ...[
-            const SizedBox(height: AppSpacing.s8),
+            SizedBox(height: AppSpacing.s8),
             Text(
               '현재 모든 테이블 예약이 가능합니다.',
               style: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
             ),
           ],
           for (final reservation in reservations) ...[
-            const SizedBox(height: AppSpacing.s8),
+            SizedBox(height: AppSpacing.s8),
             HomebaseReservationContainer(
               reservation: reservation,
               canDelete:

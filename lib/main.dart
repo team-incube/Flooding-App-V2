@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:flooding_v2/core/config/env.dart';
 import 'package:flooding_v2/core/network/network_error_reporter.dart';
@@ -85,15 +86,30 @@ class _FloodingAppState extends State<FloodingApp> {
       value: _userService,
       child: BlocProvider.value(
         value: _meBloc,
-        child: MaterialApp.router(
-          title: 'flooding_v2',
-          debugShowCheckedModeBanner: false,
-          theme: LightTheme.theme,
-          // 앱 UI 가 라이트 전용이라 라이트로 고정한다. system 으로 두면 기기가
-          // 다크일 때 ThemeData 만 다크로 바뀌어, 페이지 트랜지션이 배경으로
-          // 쓰는 colorScheme.surface 가 검정이 되면서 전환 중 검은 영역이 비친다.
-          themeMode: ThemeMode.light,
-          routerConfig: _router,
+        // 402x874 (Figma 디자인 기준 프레임)를 기준으로 화면 폭에 비례해
+        // AppSize/AppSpacing/AppRadius/AppTextStyle 을 스케일링한다.
+        child: ScreenUtilInit(
+          designSize: const Size(402, 874),
+          builder: (context, child) => MaterialApp.router(
+            title: 'flooding_v2',
+            debugShowCheckedModeBanner: false,
+            theme: LightTheme.theme,
+            // 앱 UI 가 라이트 전용이라 라이트로 고정한다. system 으로 두면 기기가
+            // 다크일 때 ThemeData 만 다크로 바뀌어, 페이지 트랜지션이 배경으로
+            // 쓰는 colorScheme.surface 가 검정이 되면서 전환 중 검은 영역이 비친다.
+            themeMode: ThemeMode.light,
+            routerConfig: _router,
+            // 디자인 기준 글자 크기를 항상 그대로 보여주기 위해 기기 접근성 글꼴
+            // 확대 설정을 무시한다(screenutil로 화면 비례 스케일은 이미 적용됨).
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.noScaling),
+                child: child!,
+              );
+            },
+          ),
         ),
       ),
     );

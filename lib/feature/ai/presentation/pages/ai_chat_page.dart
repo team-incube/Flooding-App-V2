@@ -99,7 +99,7 @@ class _AiChatViewState extends State<_AiChatView> {
                   controller: _scrollController,
                   itemCount: itemCount,
                   separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSpacing.s16),
+                      SizedBox(height: AppSpacing.s16),
                   itemBuilder: (context, index) {
                     if (state.isLoading && index == state.messages.length) {
                       // AI 메시지 버블과 좌측 정렬을 맞춘다(추가 가로 패딩 없음).
@@ -130,7 +130,7 @@ class _ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.s4),
       child: Row(
         children: [
           GestureDetector(
@@ -138,7 +138,7 @@ class _ChatHeader extends StatelessWidget {
             onTap: () => context.pop(),
             child: AppIcon.chevronLeft(),
           ),
-          const SizedBox(width: AppSpacing.s4),
+          SizedBox(width: AppSpacing.s4),
           Text(
             'AI챗봇',
             style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),

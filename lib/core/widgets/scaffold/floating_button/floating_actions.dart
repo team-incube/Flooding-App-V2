@@ -65,7 +65,7 @@ class _FloatingActionsState extends State<FloatingActions> {
         if (widget.showSongRecommend)
           _CircleAction(onTap: _openSongRecommendation, icon: AppIcon.sparkle),
         if (widget.showAiChat && widget.showSongRecommend)
-          const SizedBox(height: AppSpacing.s12),
+          SizedBox(height: AppSpacing.s12),
         if (widget.showAiChat)
           _CircleAction(onTap: _openAiChat, icon: AppIcon.chatBot),
       ],

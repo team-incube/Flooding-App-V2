@@ -23,18 +23,18 @@ class NoMemberIcon extends StatelessWidget {
     return Column(
       children: [
         icon,
-        const SizedBox(height: AppSpacing.s12),
+        SizedBox(height: AppSpacing.s12),
         Text(
           title,
           style: AppTextStyle.text2.copyWith(color: AppColors.lightSub2),
         ),
-        const SizedBox(height: AppSpacing.s4),
+        SizedBox(height: AppSpacing.s4),
         Text(
           subTitle,
           style: AppTextStyle.caption2.copyWith(color: AppColors.lightSub1),
         ),
         if (tipTitle != null) ...{
-          const SizedBox(height: AppSpacing.s2),
+          SizedBox(height: AppSpacing.s2),
           Text(
             tipTitle!,
             style: AppTextStyle.caption2.copyWith(color: AppColors.lightP1),

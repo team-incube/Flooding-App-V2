@@ -93,7 +93,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.s24,
               vertical: AppSpacing.s40,
             ),
@@ -106,7 +106,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   profileImageUrl: widget.profileImageUrl,
                   onEdit: widget.onProfileEdit,
                 ),
-                const SizedBox(height: AppSpacing.s24),
+                SizedBox(height: AppSpacing.s24),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -117,7 +117,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selected: RoutePath.home == location,
                       onTap: () => context.go(RoutePath.home),
                     ),
-                    const SizedBox(height: AppSpacing.s6),
+                    SizedBox(height: AppSpacing.s6),
                     _NavItem(
                       icon: AppIcon.dormitoryOutline,
                       selectedIcon: AppIcon.dormitoryFill,
@@ -125,7 +125,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selected: RoutePath.dormitory == location,
                       onTap: () => context.go(RoutePath.dormitory),
                     ),
-                    const SizedBox(height: AppSpacing.s6),
+                    SizedBox(height: AppSpacing.s6),
                     _NavItem(
                       icon: AppIcon.graduationCap,
                       selectedIcon: AppIcon.graduationCapFill,
@@ -176,7 +176,7 @@ class _ProfileCard extends StatelessWidget {
     return Row(
       children: [
         _ProfileAvatar(profileImageUrl: profileImageUrl, onEdit: onEdit),
-        const SizedBox(width: AppSpacing.s16),
+        SizedBox(width: AppSpacing.s16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +188,7 @@ class _ProfileCard extends StatelessWidget {
                   color: AppColors.lightMainText,
                 ),
               ),
-              const SizedBox(height: AppSpacing.s4),
+              SizedBox(height: AppSpacing.s4),
               Row(
                 spacing: AppSpacing.s4,
                 children: [

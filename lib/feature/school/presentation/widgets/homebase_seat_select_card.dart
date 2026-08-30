@@ -20,7 +20,7 @@ class HomeBaseSeatSelectCard extends StatefulWidget {
     this.showTableNumber = false,
     this.onTableNumberChanged,
     this.showCard = true,
-    this.groupSpacing = AppSpacing.s8,
+    this.groupSpacing,
     this.initialFloor,
     this.initialPeriods,
   });
@@ -43,7 +43,7 @@ class HomeBaseSeatSelectCard extends StatefulWidget {
   final bool showCard;
 
   /// 층/교시/테이블 번호 그룹 사이 세로 간격.
-  final double groupSpacing;
+  final double? groupSpacing;
 
   /// 테이블 번호 선택이 바뀔 때마다 호출된다([showTableNumber]가 true일 때만 의미 있다).
   final ValueChanged<int?>? onTableNumberChanged;
@@ -119,7 +119,7 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
       children: [
         if (widget.showCard) ...[
           const CardHeader(icon: AppIcon.home, title: '홈베이스'),
-          const SizedBox(height: AppSpacing.s16),
+          SizedBox(height: AppSpacing.s16),
         ],
         _SelectGroup(
           label: '층',
@@ -135,7 +135,7 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
               ),
           ],
         ),
-        SizedBox(height: widget.groupSpacing),
+        SizedBox(height: widget.groupSpacing ?? AppSpacing.s8),
         _SelectGroup(
           label: '교시',
           children: [
@@ -154,7 +154,7 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
           ],
         ),
         if (widget.showTableNumber) ...[
-          SizedBox(height: widget.groupSpacing),
+          SizedBox(height: widget.groupSpacing ?? AppSpacing.s8),
           _SelectGroup(
             label: '테이블 번호',
             children: [
@@ -197,12 +197,12 @@ class _SelectGroup extends StatelessWidget {
           label,
           style: AppTextStyle.text3.copyWith(color: AppColors.lightMainText),
         ),
-        const SizedBox(height: AppSpacing.s8),
+        SizedBox(height: AppSpacing.s8),
         Row(
           children: [
             for (final child in children) ...[
               child,
-              if (child != children.last) const SizedBox(width: AppSpacing.s8),
+              if (child != children.last) SizedBox(width: AppSpacing.s8),
             ],
           ],
         ),

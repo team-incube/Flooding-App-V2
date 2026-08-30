@@ -23,7 +23,7 @@ class BaseScaffold extends StatelessWidget {
   const BaseScaffold({
     super.key,
     required this.body,
-    this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+    this.padding,
     this.appBar,
     this.showDefaultAppBar = true,
     this.onMenuTap,
@@ -34,7 +34,7 @@ class BaseScaffold extends StatelessWidget {
   });
 
   final Widget body;
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
   final PreferredSizeWidget? appBar;
   final bool showDefaultAppBar;
 
@@ -57,7 +57,10 @@ class BaseScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.lightBackground,
       appBar: resolvedAppBar,
-      body: Padding(padding: padding, child: body),
+      body: Padding(
+        padding: padding ?? EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+        child: body,
+      ),
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
       endDrawer: BlocBuilder<MeBloc, MeState>(
         builder: (context, state) {
@@ -125,7 +128,7 @@ class _FloodingLogoAppBar extends StatelessWidget
   final VoidCallback? onMenuTap;
 
   @override
-  Size get preferredSize => const Size.fromHeight(AppSize.s57);
+  Size get preferredSize => Size.fromHeight(AppSize.s57);
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +136,7 @@ class _FloodingLogoAppBar extends StatelessWidget
     // 패딩 끝(24)에서 시작하고, 햄버거 아이콘은 우측 정렬해 글리프가 정확히 24 에
     // 맞도록 한다(탭 영역은 기본 크기 유지).
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.s24),
       child: AppBar(
         backgroundColor: AppColors.lightBackground,
         elevation: 0,

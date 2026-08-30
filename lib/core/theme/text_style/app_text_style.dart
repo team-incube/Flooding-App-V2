@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// 앱 텍스트 스타일 (Figma Typography 가이드 기준, SUIT)
 class AppTextStyle {
@@ -14,73 +15,73 @@ class AppTextStyle {
   static const double _lineHeight = 1.0;
 
   // Title
-  static const TextStyle title1 = TextStyle(
+  static TextStyle get title1 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 32,
+    fontSize: 32.sp,
     fontWeight: bold, // Bold
     height: _lineHeight,
   );
-  static const TextStyle title2 = TextStyle(
+  static TextStyle get title2 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 24,
+    fontSize: 24.sp,
     fontWeight: bold, // Bold
     height: _lineHeight,
   );
-  static const TextStyle title3 = TextStyle(
+  static TextStyle get title3 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 20,
+    fontSize: 20.sp,
     fontWeight: semiBold, // SemiBold
     height: _lineHeight,
   );
-  static const TextStyle title4 = TextStyle(
+  static TextStyle get title4 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 20,
+    fontSize: 20.sp,
     fontWeight: medium, // medium
     height: _lineHeight,
   );
 
   // Text
-  static const TextStyle text1 = TextStyle(
+  static TextStyle get text1 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 18,
+    fontSize: 18.sp,
     fontWeight: semiBold, // SemiBold
     height: _lineHeight,
   );
-  static const TextStyle text2 = TextStyle(
+  static TextStyle get text2 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 16,
+    fontSize: 16.sp,
     fontWeight: semiBold, // SemiBold
     height: _lineHeight,
   );
-  static const TextStyle text3 = TextStyle(
+  static TextStyle get text3 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 16,
+    fontSize: 16.sp,
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
-  static const TextStyle text4 = TextStyle(
+  static TextStyle get text4 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 15,
+    fontSize: 15.sp,
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
 
   // Caption
-  static const TextStyle caption1 = TextStyle(
+  static TextStyle get caption1 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 14,
+    fontSize: 14.sp,
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
-  static const TextStyle caption2 = TextStyle(
+  static TextStyle get caption2 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 13,
+    fontSize: 13.sp,
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
-  static const TextStyle caption3 = TextStyle(
+  static TextStyle get caption3 => TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 12,
+    fontSize: 12.sp,
     fontWeight: medium, // Medium
     height: _lineHeight,
   );
