@@ -35,6 +35,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.lightBgSurface,
       constraints: BoxConstraints(
         maxHeight: MemberFilterDialog._fixedSize.height,
         maxWidth: MemberFilterDialog._fixedSize.width,
@@ -52,7 +53,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
               children: [
                 Text(
                   '필터',
-                  style: AppTextStyle.title3.copyWith(
+                  style: AppTextStyle.text1.copyWith(
                     color: AppColors.lightMainText,
                   ),
                 ),
@@ -116,6 +117,7 @@ class _MemberFilterDialogState extends State<MemberFilterDialog> {
                     verticalPadding: AppSpacing.s14,
                     onPressed: widget.onCancel ?? () => context.pop(),
                     expand: true,
+                    backgroundColor: AppColors.lightP3,
                   ),
                 ),
                 SizedBox(width: AppSpacing.s8),
@@ -193,7 +195,7 @@ class _TagLineState<T> extends State<_TagLine<T>> {
               border: Border.all(color: AppColors.lightSub2),
             );
 
-      final textStyle = AppTextStyle.text3.copyWith(
+      final textStyle = AppTextStyle.text4.copyWith(
         color: selectedValue == value
             ? AppColors.lightBgSurface
             : AppColors.lightSub1,
@@ -222,7 +224,10 @@ class _TagLineState<T> extends State<_TagLine<T>> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title, style: AppTextStyle.text2),
+        Text(
+          widget.title,
+          style: AppTextStyle.text3.copyWith(color: AppColors.lightMainText),
+        ),
         SizedBox(height: AppSpacing.s8),
         SizedBox(
           width: double.maxFinite,

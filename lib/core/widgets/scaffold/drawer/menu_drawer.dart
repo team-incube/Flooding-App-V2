@@ -6,6 +6,7 @@ import 'package:flooding_v2/core/widgets/sheet/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../constants/app_radius.dart';
 import '../../../constants/app_size.dart';
 import '../../../constants/app_spacing.dart';
 import '../../../theme/color/app_colors.dart';
@@ -50,7 +51,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
     final ok = await AppConfirmDialog.show(
       context,
       title: '로그아웃',
-      message: '정말로 로그아웃 하시겠습니까?',
+      message: '로그아웃 하시겠습니까?',
       confirmLabel: '로그아웃',
     );
     if (!mounted || ok != true) return;
@@ -111,6 +112,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   children: [
                     _NavItem(
                       icon: AppIcon.navHome,
+                      selectedIcon: AppIcon.navHomeFill,
                       label: '홈',
                       selected: RoutePath.home == location,
                       onTap: () => context.go(RoutePath.home),
@@ -126,6 +128,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                     SizedBox(height: AppSpacing.s6),
                     _NavItem(
                       icon: AppIcon.graduationCap,
+                      selectedIcon: AppIcon.graduationCapFill,
                       label: '학교',
                       selected: RoutePath.school == location,
                       onTap: () => context.go(RoutePath.school),
@@ -181,7 +184,7 @@ class _ProfileCard extends StatelessWidget {
             children: [
               Text(
                 '안녕하세요! $name님',
-                style: AppTextStyle.text2.copyWith(
+                style: AppTextStyle.text3.copyWith(
                   color: AppColors.lightMainText,
                 ),
               ),
@@ -191,14 +194,14 @@ class _ProfileCard extends StatelessWidget {
                 children: [
                   Text(
                     '$studentNumber'.padLeft(4, '0'),
-                    style: AppTextStyle.text3.copyWith(
+                    style: AppTextStyle.text4.copyWith(
                       color: AppColors.lightSub2,
                     ),
                   ),
                   if (isDormManager)
                     Text(
                       '관리자',
-                      style: AppTextStyle.text3.copyWith(
+                      style: AppTextStyle.text4.copyWith(
                         color: AppColors.negative,
                       ),
                     ),
@@ -295,16 +298,20 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+          color: selected ? AppColors.lightP2 : null,
+          borderRadius: BorderRadius.circular(AppRadius.s8),
+        ),
         padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.s16,
           vertical: AppSpacing.s12,
         ),
         child: Row(
           children: [
-            iconBuilder(size: AppSize.s24, color: color),
+            iconBuilder(size: AppSize.s24),
             SizedBox(width: AppSpacing.s24),
-            Text(label, style: AppTextStyle.text2.copyWith(color: color)),
+            Text(label, style: AppTextStyle.text3.copyWith(color: color)),
           ],
         ),
       ),
@@ -320,26 +327,35 @@ class _BottomItem extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
+  // Figma 디자인 고정 수치(탭 영역 라운드).
+  static const double _radius = 22;
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.s16,
-          vertical: AppSpacing.s12,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon(size: AppSize.s24, color: AppColors.lightSub2),
-            SizedBox(width: AppSpacing.s8),
-            Text(
-              label,
-              style: AppTextStyle.text2.copyWith(color: AppColors.lightSub2),
-            ),
-          ],
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(_radius),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(_radius),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.s16,
+            vertical: AppSpacing.s12,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon(size: AppSize.s24, color: AppColors.lightSub2),
+              SizedBox(width: AppSpacing.s8),
+              Text(
+                label,
+                style: AppTextStyle.text3.copyWith(
+                  color: AppColors.lightSub2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

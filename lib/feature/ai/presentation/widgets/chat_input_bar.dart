@@ -4,6 +4,7 @@ import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 
 /// 하단 메시지 입력 바.
@@ -96,7 +97,7 @@ class _SendButton extends StatelessWidget {
         final enabled = value.text.trim().isNotEmpty;
 
         return Material(
-          color: enabled ? AppColors.lightP1 : AppColors.lightSub2,
+          color: enabled ? AppColors.lightP1 : AppColors.lightP3,
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
@@ -104,11 +105,7 @@ class _SendButton extends StatelessWidget {
             child: SizedBox(
               width: AppSize.s40,
               height: AppSize.s40,
-              child: Icon(
-                Icons.arrow_upward_rounded,
-                size: AppSize.s24,
-                color: AppColors.lightBackground,
-              ),
+              child: Center(child: AppIcon.sendArrow(size: AppSize.s24)),
             ),
           ),
         );
