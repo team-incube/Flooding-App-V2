@@ -15,9 +15,9 @@ class PrimaryActionButton extends StatelessWidget {
     this.onPressed,
     this.enabled = true,
     this.expand = false,
-    this.horizontalPadding = AppSpacing.s16,
-    this.verticalPadding = AppSpacing.s10,
-    this.borderRadius = AppRadius.s6,
+    this.horizontalPadding,
+    this.verticalPadding,
+    this.borderRadius,
     this.backgroundColor,
   });
 

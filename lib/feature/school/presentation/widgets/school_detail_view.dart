@@ -37,8 +37,10 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   static final _digitsOnly = RegExp(r'^\d+$');
 
   // 검색 결과는 최대 3줄만 보이고 나머지는 스크롤된다.
+  // AppSpacing.s16 은 screenutil 스케일링이 들어가 상수가 아니게 되어,
+  // 여기선 그 기준값(16)을 그대로 리터럴로 쓴다.
   static const int _visibleResultCount = 3;
-  static const double _resultRowHeight = AppSpacing.s16 * 2 + 20;
+  static const double _resultRowHeight = 16 * 2 + 20;
   static const double _resultDividerHeight = 1;
   static const double _resultListMaxHeight =
       _resultRowHeight * _visibleResultCount +
@@ -255,34 +257,35 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                                   borderRadius: BorderRadius.circular(
                                     AppRadius.s12,
                                   ),
-                                ),
-                              ),
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                padding: EdgeInsets.zero,
-                                itemCount: _searchResults.length,
-                                separatorBuilder: (context, index) =>
-                                    const Divider(
-                                      height: _resultDividerHeight,
-                                      thickness: 1,
+                                  border: const Border(
+                                    top: BorderSide(
                                       color: AppColors.lightSub4,
                                     ),
-                                itemBuilder: (context, index) {
-                                  final student = _searchResults[index];
-                                  return InkWell(
-                                    onTap: () => _selectStudent(student),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(
-                                        AppSpacing.s16,
+                                    left: BorderSide(
+                                      color: AppColors.lightSub4,
+                                    ),
+                                    right: BorderSide(
+                                      color: AppColors.lightSub4,
+                                    ),
+                                  ),
+                                ),
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  padding: EdgeInsets.zero,
+                                  itemCount: _searchResults.length,
+                                  separatorBuilder: (context, index) =>
+                                      const Divider(
+                                        height: _resultDividerHeight,
+                                        thickness: 1,
+                                        color: AppColors.lightSub4,
                                       ),
                                   itemBuilder: (context, index) {
                                     final student = _searchResults[index];
                                     return InkWell(
                                       onTap: () => _selectStudent(student),
                                       child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: AppSpacing.s16,
-                                          vertical: AppSpacing.s8,
+                                        padding: EdgeInsets.all(
+                                          AppSpacing.s16,
                                         ),
                                         child: Text(
                                           '${student.studentNumber} ${student.name}',

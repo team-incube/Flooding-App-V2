@@ -228,7 +228,7 @@ class _TagLineState<T> extends State<_TagLine<T>> {
           widget.title,
           style: AppTextStyle.text3.copyWith(color: AppColors.lightMainText),
         ),
-        const SizedBox(height: AppSpacing.s8),
+        SizedBox(height: AppSpacing.s8),
         SizedBox(
           width: double.maxFinite,
           child: Wrap(

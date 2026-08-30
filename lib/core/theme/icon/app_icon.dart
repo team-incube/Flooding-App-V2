@@ -18,48 +18,46 @@ class AppIcon {
   static const String _base = 'assets/icons';
 
   // 공통
-
-  static Widget logo({double size = AppSize.s24, Color? color}) =>
-      _svg('logo.svg', size: size, color: color);
-  static Widget calendar({double size = AppSize.s24, Color? color}) =>
-      _svg('calender.svg', size: size, color: color);
-  static Widget book({double size = AppSize.s24, Color? color}) =>
-      _svg('book.svg', size: size, color: color);
-  static Widget chair({double size = AppSize.s24, Color? color}) =>
-      _svg('chair.svg', size: size, color: color);
-  static Widget speaker({double size = AppSize.s24, Color? color}) =>
-      _svg('speaker.svg', size: size, color: color);
-  static Widget warning({double size = AppSize.s24, Color? color}) =>
-      _svg('warning.svg', size: size, color: color);
-  static Widget chevronRight({double size = AppSize.s24, Color? color}) =>
-      _svg('chevron_right.svg', size: size, color: color);
-  static Widget chevronLeft({double size = AppSize.s24, Color? color}) =>
-      _svg('chevron_left.svg', size: size, color: color);
-  static Widget camera({double size = AppSize.s24, Color? color}) =>
-      _svg('camera.svg', size: size, color: color);
-  static Widget check({double size = AppSize.s24, Color? color}) =>
-      _svg('check.svg', size: size, color: color);
-  static Widget uncheck({double size = AppSize.s24, Color? color}) =>
-      _svg('non_check.svg', size: size, color: color);
-  static Widget dehaze({double size = AppSize.s24, Color? color}) =>
-      _svg('dehaze.svg', size: size, color: color);
-  static Widget sparkle({double size = AppSize.s24, Color? color}) =>
-      _svg('sparkle.svg', size: size, color: color);
-  static Widget chatBot({double size = AppSize.s24, Color? color}) =>
-      _svg('chat_bot.svg', size: size, color: color);
-  static Widget sendArrow({double size = AppSize.s24, Color? color}) =>
-      _svg('send_arrow.svg', size: size, color: color);
-  static Widget female({double size = AppSize.s24, Color? color}) =>
-      _svg('female.svg', size: size, color: color);
-  static Widget male({double size = AppSize.s24, Color? color}) =>
-      _svg('male.svg', size: size, color: color);
-  static Widget filter({double size = AppSize.s24, Color? color}) =>
-      _svg('filter.svg', size: size, color: color);
-  static Widget graduationCap({double size = AppSize.s24, Color? color}) =>
-      _svg('graduation_cap.svg', size: size, color: color);
-  static Widget graduationCapFill({double size = AppSize.s24, Color? color}) =>
-      _svg('graduation_cap_fill.svg', size: size, color: color);
-  
+  static Widget logo({double? size, Color? color}) =>
+      _svg('logo.svg', size: size ?? AppSize.s24, color: color);
+  static Widget calendar({double? size, Color? color}) =>
+      _svg('calender.svg', size: size ?? AppSize.s24, color: color);
+  static Widget book({double? size, Color? color}) =>
+      _svg('book.svg', size: size ?? AppSize.s24, color: color);
+  static Widget chair({double? size, Color? color}) =>
+      _svg('chair.svg', size: size ?? AppSize.s24, color: color);
+  static Widget speaker({double? size, Color? color}) =>
+      _svg('speaker.svg', size: size ?? AppSize.s24, color: color);
+  static Widget warning({double? size, Color? color}) =>
+      _svg('warning.svg', size: size ?? AppSize.s24, color: color);
+  static Widget chevronRight({double? size, Color? color}) =>
+      _svg('chevron_right.svg', size: size ?? AppSize.s24, color: color);
+  static Widget chevronLeft({double? size, Color? color}) =>
+      _svg('chevron_left.svg', size: size ?? AppSize.s24, color: color);
+  static Widget camera({double? size, Color? color}) =>
+      _svg('camera.svg', size: size ?? AppSize.s24, color: color);
+  static Widget check({double? size, Color? color}) =>
+      _svg('check.svg', size: size ?? AppSize.s24, color: color);
+  static Widget uncheck({double? size, Color? color}) =>
+      _svg('non_check.svg', size: size ?? AppSize.s24, color: color);
+  static Widget dehaze({double? size, Color? color}) =>
+      _svg('dehaze.svg', size: size ?? AppSize.s24, color: color);
+  static Widget sparkle({double? size, Color? color}) =>
+      _svg('sparkle.svg', size: size ?? AppSize.s24, color: color);
+  static Widget chatBot({double? size, Color? color}) =>
+      _svg('chat_bot.svg', size: size ?? AppSize.s24, color: color);
+  static Widget sendArrow({double? size, Color? color}) =>
+      _svg('send_arrow.svg', size: size ?? AppSize.s24, color: color);
+  static Widget female({double? size, Color? color}) =>
+      _svg('female.svg', size: size ?? AppSize.s24, color: color);
+  static Widget male({double? size, Color? color}) =>
+      _svg('male.svg', size: size ?? AppSize.s24, color: color);
+  static Widget filter({double? size, Color? color}) =>
+      _svg('filter.svg', size: size ?? AppSize.s24, color: color);
+  static Widget graduationCap({double? size, Color? color}) =>
+      _svg('graduation_cap.svg', size: size ?? AppSize.s24, color: color);
+  static Widget graduationCapFill({double? size, Color? color}) =>
+      _svg('graduation_cap_fill.svg', size: size ?? AppSize.s24, color: color);
   /// 프로필 편집 뱃지 아이콘.
   static Widget profileEdit({double? size, Color? color}) =>
       _svg('profile_edit.svg', size: size ?? AppSize.s24, color: color);
@@ -82,21 +80,20 @@ class AppIcon {
 
 
   // 메뉴 드로어
-
-  static Widget navHome({double size = AppSize.s24, Color? color}) =>
-      _svg('nav_home.svg', size: size, color: color);
-  static Widget navHomeFill({double size = AppSize.s24, Color? color}) =>
-      _svg('nav_home_fill.svg', size: size, color: color);
-  static Widget dormitoryOutline({double size = AppSize.s24, Color? color}) =>
-      _svg('dormitory_outline.svg', size: size, color: color);
-  static Widget dormitoryFill({double size = AppSize.s24, Color? color}) =>
-      _svg('dormitory_fill.svg', size: size, color: color);
-  static Widget logout({double size = AppSize.s24, Color? color}) =>
-      _svg('logout.svg', size: size, color: color);
-  static Widget withdraw({double size = AppSize.s24, Color? color}) =>
-      _svg('withdraw.svg', size: size, color: color);
-  static Widget trash({double size = AppSize.s24, Color? color}) =>
-      _svg('trash.svg', size: size, color: color);
+  static Widget navHome({double? size, Color? color}) =>
+      _svg('nav_home.svg', size: size ?? AppSize.s24, color: color);
+  static Widget navHomeFill({double? size, Color? color}) =>
+      _svg('nav_home_fill.svg', size: size ?? AppSize.s24, color: color);
+  static Widget dormitoryOutline({double? size, Color? color}) =>
+      _svg('dormitory_outline.svg', size: size ?? AppSize.s24, color: color);
+  static Widget dormitoryFill({double? size, Color? color}) =>
+      _svg('dormitory_fill.svg', size: size ?? AppSize.s24, color: color);
+  static Widget logout({double? size, Color? color}) =>
+      _svg('logout.svg', size: size ?? AppSize.s24, color: color);
+  static Widget withdraw({double? size, Color? color}) =>
+      _svg('withdraw.svg', size: size ?? AppSize.s24, color: color);
+  static Widget trash({double? size, Color? color}) =>
+      _svg('trash.svg', size: size ?? AppSize.s24, color: color);
 
   /// 프로필 기본 아바타(52px, 풀컬러라 색 인자는 두지 않는다).
   static Widget avatar({double? size}) =>

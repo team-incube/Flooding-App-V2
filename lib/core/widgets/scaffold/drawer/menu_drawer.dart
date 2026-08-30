@@ -303,14 +303,14 @@ class _NavItem extends StatelessWidget {
           color: selected ? AppColors.lightP2 : null,
           borderRadius: BorderRadius.circular(AppRadius.s8),
         ),
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.s16,
           vertical: AppSpacing.s12,
         ),
         child: Row(
           children: [
             iconBuilder(size: AppSize.s24),
-            const SizedBox(width: AppSpacing.s24),
+            SizedBox(width: AppSpacing.s24),
             Text(label, style: AppTextStyle.text3.copyWith(color: color)),
           ],
         ),
@@ -339,7 +339,7 @@ class _BottomItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(_radius),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
+          padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.s16,
             vertical: AppSpacing.s12,
           ),
@@ -347,7 +347,7 @@ class _BottomItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               icon(size: AppSize.s24, color: AppColors.lightSub2),
-              const SizedBox(width: AppSpacing.s8),
+              SizedBox(width: AppSpacing.s8),
               Text(
                 label,
                 style: AppTextStyle.text3.copyWith(
