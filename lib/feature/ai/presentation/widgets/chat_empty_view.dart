@@ -16,7 +16,7 @@ class ChatEmptyView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppIcon.sparkle(size: AppSize.s24, color: AppColors.lightSub2),
-          const SizedBox(height: AppSpacing.s8),
+          SizedBox(height: AppSpacing.s8),
           Text(
             '무엇이든 물어보세요!',
             style: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),

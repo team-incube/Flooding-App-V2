@@ -28,20 +28,20 @@ class ChatMessageBubble extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Container(
-          padding: const EdgeInsets.symmetric(
+          padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.s16,
             vertical: AppSpacing.s12,
           ),
           decoration: BoxDecoration(
             color: isUser ? AppColors.lightP1 : AppColors.lightSub3,
             borderRadius: isUser
-                ? const BorderRadius.only(
+                ? BorderRadius.only(
                     topLeft: AppRadius.r16,
                     topRight: AppRadius.r16,
                     bottomLeft: AppRadius.r16,
                     bottomRight: AppRadius.r4,
                   )
-                : const BorderRadius.only(
+                : BorderRadius.only(
                     topLeft: AppRadius.r16,
                     topRight: AppRadius.r16,
                     bottomLeft: AppRadius.r4,

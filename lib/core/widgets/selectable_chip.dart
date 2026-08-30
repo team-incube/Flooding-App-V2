@@ -13,11 +13,8 @@ class SelectableChip extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.disabled = false,
-    this.borderRadius = AppRadius.s8,
-    this.padding = const EdgeInsets.symmetric(
-      horizontal: AppSpacing.s20,
-      vertical: AppSpacing.s8,
-    ),
+    this.borderRadius,
+    this.padding,
   });
 
   final String label;
@@ -26,8 +23,8 @@ class SelectableChip extends StatelessWidget {
 
   /// 마감 등으로 더 이상 고를 수 없는 항목 — sub2 배경으로 채우고 탭이 먹지 않는다.
   final bool disabled;
-  final double borderRadius;
-  final EdgeInsetsGeometry padding;
+  final double? borderRadius;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +40,13 @@ class SelectableChip extends StatelessWidget {
         ? null
         : Border.all(color: AppColors.lightSub2);
 
+    final resolvedBorderRadius = borderRadius ?? AppRadius.s8;
     return Material(
       color: background,
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(resolvedBorderRadius),
       child: InkWell(
         onTap: disabled ? null : onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(resolvedBorderRadius),
         // 탭 시 리플/스플래시 이펙트 제거 — 눌렀을 때 오그라드는 것처럼
         // 보이는 것을 막는다.
         splashFactory: NoSplash.splashFactory,
@@ -57,9 +55,14 @@ class SelectableChip extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             border: border,
-            borderRadius: BorderRadius.circular(borderRadius),
+            borderRadius: BorderRadius.circular(resolvedBorderRadius),
           ),
-          padding: padding,
+          padding:
+              padding ??
+              EdgeInsets.symmetric(
+                horizontal: AppSpacing.s20,
+                vertical: AppSpacing.s8,
+              ),
           child: Text(label, style: AppTextStyle.text3.copyWith(color: textColor)),
         ),
       ),

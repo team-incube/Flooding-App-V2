@@ -60,65 +60,69 @@ class _WakeMusicCardState extends State<WakeMusicCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const CardHeader(icon: AppIcon.speaker, title: '기상음악 신청'),
-                  const SizedBox(width: AppSpacing.s6),
-                  Text(
-                    '신청 음악',
-                    style: AppTextStyle.caption1.copyWith(
-                      color: AppColors.lightSub1,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const CardHeader(icon: AppIcon.speaker, title: '기상음악 신청'),
+                    SizedBox(width: AppSpacing.s6),
+                    Text(
+                      '신청 음악',
+                      style: AppTextStyle.caption1.copyWith(
+                        color: AppColors.lightSub1,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.s4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${state.totalCount}',
-                          style: AppTextStyle.caption1.copyWith(
-                            color: AppColors.lightP1,
+                    SizedBox(width: AppSpacing.s4),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${state.totalCount}',
+                            style: AppTextStyle.caption1.copyWith(
+                              color: AppColors.lightP1,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: '개',
-                          style: AppTextStyle.caption1.copyWith(
-                            color: AppColors.lightSub1,
+                          TextSpan(
+                            text: '개',
+                            style: AppTextStyle.caption1.copyWith(
+                              color: AppColors.lightSub1,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const Spacer(flex: 1),
-                  GestureDetector(
-                    onTap: () {
-                      context.push(RoutePath.songRequestDetail);
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '전체보기',
-                          style: AppTextStyle.caption1.copyWith(
-                            color: AppColors.lightHintText,
+                    SizedBox(width: AppSpacing.s16),
+                    GestureDetector(
+                      onTap: () {
+                        context.push(RoutePath.songRequestDetail);
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '전체보기',
+                            style: AppTextStyle.caption1.copyWith(
+                              color: AppColors.lightHintText,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.s4),
-                        AppIcon.chevronRight(
-                          size: AppSize.s14,
-                          color: AppColors.lightSub2,
-                        ),
-                      ],
+                          SizedBox(width: AppSpacing.s4),
+                          AppIcon.chevronRight(
+                            size: AppSize.s14,
+                            color: AppColors.lightSub2,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: AppSpacing.s8),
+              SizedBox(height: AppSpacing.s8),
               Container(
                 height: AppSize.s52,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.s16),
                 decoration: BoxDecoration(
                   color: AppColors.lightBgSurface,
                   borderRadius: BorderRadius.circular(AppRadius.s8),
@@ -140,7 +144,7 @@ class _WakeMusicCardState extends State<WakeMusicCard> {
                   ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.s8),
+              SizedBox(height: AppSpacing.s8),
               // URL 이 입력돼야(그리고 처리 중이 아닐 때만) 버튼을 활성화한다.
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _musicUrlController,

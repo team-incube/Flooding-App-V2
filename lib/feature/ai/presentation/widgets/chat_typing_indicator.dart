@@ -39,11 +39,11 @@ class _ChatTypingIndicatorState extends State<ChatTypingIndicator>
   Widget build(BuildContext context) {
     return Container(
       // 버블 크기(약 52x43)를 맞추기 위한 패딩 — 점/간격 합과 함께 디자인 치수를 만든다.
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.s10,
         vertical: AppSpacing.s14,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.lightSub3,
         // AI 말풍선과 동일하게 좌하단만 각지게 둔다.
         borderRadius: BorderRadius.only(

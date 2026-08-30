@@ -93,7 +93,7 @@ class _SongRequestCardState extends State<SongRequestCard> {
                           : AppIcon.heart(),
                     ),
 
-                    padding: const EdgeInsets.all(AppSpacing.s6),
+                    padding: EdgeInsets.all(AppSpacing.s6),
                   ),
                 ),
               ],
@@ -101,7 +101,7 @@ class _SongRequestCardState extends State<SongRequestCard> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 vertical: AppSpacing.s2,
                 horizontal: AppSpacing.s12,
               ),
@@ -117,7 +117,7 @@ class _SongRequestCardState extends State<SongRequestCard> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: AppSpacing.s4),
+                  SizedBox(height: AppSpacing.s4),
                   Row(
                     children: [
                       Text(
@@ -126,7 +126,7 @@ class _SongRequestCardState extends State<SongRequestCard> {
                           color: AppColors.lightSub1,
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.s4),
+                      SizedBox(width: AppSpacing.s4),
                       Text(
                         '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}',
                         style: AppTextStyle.caption1.copyWith(
@@ -150,7 +150,7 @@ class _SongRequestCardState extends State<SongRequestCard> {
                 child: Container(
                   height: 41,
                   width: 41,
-                  padding: const EdgeInsets.all(AppSpacing.s8),
+                  padding: EdgeInsets.all(AppSpacing.s8),
                   child: AppIcon.trash(),
                 ),
               ),

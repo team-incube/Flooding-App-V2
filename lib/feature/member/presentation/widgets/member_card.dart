@@ -68,7 +68,7 @@ class MemberCard extends StatelessWidget {
         color: AppColors.lightSub4,
         borderRadius: BorderRadius.circular(AppRadius.s12),
       ),
-      padding: const EdgeInsets.all(AppSpacing.s16),
+      padding: EdgeInsets.all(AppSpacing.s16),
       child: Stack(
         children: [
           Align(alignment: Alignment.topLeft, child: topLine),
@@ -80,7 +80,7 @@ class MemberCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AppIcon.avatar(size: AppSize.s64),
-                  const SizedBox(height: AppSpacing.s8),
+                  SizedBox(height: AppSpacing.s8),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -91,12 +91,12 @@ class MemberCard extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(AppSpacing.s2),
+                        padding: EdgeInsets.all(AppSpacing.s2),
                         child: genderIcon,
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.s8),
+                  SizedBox(height: AppSpacing.s8),
                   Text(
                     "${model.schoolNb}",
                     style: AppTextStyle.caption1.copyWith(

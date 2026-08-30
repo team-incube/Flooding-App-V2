@@ -32,11 +32,11 @@ class HomeView extends StatelessWidget {
             BlocBuilder<TimetableBloc, TimetableState>(
               builder: (context, state) => _ScheduleCard(state: state),
             ),
-            const SizedBox(height: AppSpacing.s16),
+            SizedBox(height: AppSpacing.s16),
             const StudyCountCard(),
-            const SizedBox(height: AppSpacing.s16),
+            SizedBox(height: AppSpacing.s16),
             const MassageCountCard(),
-            const SizedBox(height: AppSpacing.s16),
+            SizedBox(height: AppSpacing.s16),
             const WakeMusicCard(),
           ],
         ),
@@ -82,9 +82,9 @@ class _ScheduleCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const CardHeader(icon: AppIcon.calendar, title: '시간표'),
-          const SizedBox(height: AppSpacing.s8),
+          SizedBox(height: AppSpacing.s8),
           Container(
-            padding: const EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.s24,
               vertical: AppSpacing.s16,
             ),
@@ -109,7 +109,7 @@ class _ScheduleCard extends StatelessWidget {
                   ),
                 ),
                 if (teacher != null) ...[
-                  const SizedBox(width: AppSpacing.s4),
+                  SizedBox(width: AppSpacing.s4),
                   Text(
                     teacher,
                     style: AppTextStyle.caption1.copyWith(

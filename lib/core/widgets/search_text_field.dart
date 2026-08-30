@@ -23,7 +23,7 @@ class SearchTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: AppSize.s52,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.s16),
       decoration: BoxDecoration(
         color: AppColors.lightBackground,
         borderRadius: BorderRadius.circular(AppRadius.s8),
@@ -49,7 +49,7 @@ class SearchTextField extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.s8),
+          SizedBox(width: AppSpacing.s8),
           AppIcon.search(size: AppSize.s20),
         ],
       ),

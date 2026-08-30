@@ -109,7 +109,7 @@ class _FilterSheetState extends State<FilterSheet> {
                 ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s24),
+          SizedBox(height: AppSpacing.s24),
           _FilterGroup(
             label: '반',
             children: [
@@ -123,7 +123,7 @@ class _FilterSheetState extends State<FilterSheet> {
                 ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s24),
+          SizedBox(height: AppSpacing.s24),
           _FilterGroup(
             label: '성별',
             children: [
@@ -178,12 +178,12 @@ class _FilterGroup extends StatelessWidget {
           label,
           style: AppTextStyle.text2.copyWith(color: AppColors.lightMainText),
         ),
-        const SizedBox(height: AppSpacing.s8),
+        SizedBox(height: AppSpacing.s8),
         Row(
           children: [
             for (final child in children) ...[
               child,
-              if (child != children.last) const SizedBox(width: AppSpacing.s8),
+              if (child != children.last) SizedBox(width: AppSpacing.s8),
             ],
           ],
         ),
