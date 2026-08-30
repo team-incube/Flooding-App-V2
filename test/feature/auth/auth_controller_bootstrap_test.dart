@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_event.dart';
@@ -39,6 +41,15 @@ class _FakeSessionValidator implements SessionValidator {
     calls++;
     return (check: check, me: me);
   }
+}
+
+/// `exp` 클레임만 채운, 서명 없는 테스트용 JWT.
+String _fakeJwt({required DateTime exp}) {
+  String segment(Map<String, dynamic> json) =>
+      base64Url.encode(utf8.encode(jsonEncode(json))).replaceAll('=', '');
+  final header = segment({'alg': 'none'});
+  final payload = segment({'exp': exp.toUtc().millisecondsSinceEpoch ~/ 1000});
+  return '$header.$payload.';
 }
 
 Me _sampleMe() => const Me(
@@ -144,8 +155,24 @@ void main() {
       expect(meBloc.addedEvents, [const MeEvent.requested()]);
     });
 
-    test('네트워크 오류면 미인증(로그인 화면) + 오류 메시지, 토큰은 유지', () async {
+    test('네트워크 오류면 로컬에서 아직 만료 안 된 토큰으로 진입 허용', () async {
       final storage = _FakeTokenStorage(token: 'access');
+      final validator = _FakeSessionValidator(SessionCheck.networkError);
+      final meBloc = _FakeMeBloc();
+      final controller = _controller(storage, validator, meBloc);
+
+      await controller.bootstrap();
+
+      expect(controller.status, AuthStatus.authenticated);
+      expect(storage.cleared, isFalse);
+      expect(meBloc.addedEvents, [const MeEvent.requested()]);
+    });
+
+    test('네트워크 오류 + 로컬에서 이미 만료된 토큰이면 미인증(로그인 화면)', () async {
+      final expiredToken = _fakeJwt(
+        exp: DateTime.now().subtract(const Duration(minutes: 1)),
+      );
+      final storage = _FakeTokenStorage(token: expiredToken);
       final validator = _FakeSessionValidator(SessionCheck.networkError);
       final controller = _controller(storage, validator, _FakeMeBloc());
 
@@ -153,6 +180,7 @@ void main() {
 
       expect(controller.status, AuthStatus.unauthenticated);
       expect(controller.error, '네트워크 연결을 확인해 주세요.');
+      // 판단이 불가했을 뿐이므로 토큰 자체는 지우지 않는다.
       expect(storage.cleared, isFalse);
     });
   });
