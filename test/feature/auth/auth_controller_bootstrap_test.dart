@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flooding_v2/core/network/connectivity_service.dart';
 import 'package:flooding_v2/feature/auth/data/models/me.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_bloc.dart';
 import 'package:flooding_v2/feature/auth/presentation/bloc/me_event.dart';
@@ -30,7 +31,8 @@ class _FakeTokenStorage extends TokenStorage {
 class _FakeSessionValidator implements SessionValidator {
   _FakeSessionValidator(this.check, {this.me});
 
-  final SessionCheck check;
+  final List<SessionCheck> sequence = [];
+  SessionCheck check;
   final Me? me;
   int calls = 0;
 
@@ -39,8 +41,20 @@ class _FakeSessionValidator implements SessionValidator {
     Duration timeout = Duration.zero,
   }) async {
     calls++;
-    return (check: check, me: me);
+    final result = sequence.isNotEmpty && calls <= sequence.length
+        ? sequence[calls - 1]
+        : check;
+    return (check: result, me: me);
   }
+}
+
+class _FakeConnectivityChecker implements ConnectivityChecker {
+  _FakeConnectivityChecker({this.online = true});
+
+  bool online;
+
+  @override
+  Future<bool> hasConnection() async => online;
 }
 
 /// `exp` 클레임만 채운, 서명 없는 테스트용 JWT.
@@ -80,8 +94,16 @@ class _FakeMeBloc extends MeBloc {
 AuthController _controller(
   _FakeTokenStorage storage,
   _FakeSessionValidator validator,
-  _FakeMeBloc meBloc,
-) => AuthController(tokenStorage: storage, sessionValidator: validator, meBloc: meBloc);
+  _FakeMeBloc meBloc, {
+  _FakeConnectivityChecker? connectivity,
+  List<Duration>? retryDelays,
+}) => AuthController(
+  tokenStorage: storage,
+  sessionValidator: validator,
+  meBloc: meBloc,
+  connectivityChecker: connectivity ?? _FakeConnectivityChecker(),
+  retryDelays: retryDelays ?? const [],
+);
 
 void main() {
   group('AuthController.bootstrap', () {
@@ -182,6 +204,67 @@ void main() {
       expect(controller.error, '네트워크 연결을 확인해 주세요.');
       // 판단이 불가했을 뿐이므로 토큰 자체는 지우지 않는다.
       expect(storage.cleared, isFalse);
+    });
+
+    test('네트워크 오류 + 오프라인이면 토큰이 안 만료됐어도 미인증(로그인 화면)', () async {
+      final storage = _FakeTokenStorage(token: 'access');
+      final validator = _FakeSessionValidator(SessionCheck.networkError);
+      final controller = _controller(
+        storage,
+        validator,
+        _FakeMeBloc(),
+        connectivity: _FakeConnectivityChecker(online: false),
+      );
+
+      await controller.bootstrap();
+
+      expect(controller.status, AuthStatus.unauthenticated);
+      expect(controller.error, '네트워크 연결을 확인해 주세요.');
+      expect(storage.cleared, isFalse);
+    });
+
+    test('네트워크 오류 + 연결은 있음(서버 지연)이면 진입 허용 후 재시도해 세션 확인', () async {
+      final storage = _FakeTokenStorage(token: 'access');
+      final validator = _FakeSessionValidator(SessionCheck.networkError)
+        ..sequence.addAll([SessionCheck.networkError, SessionCheck.valid]);
+      final meBloc = _FakeMeBloc();
+      final controller = _controller(
+        storage,
+        validator,
+        meBloc,
+        retryDelays: const [Duration.zero],
+      );
+
+      await controller.bootstrap();
+      expect(controller.status, AuthStatus.authenticated);
+
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(validator.calls, 2);
+      expect(controller.status, AuthStatus.authenticated);
+      expect(storage.cleared, isFalse);
+    });
+
+    test('서버 지연으로 진입 허용 후 재시도에서 결국 401이면 세션을 종료한다', () async {
+      final storage = _FakeTokenStorage(token: 'access');
+      final validator = _FakeSessionValidator(SessionCheck.networkError)
+        ..sequence.addAll([SessionCheck.networkError, SessionCheck.unauthorized]);
+      final meBloc = _FakeMeBloc();
+      final controller = _controller(
+        storage,
+        validator,
+        meBloc,
+        retryDelays: const [Duration.zero],
+      );
+
+      await controller.bootstrap();
+      expect(controller.status, AuthStatus.authenticated);
+
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(controller.status, AuthStatus.unauthenticated);
+      expect(storage.cleared, isTrue);
+      expect(meBloc.addedEvents, contains(const MeEvent.cleared()));
     });
   });
 
