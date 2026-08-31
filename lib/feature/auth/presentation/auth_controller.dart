@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../core/config/env.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/network/connectivity_service.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/utils/pkce.dart';
 import '../../../core/utils/token_utils.dart';
@@ -37,9 +40,13 @@ class AuthController extends ChangeNotifier {
     TokenStorage? tokenStorage,
     FloodingAuthService? floodingAuthService,
     MeBloc? meBloc,
+    ConnectivityChecker? connectivityChecker,
+    List<Duration>? retryDelays,
   }) : _tokenStorage = tokenStorage ?? TokenStorage(),
        _sessionValidator = sessionValidator,
-       _meBloc = meBloc {
+       _meBloc = meBloc,
+       _connectivity = connectivityChecker ?? ConnectivityService(),
+       _retryDelays = retryDelays ?? _defaultRetryDelays {
     _authService =
         authService ??
         DatagsmAuthService(
@@ -54,6 +61,14 @@ class AuthController extends ChangeNotifier {
   final SessionValidator _sessionValidator;
   late final FloodingAuthService _floodingAuth;
   final MeBloc? _meBloc;
+  final ConnectivityChecker _connectivity;
+
+  static const _defaultRetryDelays = [
+    Duration(seconds: 2),
+    Duration(seconds: 5),
+    Duration(seconds: 10),
+  ];
+  final List<Duration> _retryDelays;
 
   // 초기값. 앱 시작 시 runApp 이전에 bootstrap() 으로 실제 상태가 채워진다.
   AuthStatus _status = AuthStatus.unauthenticated;
@@ -84,9 +99,6 @@ class AuthController extends ChangeNotifier {
   ///
   /// 저장된 토큰이 없으면 미인증. 토큰이 있으면 `/users/me` 로 세션 유효성을
   /// 검사해, 401 이면 토큰을 비우고 미인증(로그인 화면)으로 보낸다.
-  /// 네트워크 등으로 판단이 불가하면, 저장된 토큰이 로컬에서 아직 만료되지
-  /// 않은 이상 오프라인 사용자를 막지 않도록 진입을 허용한다 — 서버 응답이
-  /// 느리다는 이유만으로 매번 재로그인을 시키지 않기 위함이다.
   Future<void> bootstrap() async {
     final accessToken = await _tokenStorage.readAccessToken();
     if (accessToken == null) {
@@ -101,10 +113,12 @@ class AuthController extends ChangeNotifier {
       return;
     }
     if (result.check == SessionCheck.networkError) {
-      if (TokenUtils.isExpired(accessToken)) {
+      final isOffline = !(await _connectivity.hasConnection());
+      if (isOffline || TokenUtils.isExpired(accessToken)) {
         _fail(ApiException.networkMessage);
       } else {
         _setAuthenticated();
+        unawaited(_retryValidateInBackground());
       }
       return;
     }
@@ -112,6 +126,26 @@ class AuthController extends ChangeNotifier {
     _initialMe = result.me;
     // 그 외 판단 불가(서버 5xx 등)는 오프라인 사용자를 막지 않도록 진입 허용.
     _setAuthenticated();
+  }
+
+  Future<void> _retryValidateInBackground() async {
+    var attempted = false;
+    for (final delay in _retryDelays) {
+      await Future.delayed(delay);
+      if (_status != AuthStatus.authenticated) return;
+
+      attempted = true;
+      final result = await _sessionValidator.validateSession();
+      if (result.check == SessionCheck.unauthorized) {
+        await expireSession();
+        return;
+      }
+      if (result.check == SessionCheck.valid ||
+          result.check == SessionCheck.unknown) {
+        return;
+      }
+    }
+    if (attempted) reportNetworkError();
   }
 
   /// 웹뷰에 띄울 authorize URL 을 생성한다.
