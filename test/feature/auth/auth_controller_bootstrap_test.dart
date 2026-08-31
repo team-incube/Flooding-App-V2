@@ -232,7 +232,9 @@ void main() {
         storage,
         validator,
         meBloc,
-        retryDelays: const [Duration.zero],
+        // 2개를 줘서, valid 로 재시도가 "일찍" 끝나는 것과(2회) 끝나지
+        // 못하고 다음 지연까지 도는 것(3회)을 구분할 수 있게 한다.
+        retryDelays: const [Duration.zero, Duration.zero],
       );
 
       await controller.bootstrap();
@@ -240,6 +242,7 @@ void main() {
 
       await Future<void>.delayed(const Duration(milliseconds: 10));
 
+      // valid 를 받은 시점에 재시도를 멈춰야 하므로 딱 2회만 호출돼야 한다.
       expect(validator.calls, 2);
       expect(controller.status, AuthStatus.authenticated);
       expect(storage.cleared, isFalse);
@@ -265,6 +268,27 @@ void main() {
       expect(controller.status, AuthStatus.unauthenticated);
       expect(storage.cleared, isTrue);
       expect(meBloc.addedEvents, contains(const MeEvent.cleared()));
+    });
+
+    test('재시도가 계속 네트워크 오류로만 끝나면 결국 미인증으로 전환한다(토큰 유지)', () async {
+      final storage = _FakeTokenStorage(token: 'access');
+      final validator = _FakeSessionValidator(SessionCheck.networkError);
+      final controller = _controller(
+        storage,
+        validator,
+        _FakeMeBloc(),
+        retryDelays: const [Duration.zero, Duration.zero],
+      );
+
+      await controller.bootstrap();
+      expect(controller.status, AuthStatus.authenticated);
+
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(validator.calls, 3);
+      expect(controller.status, AuthStatus.unauthenticated);
+      expect(controller.error, '네트워크 연결을 확인해 주세요.');
+      expect(storage.cleared, isFalse);
     });
   });
 

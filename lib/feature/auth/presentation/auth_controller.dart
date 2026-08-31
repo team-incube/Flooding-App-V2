@@ -129,10 +129,12 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> _retryValidateInBackground() async {
+    var attempted = false;
     for (final delay in _retryDelays) {
       await Future.delayed(delay);
       if (_status != AuthStatus.authenticated) return;
 
+      attempted = true;
       final result = await _sessionValidator.validateSession();
       if (result.check == SessionCheck.unauthorized) {
         await expireSession();
@@ -143,6 +145,7 @@ class AuthController extends ChangeNotifier {
         return;
       }
     }
+    if (attempted) reportNetworkError();
   }
 
   /// 웹뷰에 띄울 authorize URL 을 생성한다.
