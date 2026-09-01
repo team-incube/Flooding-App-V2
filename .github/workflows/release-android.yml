@@ -1,0 +1,133 @@
+name: Release - Android Play Store
+
+# 아직 실제로 한 번도 성공적으로 돈 적이 없어 push 트리거는 잠시 빼뒀다.
+# workflow_dispatch(dry_run)로 먼저 검증한 뒤, 문제없으면 push: branches: [develop] 를
+# 다시 추가해 develop 머지마다 자동 업로드되게 한다.
+# 버전명은 pubspec.yaml, versionCode 는 run number 로 고정(중복 방지).
+on:
+  # 수동 실행. dry_run=true 면 AAB 빌드까지만 하고 Play Store 업로드는 건너뛴다.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "빌드까지만 하고 스토어 업로드는 건너뜀 (테스트용)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # GOOGLE_PLAY_JSON_KEY(서비스 계정) 미설정이면 배포를 건너뛴다.
+  # (Play Store API 키 등록 전까지 워크플로우가 빨갛게 실패하지 않도록 — 키 등록 시 자동 활성화)
+  guard:
+    name: Check Play Store credentials
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - name: Check GOOGLE_PLAY_JSON_KEY
+        id: check
+        env:
+          GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+        run: |
+          if [ -n "$GOOGLE_PLAY_JSON_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GOOGLE_PLAY_JSON_KEY 미설정 — Android 배포를 건너뜁니다. (시크릿 등록 시 자동 활성화)"
+          fi
+
+  release:
+    name: Build & Upload to Play Store (closed testing)
+    needs: guard
+    if: needs.guard.outputs.configured == 'true' || github.event.inputs.dry_run == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install FVM
+        run: |
+          dart pub global activate fvm
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install Flutter via FVM
+        run: |
+          fvm install
+          fvm use --force
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Flutter pub get
+        run: fvm flutter pub get
+
+      - name: Restore release signing files
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+          ENV_PROD: ${{ secrets.ENV_PROD }}
+          ENV_DEV: ${{ secrets.ENV_DEV }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEY_PROPERTIES" ] || \
+             [ -z "$ENV_PROD" ] || [ -z "$ENV_DEV" ]; then
+            echo "::error::Required release secrets are missing."
+            exit 1
+          fi
+
+          # 공백/개행 제거 후 디코딩. ANDROID_KEY_PROPERTIES 의 storeFile 은
+          # 이 경로(android/upload-keystore.jks)를 가리키도록 등록해야 한다.
+          KEYSTORE_CLEAN=$(printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n\t ')
+          if ! printf '%s' "$KEYSTORE_CLEAN" | base64 --decode > android/upload-keystore.jks; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not valid base64."
+            exit 1
+          fi
+
+          printf '%s' "$ANDROID_KEY_PROPERTIES" > android/key.properties
+          printf '%s' "$ENV_PROD" > .env.prod
+          printf '%s' "$ENV_DEV" > .env.dev
+
+      - name: Resolve Android version metadata
+        run: |
+          VERSION_LINE="$(grep '^version:' pubspec.yaml | head -n 1 | awk '{print $2}')"
+          VERSION_NAME="${VERSION_LINE%%+*}"
+
+          if [ -z "$VERSION_NAME" ]; then
+            echo "::error::Unable to parse version from pubspec.yaml"
+            exit 1
+          fi
+
+          echo "ANDROID_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          # versionCode 는 업로드마다 단조 증가해야 하며 Play 의 기존 최고값보다 커야 한다.
+          # run number 만 쓰면 과거(수동 업로드 등)가 쓴 낮은 코드와 충돌할 수 있어
+          # 1000 오프셋을 더한다.
+          echo "ANDROID_BUILD_NUMBER=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
+      - name: Upload to Play Store (closed testing)
+        env:
+          # Play Console → 설정 → API 액세스 → 서비스 계정에서 발급한 JSON 키
+          SUPPLY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: bundle exec fastlane android upload_play_store
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: |
+          rm -f android/upload-keystore.jks
+          rm -f android/key.properties
+          rm -f .env.prod
+          rm -f .env.dev

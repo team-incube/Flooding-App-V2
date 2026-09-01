@@ -1,0 +1,187 @@
+name: Release - iOS TestFlight
+
+# 아직 실제로 한 번도 성공적으로 돈 적이 없어 push 트리거는 잠시 빼뒀다.
+# workflow_dispatch(skip_upload)로 먼저 검증한 뒤, 문제없으면 push: branches: [develop] 를
+# 다시 추가해 develop 머지마다 자동 업로드되게 한다.
+# 마케팅 버전은 pubspec.yaml 의 version (Android 와 동일 출처).
+on:
+  # 수동 실행. skip_upload=true 면 빌드/서명(archive)까지만 하고 업로드는 건너뛴다.
+  workflow_dispatch:
+    inputs:
+      skip_upload:
+        description: "빌드/서명까지만 하고 TestFlight 업로드는 건너뜀 (테스트용)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # iOS 서명 시크릿 미설정이면 배포를 건너뛴다.
+  guard:
+    name: Check iOS signing credentials
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - name: Check iOS secrets
+        id: check
+        env:
+          IOS_BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_BUILD_CERTIFICATE_BASE64 }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: |
+          if [ -n "$IOS_BUILD_CERTIFICATE_BASE64" ] && [ -n "$APP_STORE_CONNECT_API_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::iOS 서명/App Store Connect 시크릿 미설정 — iOS 배포를 건너뜁니다."
+          fi
+
+  release:
+    name: Build & Upload to TestFlight
+    needs: guard
+    if: needs.guard.outputs.configured == 'true' || github.event.inputs.skip_upload == 'true'
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install FVM
+        run: |
+          dart pub global activate fvm
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install Flutter via FVM
+        run: |
+          fvm install
+          fvm use --force
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Export CocoaPods bin to PATH
+        run: |
+          bundle binstubs cocoapods
+          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+
+      - name: Flutter pub get
+        run: fvm flutter pub get
+
+      - name: Flutter precache iOS artifacts
+        run: fvm flutter precache --ios
+
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: bundle exec pod install
+
+      - name: Restore env files
+        env:
+          ENV_PROD: ${{ secrets.ENV_PROD }}
+          ENV_DEV: ${{ secrets.ENV_DEV }}
+        run: |
+          if [ -z "$ENV_PROD" ] || [ -z "$ENV_DEV" ]; then
+            echo "::error::ENV_PROD or ENV_DEV secret is missing."
+            exit 1
+          fi
+          printf '%s' "$ENV_PROD" > .env.prod
+          printf '%s' "$ENV_DEV" > .env.dev
+
+      - name: Install Apple certificate and provisioning profile
+        env:
+          IOS_BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_BUILD_CERTIFICATE_BASE64 }}
+          IOS_P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
+          IOS_BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_BUILD_PROVISION_PROFILE_BASE64 }}
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          if [ -z "$IOS_BUILD_CERTIFICATE_BASE64" ] || [ -z "$IOS_P12_PASSWORD" ] || \
+             [ -z "$IOS_BUILD_PROVISION_PROFILE_BASE64" ] || [ -z "$IOS_KEYCHAIN_PASSWORD" ]; then
+            echo "::error::iOS signing secrets are missing."
+            exit 1
+          fi
+
+          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+          PROFILE_PATH="$RUNNER_TEMP/build_pp.mobileprovision"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+
+          printf '%s' "$IOS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
+          printf '%s' "$IOS_BUILD_PROVISION_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+
+          security create-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -P "$IOS_P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH" || {
+            echo "::error::Failed to import certificate into keychain."
+            exit 1
+          }
+          security list-keychain -d user -s "$KEYCHAIN_PATH" $(security list-keychain -d user | tr -d '"')
+          security set-key-partition-list -S apple-tool:,apple: -k "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          CERT_OUTPUT=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")
+          echo "$CERT_OUTPUT"
+          if echo "$CERT_OUTPUT" | grep -qE "^\s+0 valid identities found"; then
+            echo "::error::No valid signing certificate found in keychain."
+            exit 1
+          fi
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles"
+
+          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
+          if [ -z "$PROFILE_UUID" ]; then
+            echo "::error::Failed to extract UUID from provisioning profile."
+            exit 1
+          fi
+          echo "IOS_PROVISIONING_PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
+
+      - name: Resolve iOS version metadata
+        run: |
+          VERSION_LINE="$(grep '^version:' pubspec.yaml | head -n 1 | awk '{print $2}')"
+          VERSION_NAME="${VERSION_LINE%%+*}"
+
+          if [ -z "$VERSION_NAME" ]; then
+            echo "::error::Unable to parse version from pubspec.yaml"
+            exit 1
+          fi
+
+          echo "IOS_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "IOS_BUILD_NUMBER=${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+
+      - name: Verify release notes
+        run: |
+          NOTES_PATH="fastlane/metadata/ko/release_notes.txt"
+          if [ ! -s "$NOTES_PATH" ] || [ -z "$(tr -d '[:space:]' < "$NOTES_PATH")" ]; then
+            echo "::error file=$NOTES_PATH::What's New 가 비어 있습니다. 이번 릴리스 내용을 작성해주세요."
+            exit 1
+          fi
+          echo "----- release_notes (ko) -----"
+          cat "$NOTES_PATH"
+
+      - name: Build & Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          SKIP_TESTFLIGHT_UPLOAD: ${{ github.event.inputs.skip_upload }}
+        run: bundle exec fastlane ios upload_testflight
+
+      - name: Clean up keychain and provisioning profile
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/app-signing.keychain-db" || true
+          rm -f "$RUNNER_TEMP/build_certificate.p12"
+          rm -f "$RUNNER_TEMP/build_pp.mobileprovision"
+          rm -f .env.prod
+          rm -f .env.dev
