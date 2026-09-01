@@ -1,0 +1,281 @@
+WORKSPACE = ENV.fetch("GITHUB_WORKSPACE", File.expand_path("..", __dir__))
+
+# What's New 단일 출처. iOS(pilot)는 이 경로를 그대로 읽고,
+# Android(supply)는 versionCode 규칙이 달라 빌드 시점에 여기서 복사해 간다.
+RELEASE_NOTES_PATH = "fastlane/metadata/ko/release_notes.txt"
+PLAY_CHANGELOG_LOCALE = "ko-KR"
+PLAY_CHANGELOG_LIMIT = 500
+
+# 아직 프로덕션(정식 출시) 심사 자격이 없어 비공개 테스트 트랙까지만 배포한다.
+# Play Console > 테스트 및 출시 > 테스트 > 비공개 테스트에서 실제 트랙 이름을 확인할 것 —
+# 기존 기본 비공개 테스트 트랙이면 API 상 이름은 "alpha" 다.
+PLAY_TRACK = "alpha"
+
+default_platform(:ios)
+
+platform :ios do
+  TEAM_ID = "UB2797YAAH"
+  BUNDLE_ID = "com.flooding.v2"
+
+  desc "Build the iOS app and upload it to TestFlight without submitting for review (develop 푸시마다)"
+  lane :upload_testflight do
+    # 로컬에서 archive 단계만 검증할 때는 SKIP_TESTFLIGHT_UPLOAD=true 로 업로드를 건너뛴다.
+    skip_upload = ENV["SKIP_TESTFLIGHT_UPLOAD"] == "true"
+    api_key = skip_upload ? nil : load_asc_api_key
+
+    build_signed_ipa(
+      version_name: ENV.fetch("IOS_VERSION_NAME"),
+      build_number: ENV.fetch("IOS_BUILD_NUMBER"),
+      profile_uuid: ENV.fetch("IOS_PROVISIONING_PROFILE_UUID")
+    )
+
+    if skip_upload
+      UI.success("SKIP_TESTFLIGHT_UPLOAD=true — archive 검증 완료, TestFlight 업로드는 건너뜀")
+      next
+    end
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+      notify_external_testers: false,
+      changelog: read_release_notes
+    )
+  end
+
+  # App Store 정식 심사 제출 lane. 아직 앱이 App Store Connect 심사를 받을 준비가
+  # 안 됐다면(최초 등록 전 등) 워크플로우에 연결하지 않은 채로 둔다 — 준비되면
+  # release-ios.yml 에서 이 lane 을 호출하도록 바꾸면 된다.
+  desc "Build the iOS app and submit it to App Store review"
+  lane :release_appstore do
+    dry_run = ENV["DRY_RUN"] == "true"
+    api_key = dry_run ? nil : load_asc_api_key
+
+    unless dry_run
+      setup_connect_api(api_key: api_key)
+
+      blocking = blocking_appstore_version
+      if blocking
+        msg = "iOS 제출 건너뜀 — #{blocking.version_string} 이 #{blocking.app_store_state} 상태입니다."
+        UI.important(msg)
+        puts "::warning::#{msg}"
+        next
+      end
+    end
+
+    version_name = ENV.fetch("IOS_VERSION_NAME")
+    assert_appstore_version_available(version_name: version_name) unless dry_run
+
+    build_signed_ipa(
+      version_name: version_name,
+      build_number: ENV.fetch("IOS_BUILD_NUMBER"),
+      profile_uuid: ENV.fetch("IOS_PROVISIONING_PROFILE_UUID")
+    )
+
+    if dry_run
+      UI.success("DRY_RUN=true — iOS 빌드/서명(archive) 완료, App Store 업로드는 건너뜀")
+      next
+    end
+
+    upload_to_app_store(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID,
+      submit_for_review: true,
+      automatic_release: true,
+      force: true,
+      run_precheck_before_submit: false,
+      skip_metadata: false,
+      skip_screenshots: true,
+      submission_information: {
+        add_id_info_uses_idfa: false
+      }
+    )
+  end
+
+  private_lane :load_asc_api_key do
+    key_id = ENV["APP_STORE_CONNECT_KEY_ID"].to_s
+    issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"].to_s
+    key_content = ENV["APP_STORE_CONNECT_API_KEY"].to_s
+
+    UI.user_error!("APP_STORE_CONNECT_KEY_ID is empty") if key_id.strip.empty?
+    UI.user_error!("APP_STORE_CONNECT_ISSUER_ID is empty") if issuer_id.strip.empty?
+    UI.user_error!("APP_STORE_CONNECT_API_KEY is empty") if key_content.strip.empty?
+
+    app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_content: key_content,
+      is_key_content_base64: false,
+      in_house: false
+    )
+  end
+
+  private_lane :setup_connect_api do |options|
+    api_key = options.fetch(:api_key)
+    require "spaceship"
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id: api_key[:key_id],
+      issuer_id: api_key[:issuer_id],
+      key: api_key[:key]
+    )
+  end
+
+  private_lane :blocking_appstore_version do
+    app = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
+    return nil if app.nil?
+
+    blocking = %w[
+      WAITING_FOR_REVIEW
+      IN_REVIEW
+      PENDING_APPLE_RELEASE
+      PENDING_DEVELOPER_RELEASE
+      PROCESSING_FOR_APP_STORE
+      READY_FOR_REVIEW
+      WAITING_FOR_EXPORT_COMPLIANCE
+    ]
+    app.get_app_store_versions.find { |v| blocking.include?(v.app_store_state) }
+  end
+
+  private_lane :assert_appstore_version_available do |options|
+    version_name = options.fetch(:version_name)
+
+    app = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
+    UI.user_error!("App #{BUNDLE_ID} 를 App Store Connect 에서 찾지 못했습니다") if app.nil?
+
+    editable = %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED INVALID_BINARY]
+    current = app.get_app_store_versions
+                 .reject { |v| editable.include?(v.app_store_state) }
+                 .map { |v| Gem::Version.new(v.version_string) }
+                 .max
+
+    if current && Gem::Version.new(version_name) <= current
+      UI.user_error!(
+        "pubspec 버전 #{version_name} 이 App Store 최고 버전 #{current} 이하입니다. " \
+        "pubspec.yaml 의 version 을 #{current} 보다 높게 올려주세요."
+      )
+    end
+
+    UI.message("App Store 버전 확인 OK: #{version_name} (현재 최고 #{current || '없음'})")
+  end
+
+  # Flutter 빌드 + 수동 서명 아카이브로 app-store IPA 를 만든다. (TestFlight·App Store 공용)
+  private_lane :build_signed_ipa do |options|
+    version_name = options.fetch(:version_name)
+    build_number = options.fetch(:build_number)
+    profile_uuid = options.fetch(:profile_uuid)
+
+    sh(
+      [
+        "fvm", "flutter", "build", "ios",
+        "--release",
+        "--no-codesign",
+        "--build-name=#{version_name}",
+        "--build-number=#{build_number}",
+        "--dart-define=ENV=prod"
+      ].join(" ")
+    )
+
+    # CocoaPods 라이브러리 타겟까지 프로비저닝 프로파일이 강제되지 않도록 Runner 에만 적용.
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: File.join(WORKSPACE, "ios", "Runner.xcodeproj"),
+      team_id: TEAM_ID,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_uuid,
+      targets: ["Runner"],
+      build_configurations: ["Release"]
+    )
+
+    build_app(
+      workspace: File.join(WORKSPACE, "ios", "Runner.xcworkspace"),
+      scheme: "Runner",
+      configuration: "Release",
+      export_options: {
+        method: "app-store",
+        teamID: TEAM_ID,
+        signingStyle: "manual",
+        signingCertificate: "Apple Distribution",
+        stripSwiftSymbols: true,
+        uploadBitcode: false,
+        uploadSymbols: true,
+        provisioningProfiles: { BUNDLE_ID => profile_uuid }
+      },
+      output_directory: File.join(WORKSPACE, "build", "ios", "ipa"),
+      clean: true
+    )
+  end
+end
+
+platform :android do
+  desc "Build the Android app and upload it to the Play Store closed testing track (develop 푸시마다)"
+  lane :upload_play_store do
+    dry_run = ENV["DRY_RUN"] == "true"
+
+    build_number = ENV.fetch("ANDROID_BUILD_NUMBER")
+    version_name = ENV.fetch("ANDROID_VERSION_NAME")
+
+    metadata_path = prepare_play_changelog(build_number: build_number)
+
+    sh(
+      [
+        "fvm", "flutter", "build", "appbundle",
+        "--release",
+        "--build-name=#{version_name}",
+        "--build-number=#{build_number}",
+        "--dart-define=ENV=prod"
+      ].join(" ")
+    )
+
+    aab_search_path = File.join(WORKSPACE, "build/app/outputs/bundle/release")
+    aab_path = Dir.glob(File.join(aab_search_path, "*.aab")).max_by { |f| File.mtime(f) }
+    UI.user_error!("AAB not found in #{aab_search_path}") if aab_path.nil?
+
+    if dry_run
+      UI.success("DRY_RUN=true — Android AAB 빌드 완료(#{aab_path}), Play Store 업로드는 건너뜀")
+      next
+    end
+
+    upload_to_play_store(
+      track: PLAY_TRACK,
+      release_status: "completed",
+      json_key_data: ENV.fetch("SUPPLY_JSON_KEY_DATA"),
+      aab: aab_path,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      metadata_path: metadata_path
+    )
+  end
+
+  # iOS 와 공유하는 What's New 원본(fastlane/metadata/ko/release_notes.txt)을
+  # supply 규칙인 <metadata_path>/<locale>/changelogs/<versionCode>.txt 로 복사한다.
+  private_lane :prepare_play_changelog do |options|
+    build_number = options.fetch(:build_number)
+    notes = read_release_notes
+
+    if notes.length > PLAY_CHANGELOG_LIMIT
+      UI.user_error!(
+        "What's New 가 #{notes.length}자로 Play Store 제한(#{PLAY_CHANGELOG_LIMIT}자)을 넘습니다: #{RELEASE_NOTES_PATH}"
+      )
+    end
+
+    metadata_path = File.join(WORKSPACE, "fastlane", "metadata", "android")
+    changelog_dir = File.join(metadata_path, PLAY_CHANGELOG_LOCALE, "changelogs")
+    FileUtils.mkdir_p(changelog_dir)
+    File.write(File.join(changelog_dir, "#{build_number}.txt"), notes)
+
+    UI.message("Play changelog 생성: #{PLAY_CHANGELOG_LOCALE}/changelogs/#{build_number}.txt (#{notes.length}자)")
+    metadata_path
+  end
+end
+
+def read_release_notes
+  notes_path = File.join(WORKSPACE, RELEASE_NOTES_PATH)
+  UI.user_error!("What's New 원본이 없습니다: #{RELEASE_NOTES_PATH}") unless File.exist?(notes_path)
+
+  notes = File.read(notes_path, encoding: "UTF-8").strip
+  UI.user_error!("What's New 가 비어 있습니다: #{RELEASE_NOTES_PATH}") if notes.empty?
+  notes
+end
