@@ -45,8 +45,7 @@ platform :ios do
 
   # App Store 정식 심사 제출 lane. 아직 앱이 App Store Connect 심사를 받을 준비가
   # 안 됐다면(최초 등록 전 등) 워크플로우에 연결하지 않은 채로 둔다 — 준비되면
-  # release-ios.yml 에서 이 lane 을 호출하도록 바꾸면 된다. Washer 의 release_appstore
-  # lane 을 그대로 참고했다.
+  # release-ios.yml 에서 이 lane 을 호출하도록 바꾸면 된다.
   desc "Build the iOS app and submit it to App Store review"
   lane :release_appstore do
     dry_run = ENV["DRY_RUN"] == "true"
