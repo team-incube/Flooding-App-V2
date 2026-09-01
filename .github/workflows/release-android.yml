@@ -1,12 +1,11 @@
 name: Release - Android Play Store
 
-# develop 에 push(머지)되면 Play Store 비공개 테스트(Alpha) 트랙으로 자동 업로드한다.
+# 아직 실제로 한 번도 성공적으로 돈 적이 없어 push 트리거는 잠시 빼뒀다.
+# workflow_dispatch(dry_run)로 먼저 검증한 뒤, 문제없으면 push: branches: [develop] 를
+# 다시 추가해 develop 머지마다 자동 업로드되게 한다.
 # 버전명은 pubspec.yaml, versionCode 는 run number 로 고정(중복 방지).
 on:
-  push:
-    branches:
-      - develop
-  # 수동 실행(테스트용). dry_run=true 면 AAB 빌드까지만 하고 Play Store 업로드는 건너뛴다.
+  # 수동 실행. dry_run=true 면 AAB 빌드까지만 하고 Play Store 업로드는 건너뛴다.
   workflow_dispatch:
     inputs:
       dry_run:
