@@ -151,15 +151,19 @@ jobs:
 
       - name: Resolve iOS version metadata
         run: |
+          # pubspec.yaml 은 major.minor 만 의미 있는 값으로 취급한다(사람이 릴리스
+          # 단위로만 올림). patch 는 App Store 가 "이전 승인 버전보다 높아야 함"을
+          # 강제하므로 매 실행마다 단조 증가하는 run number 로 CD 가 직접 채운다.
+          # (pubspec.yaml 자체는 커밋하지 않음 — develop 은 PR 없이 직접 push 불가)
           VERSION_LINE="$(grep '^version:' pubspec.yaml | head -n 1 | awk '{print $2}')"
-          VERSION_NAME="${VERSION_LINE%%+*}"
+          MAJOR_MINOR="$(echo "${VERSION_LINE%%+*}" | cut -d. -f1,2)"
 
-          if [ -z "$VERSION_NAME" ]; then
+          if [ -z "$MAJOR_MINOR" ]; then
             echo "::error::Unable to parse version from pubspec.yaml"
             exit 1
           fi
 
-          echo "IOS_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "IOS_VERSION_NAME=${MAJOR_MINOR}.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
           echo "IOS_BUILD_NUMBER=${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
 
       - name: Verify release notes

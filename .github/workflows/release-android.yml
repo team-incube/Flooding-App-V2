@@ -104,15 +104,18 @@ jobs:
 
       - name: Resolve Android version metadata
         run: |
+          # pubspec.yaml 은 major.minor 만 의미 있는 값으로 취급한다(사람이 릴리스
+          # 단위로만 올림). patch 는 CD 가 매 실행마다 run number 로 직접 채워서
+          # iOS 와 동일하게 별도 버전 커밋 없이 항상 새 버전으로 업로드되게 한다.
           VERSION_LINE="$(grep '^version:' pubspec.yaml | head -n 1 | awk '{print $2}')"
-          VERSION_NAME="${VERSION_LINE%%+*}"
+          MAJOR_MINOR="$(echo "${VERSION_LINE%%+*}" | cut -d. -f1,2)"
 
-          if [ -z "$VERSION_NAME" ]; then
+          if [ -z "$MAJOR_MINOR" ]; then
             echo "::error::Unable to parse version from pubspec.yaml"
             exit 1
           fi
 
-          echo "ANDROID_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_NAME=${MAJOR_MINOR}.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
           # versionCode 는 업로드마다 단조 증가해야 하며 Play 의 기존 최고값보다 커야 한다.
           # run number 만 쓰면 과거(수동 업로드 등)가 쓴 낮은 코드와 충돌할 수 있어
           # 1000 오프셋을 더한다.
