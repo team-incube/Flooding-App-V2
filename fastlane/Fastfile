@@ -164,8 +164,13 @@ platform :ios do
     build_number = options.fetch(:build_number)
     profile_uuid = options.fetch(:profile_uuid)
 
+    # --no-codesign 을 줘도 프로젝트가 Automatic 서명 + 팀 미지정 상태면
+    # xcodebuild 가 "Development Team 선택 필요" 에러로 여기서 죽는다(Flutter 버그성 동작).
+    # 아래 update_code_signing_settings 로 Manual 전환하기 전에 이미 실패하므로,
+    # FLUTTER_XCODE_* 로 팀만 먼저 넘겨 이 단계를 통과시킨다.
     sh(
       [
+        "FLUTTER_XCODE_DEVELOPMENT_TEAM=#{TEAM_ID}",
         "fvm", "flutter", "build", "ios",
         "--release",
         "--no-codesign",
