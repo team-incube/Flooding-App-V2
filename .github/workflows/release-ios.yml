@@ -163,7 +163,12 @@ jobs:
             exit 1
           fi
 
-          echo "IOS_VERSION_NAME=${MAJOR_MINOR}.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+          # 로컬 검증 중 1.0.500 을 실제로 TestFlight 에 업로드해 그 버전 슬롯이
+          # 이미 소비됨(Android 의 1000 오프셋과 동일한 이유로, 낮은 run number 가
+          # 그보다 작은 버전을 만들지 않도록 오프셋을 둠).
+          IOS_PATCH=$((1000 + GITHUB_RUN_NUMBER))
+
+          echo "IOS_VERSION_NAME=${MAJOR_MINOR}.${IOS_PATCH}" >> "$GITHUB_ENV"
           echo "IOS_BUILD_NUMBER=${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
 
       - name: Verify release notes
