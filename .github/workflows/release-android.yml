@@ -92,9 +92,6 @@ jobs:
             exit 1
           fi
 
-          # 공백/개행 제거 후 디코딩. build.gradle.kts 의 storeFile = file(...) 은
-          # android/app/ 기준 상대경로로 풀리므로, ANDROID_KEY_PROPERTIES 의 storeFile 은
-          # "../upload-keystore.jks" (→ android/upload-keystore.jks) 로 등록해야 한다.
           KEYSTORE_CLEAN=$(printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n\t ')
           if ! printf '%s' "$KEYSTORE_CLEAN" | base64 --decode > android/upload-keystore.jks; then
             echo "::error::ANDROID_KEYSTORE_BASE64 is not valid base64."
