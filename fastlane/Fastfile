@@ -212,6 +212,15 @@ platform :ios do
 end
 
 platform :android do
+  desc "PLAY_TRACK 이 실제로 존재하는 트랙인지만 조회한다(읽기 전용, 빌드/업로드 없음)"
+  lane :verify_play_track do
+    codes = google_play_track_version_codes(
+      track: PLAY_TRACK,
+      json_key_data: ENV.fetch("SUPPLY_JSON_KEY_DATA")
+    )
+    UI.success("트랙 '#{PLAY_TRACK}' 확인 완료 — 현재 버전 코드: #{codes.inspect}")
+  end
+
   desc "Build the Android app and upload it to the Play Store closed testing track (develop 푸시마다)"
   lane :upload_play_store do
     dry_run = ENV["DRY_RUN"] == "true"

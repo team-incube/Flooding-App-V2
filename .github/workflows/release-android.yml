@@ -73,6 +73,12 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
+      - name: Verify Play Store track exists
+        if: needs.guard.outputs.configured == 'true'
+        env:
+          SUPPLY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+        run: bundle exec fastlane android verify_play_track
+
       - name: Flutter pub get
         run: fvm flutter pub get
 
