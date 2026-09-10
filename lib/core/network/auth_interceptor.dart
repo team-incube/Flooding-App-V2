@@ -89,6 +89,7 @@ class AuthInterceptor extends Interceptor {
 
     final refreshToken = await _refreshTokenProvider();
     if (refreshToken == null) {
+      await _onSessionExpired();
       return handler.next(err);
     }
 
