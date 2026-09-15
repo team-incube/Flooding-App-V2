@@ -36,14 +36,14 @@ class SearchTextField extends StatelessWidget {
             child: TextField(
               controller: textEditingController,
               onChanged: onChanged,
-              style: AppTextStyle.text3.copyWith(
+              style: AppTextStyle.text4.copyWith(
                 color: AppColors.lightMainText,
               ),
               decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
                 hintText: hintText,
-                hintStyle: AppTextStyle.text3.copyWith(
+                hintStyle: AppTextStyle.text4.copyWith(
                   color: AppColors.lightSub2,
                 ),
               ),

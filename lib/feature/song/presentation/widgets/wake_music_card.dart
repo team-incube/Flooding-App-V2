@@ -105,7 +105,7 @@ class _WakeMusicCardState extends State<WakeMusicCard> {
                           Text(
                             '전체보기',
                             style: AppTextStyle.caption1.copyWith(
-                              color: AppColors.lightHintText,
+                              color: AppColors.lightSub2,
                             ),
                           ),
                           SizedBox(width: AppSpacing.s4),

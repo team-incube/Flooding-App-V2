@@ -28,7 +28,7 @@ class CardHeader extends StatelessWidget {
         SizedBox(width: AppSpacing.s4),
         Text(
           title,
-          style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),
+          style: AppTextStyle.text2.copyWith(color: AppColors.lightMainText),
         ),
       ],
     );

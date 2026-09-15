@@ -55,7 +55,7 @@ class _InputField extends StatelessWidget {
       constraints: BoxConstraints(minHeight: AppSize.s52),
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.s16,
-        vertical: AppSpacing.s14,
+        vertical: AppSpacing.s16,
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.s8),
@@ -66,7 +66,7 @@ class _InputField extends StatelessWidget {
         minLines: 1,
         maxLines: 4,
         textInputAction: TextInputAction.newline,
-        style: AppTextStyle.text3.copyWith(
+        style: AppTextStyle.text4.copyWith(
           color: AppColors.lightMainText,
           height: 1.3,
         ),
@@ -74,7 +74,7 @@ class _InputField extends StatelessWidget {
           isCollapsed: true,
           border: InputBorder.none,
           hintText: hint,
-          hintStyle: AppTextStyle.text3.copyWith(color: AppColors.lightSub2),
+          hintStyle: AppTextStyle.text4.copyWith(color: AppColors.lightSub2),
         ),
       ),
     );

@@ -19,12 +19,12 @@ class AppProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(AppRadius.s8);
+    final radius = BorderRadius.circular(AppRadius.s4);
     final filledFlex = total <= 0 ? 0 : current.clamp(0, total);
     final emptyFlex = total <= 0 ? 1 : total - filledFlex;
 
     return SizedBox(
-      height: AppSpacing.s32,
+      height: AppSpacing.s24,
       child: Row(
         children: [
           if (filledFlex > 0)
