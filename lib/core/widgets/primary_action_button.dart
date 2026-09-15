@@ -40,7 +40,7 @@ class PrimaryActionButton extends StatelessWidget {
 
     Widget content = Text(
       label,
-      style: AppTextStyle.caption1.copyWith(color: AppColors.lightSub4),
+      style: AppTextStyle.text4.copyWith(color: AppColors.lightSub4),
     );
     if (expand) {
       content = Center(child: content);

@@ -52,7 +52,10 @@ class MemberCard extends StatelessWidget {
     final topLine = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("$number", style: AppTextStyle.text3),
+        Text(
+          "$number",
+          style: AppTextStyle.text4.copyWith(color: AppColors.lightSub1),
+        ),
         // 체크 표시는 선택 여부가 아니라 출석(체크인) 완료 여부를 나타낸다.
         if (showAttendanceBadge)
           model.isAttended
@@ -66,7 +69,7 @@ class MemberCard extends StatelessWidget {
       width: fixedSize.width,
       decoration: BoxDecoration(
         color: AppColors.lightSub4,
-        borderRadius: BorderRadius.circular(AppRadius.s12),
+        borderRadius: BorderRadius.circular(AppRadius.s16),
       ),
       padding: EdgeInsets.all(AppSpacing.s16),
       child: Stack(
@@ -86,7 +89,7 @@ class MemberCard extends StatelessWidget {
                     children: [
                       Text(
                         model.name,
-                        style: AppTextStyle.text2.copyWith(
+                        style: AppTextStyle.text3.copyWith(
                           color: AppColors.lightMainText,
                         ),
                       ),

@@ -121,7 +121,7 @@ class _TopBar extends StatelessWidget {
       titleSpacing: AppSpacing.s4,
       title: Text(
         title,
-        style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),
+        style: AppTextStyle.text2.copyWith(color: AppColors.lightMainText),
       ),
       actions: [
         iconButton(

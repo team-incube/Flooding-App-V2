@@ -97,14 +97,14 @@ class _ScheduleCard extends StatelessWidget {
               children: [
                 Text(
                   periodLabel,
-                  style: AppTextStyle.text2.copyWith(
+                  style: AppTextStyle.text3.copyWith(
                     color: AppColors.lightSub1,
                   ),
                 ),
                 const Spacer(),
                 Text(
                   subject,
-                  style: AppTextStyle.text3.copyWith(
+                  style: AppTextStyle.text4.copyWith(
                     color: AppColors.lightSub1,
                   ),
                 ),

@@ -141,7 +141,7 @@ class _ChatHeader extends StatelessWidget {
           SizedBox(width: AppSpacing.s4),
           Text(
             'AI챗봇',
-            style: AppTextStyle.text1.copyWith(color: AppColors.lightMainText),
+            style: AppTextStyle.text2.copyWith(color: AppColors.lightMainText),
           ),
         ],
       ),

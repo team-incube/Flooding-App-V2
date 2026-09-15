@@ -207,7 +207,7 @@ class _RequestCountCardState extends State<RequestCountCard> {
               Center(
                 child: Text(
                   '${widget.current}/${widget.total}',
-                  style: AppTextStyle.title1.copyWith(
+                  style: AppTextStyle.title2.copyWith(
                     color: AppColors.lightMainText,
                   ),
                 ),
@@ -260,7 +260,7 @@ class _SeeAllLink extends StatelessWidget {
           Text(
             '전체보기',
             style: AppTextStyle.caption1.copyWith(
-              color: AppColors.lightHintText,
+              color: AppColors.lightSub2,
             ),
           ),
           SizedBox(width: AppSpacing.s4),
