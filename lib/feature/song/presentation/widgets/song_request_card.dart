@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flooding_v2/core/constants/app_radius.dart';
 import 'package:flooding_v2/core/constants/app_spacing.dart';
 import 'package:flooding_v2/core/theme/color/app_colors.dart';
@@ -73,13 +74,19 @@ class _SongRequestCardState extends State<SongRequestCard> {
                 if (widget.thumbnailUrl != null &&
                     widget.thumbnailUrl!.isNotEmpty)
                   Center(
-                    child: Image.network(
-                      widget.thumbnailUrl!,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.thumbnailUrl!,
                       width: 76.55,
                       height: 69.96,
                       fit: BoxFit.fill,
+                      // 목록 진입 시 여러 곡의 원본 해상도 썸네일을 동시에
+                      // 디코딩하면 push 전환 애니메이션과 겹쳐 프레임이
+                      // 밀리므로, 표시 크기(2x)로만 디코딩·캐시한다.
+                      memCacheWidth: 154,
+                      memCacheHeight: 140,
+                      fadeInDuration: Duration.zero,
                       // 로드 실패 시 회색 박스만 남긴다.
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      errorWidget: (_, __, ___) => const SizedBox.shrink(),
                     ),
                   ),
                 // 좌상단 좋아요 버튼(썸네일 위에 표시).
