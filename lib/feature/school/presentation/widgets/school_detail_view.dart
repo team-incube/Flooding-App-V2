@@ -11,6 +11,7 @@ import 'package:flooding_v2/core/widgets/search_text_field.dart';
 import 'package:flooding_v2/feature/auth/data/models/search_user.dart';
 import 'package:flooding_v2/feature/auth/data/user_service.dart';
 import 'package:flooding_v2/feature/school/data/models/homebase_member.dart';
+import 'package:flooding_v2/feature/school/domain/homebase_request_policy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,6 +48,7 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
       _resultDividerHeight * (_visibleResultCount - 1);
 
   static const int _reasonMaxLength = 30;
+  static const _requestPolicy = HomebaseRequestPolicy();
 
   final _studentSearchController = TextEditingController();
   final _reasonController = TextEditingController();
@@ -127,6 +129,10 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   }
 
   void _submit() {
+    if (!_requestPolicy.isOpenAt(DateTime.now())) {
+      _showSnack('홈베이스 신청은 오후 2시 20분부터 가능해요.');
+      return;
+    }
     if (_floor == null || _periods.isEmpty || _tableNumber == null) {
       _showSnack('층·교시·테이블 번호를 선택해주세요.');
       return;
