@@ -46,6 +46,15 @@ class MenuDrawer extends StatefulWidget {
 }
 
 class _MenuDrawerState extends State<MenuDrawer> {
+  /// 드로어를 닫고 [path] 로 이동한다.
+  ///
+  /// 화면 전환은 공통 [BaseScaffold] 를 유지한 채 body 만 바뀌므로, 직접 닫지
+  /// 않으면 이동 후에도 드로어가 열린 채로 남는다.
+  void _navigate(String path) {
+    Scaffold.of(context).closeEndDrawer();
+    context.go(path);
+  }
+
   /// 드로어 로그아웃 → 확인 후 로그아웃.
   Future<void> _confirmLogout() async {
     final ok = await AppConfirmDialog.show(
@@ -115,7 +124,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selectedIcon: AppIcon.navHomeFill,
                       label: '홈',
                       selected: RoutePath.home == location,
-                      onTap: () => context.go(RoutePath.home),
+                      onTap: () => _navigate(RoutePath.home),
                     ),
                     SizedBox(height: AppSpacing.s6),
                     _NavItem(
@@ -123,7 +132,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selectedIcon: AppIcon.dormitoryFill,
                       label: '기숙사',
                       selected: RoutePath.dormitory == location,
-                      onTap: () => context.go(RoutePath.dormitory),
+                      onTap: () => _navigate(RoutePath.dormitory),
                     ),
                     SizedBox(height: AppSpacing.s6),
                     _NavItem(
@@ -131,7 +140,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       selectedIcon: AppIcon.graduationCapFill,
                       label: '학교',
                       selected: RoutePath.school == location,
-                      onTap: () => context.go(RoutePath.school),
+                      onTap: () => _navigate(RoutePath.school),
                     ),
                   ],
                 ),
