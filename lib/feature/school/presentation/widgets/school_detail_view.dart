@@ -22,12 +22,20 @@ import 'homebase_seat_select_card.dart';
 import 'selected_student_chip.dart';
 
 class SchoolDetailView extends StatefulWidget {
-  const SchoolDetailView({super.key, this.initialFloor, this.initialPeriods});
+  const SchoolDetailView({
+    super.key,
+    this.initialFloor,
+    this.initialPeriods,
+    this.clock = DateTime.now,
+  });
 
   /// 목록 화면(SchoolView)에서 이미 골라둔 층/교시 — 있으면 이 화면의 선택
   /// 카드에 그대로 반영한다.
   final int? initialFloor;
   final Set<int>? initialPeriods;
+
+  /// 현재 시각 공급자 — 신청 가능 시간 판정에 쓰며, 테스트에서 주입한다.
+  final DateTime Function() clock;
 
   @override
   State<SchoolDetailView> createState() => _SchoolDetailViewState();
@@ -66,8 +74,29 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   // 요청의 결과만 반영하도록 매 요청마다 증가시켜 비교한다.
   int _searchRequestId = 0;
 
+  // 신청 시작 시각(13:30) 전에는 버튼을 비활성화하고, 그 시각이 되면 타이머로
+  // 자동 활성화한다.
+  late bool _isOpen = _requestPolicy.isOpenAt(widget.clock());
+  Timer? _openTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleOpen();
+  }
+
+  void _scheduleOpen() {
+    final untilOpen = _requestPolicy.untilOpen(widget.clock());
+    if (untilOpen == null) return;
+    _openTimer = Timer(untilOpen, () {
+      if (!mounted) return;
+      setState(() => _isOpen = true);
+    });
+  }
+
   @override
   void dispose() {
+    _openTimer?.cancel();
     _debounce?.cancel();
     _studentSearchController.dispose();
     _reasonController.dispose();
@@ -129,8 +158,8 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
   }
 
   void _submit() {
-    if (!_requestPolicy.isOpenAt(DateTime.now())) {
-      _showSnack('홈베이스 신청은 오후 2시 20분부터 가능해요.');
+    if (!_requestPolicy.isOpenAt(widget.clock())) {
+      _showSnack('홈베이스 신청은 오후 1시 30분부터 가능해요.');
       return;
     }
     if (_floor == null || _periods.isEmpty || _tableNumber == null) {
@@ -337,8 +366,12 @@ class _SchoolDetailViewState extends State<SchoolDetailView> {
                 buildWhen: (prev, curr) =>
                     prev.isSubmitting != curr.isSubmitting,
                 builder: (context, state) => PrimaryActionButton(
-                  label: state.isSubmitting ? '처리 중...' : '예약하기',
-                  enabled: !state.isSubmitting,
+                  label: state.isSubmitting
+                      ? '처리 중...'
+                      : _isOpen
+                      ? '예약하기'
+                      : '오후 1시 30분부터 신청할 수 있어요',
+                  enabled: !state.isSubmitting && _isOpen,
                   onPressed: _submit,
                   expand: true,
                   verticalPadding: AppSpacing.s16,
