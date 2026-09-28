@@ -1,0 +1,58 @@
+import 'package:flutter/material.dart';
+
+import '../constants/app_radius.dart';
+import '../constants/app_size.dart';
+import '../constants/app_spacing.dart';
+import '../theme/color/app_colors.dart';
+import '../theme/icon/app_icon.dart';
+import '../theme/text_style/app_text_style.dart';
+
+class SearchTextField extends StatelessWidget {
+  const SearchTextField({
+    super.key,
+    required this.textEditingController,
+    required this.hintText,
+    this.onChanged,
+  });
+
+  final TextEditingController textEditingController;
+  final String hintText;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: AppSize.s52,
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+      decoration: BoxDecoration(
+        color: AppColors.lightBackground,
+        borderRadius: BorderRadius.circular(AppRadius.s8),
+        border: Border.all(color: AppColors.lightSub2),
+      ),
+      alignment: Alignment.centerLeft,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: textEditingController,
+              onChanged: onChanged,
+              style: AppTextStyle.text4.copyWith(
+                color: AppColors.lightMainText,
+              ),
+              decoration: InputDecoration(
+                isCollapsed: true,
+                border: InputBorder.none,
+                hintText: hintText,
+                hintStyle: AppTextStyle.text4.copyWith(
+                  color: AppColors.lightSub2,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: AppSpacing.s8),
+          AppIcon.search(size: AppSize.s20),
+        ],
+      ),
+    );
+  }
+}

@@ -58,7 +58,7 @@ app.*.map.json
 *.mocks.dart
 
 # Environment files
-.env
+.env.dev
 .env.*
 !.env.example
 
@@ -68,3 +68,7 @@ GoogleService-Info.plist
 
 # FVM (Flutter Version Management)
 .fvm/
+
+# oh-my-claudecode
+.omc/
+.omx/

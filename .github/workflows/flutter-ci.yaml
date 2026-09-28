@@ -27,7 +27,9 @@ jobs:
 
       - name: Read FVM config
         run: |
-          if [ -f ".fvm/fvm_config.json" ]; then
+          if [ -f ".fvmrc" ]; then
+            FLUTTER_VERSION=$(jq -r '.flutter' .fvmrc)
+          elif [ -f ".fvm/fvm_config.json" ]; then
             FLUTTER_VERSION=$(jq -r '.flutterSdkVersion' .fvm/fvm_config.json)
           else
             FLUTTER_VERSION=""
@@ -44,7 +46,7 @@ jobs:
 
       # FVM 설정 파일이 있을 때만 FVM 설치 및 PATH 주입
       - name: Set up FVM
-        if: hashFiles('.fvm/fvm_config.json') != ''
+        if: hashFiles('.fvmrc') != '' || hashFiles('.fvm/fvm_config.json') != ''
         run: |
           dart pub global activate fvm
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH

@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// `.env.{flavor}` 로부터 로드한 환경 값에 접근하는 진입점.
+/// `.env.dev.{flavor}` 로부터 로드한 환경 값에 접근하는 진입점.
 ///
 /// 빌드 시 `--dart-define=ENV=prod` 로 환경을 전환한다(기본 dev).
 /// 비밀이 아닌 값만 보관한다 — PKCE 방식이라 client_secret 은 포함하지 않는다.

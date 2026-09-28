@@ -28,7 +28,7 @@ abstract final class AppConfirmDialog {
         backgroundColor: AppColors.lightBgSurface,
         elevation: 0,
         clipBehavior: Clip.antiAlias,
-        insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+        insetPadding: EdgeInsets.symmetric(horizontal: AppSpacing.s24),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.s16),
         ),
@@ -66,7 +66,7 @@ class _ConfirmContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
             AppSpacing.s24,
             AppSpacing.s24,
             AppSpacing.s24,
@@ -84,7 +84,7 @@ class _ConfirmContent extends StatelessWidget {
                 ),
               ),
               if (message != null) ...[
-                const SizedBox(height: AppSpacing.s12),
+                SizedBox(height: AppSpacing.s12),
                 Text(
                   message!,
                   textAlign: TextAlign.center,
@@ -144,7 +144,7 @@ class _AlertButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
         child: Center(
           child: Text(
             label,

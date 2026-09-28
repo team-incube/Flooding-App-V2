@@ -1,0 +1,20 @@
+import 'package:dio/dio.dart';
+import 'package:flooding_v2/core/network/api_endpoints.dart';
+import 'package:flooding_v2/feature/home/data/models/timetable_list_response.dart';
+import 'package:retrofit/retrofit.dart';
+
+part 'neis_api.g.dart';
+
+const String _timetables = '${ApiEndpoints.neis}/timetables';
+
+@RestApi()
+abstract class NeisApi {
+  factory NeisApi(Dio dio, {String? baseUrl}) = _NeisApi;
+
+  @GET(_timetables)
+  Future<TimetableListResponse> getTimeTables({
+    @Query('grade') required int grade,
+    @Query('classNumber') required int classNumber,
+    @Query('date') required String date,
+  });
+}

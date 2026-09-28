@@ -42,7 +42,7 @@ class SheetActionButtons extends StatelessWidget {
             onTap: onBack,
           ),
         ),
-        const SizedBox(width: AppSpacing.s8),
+        SizedBox(width: AppSpacing.s8),
         Expanded(
           child: _SheetButton(
             label: confirmLabel,
@@ -81,7 +81,7 @@ class _SheetButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.s6),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
+          padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.s32,
             vertical: AppSpacing.s14,
           ),

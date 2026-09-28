@@ -1,0 +1,47 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+import '../../../../core/network/api_endpoints.dart';
+import '../models/me.dart';
+import '../models/profile_image_response.dart';
+import '../models/search_user.dart';
+
+part 'user_api.g.dart';
+
+/// 사용자 API 경로 — 공통 prefix([ApiEndpoints.users])를 합성한다.
+const String _me = '${ApiEndpoints.users}/me';
+const String _profileImage = '${ApiEndpoints.users}/me/profile-image';
+const String _search = ApiEndpoints.users;
+
+/// Flooding 백엔드 사용자(`/users`) API.
+///
+/// `Authorization` 헤더(Bearer)는 클라이언트 인터셉터가 주입한다.
+@RestApi()
+abstract class UserApi {
+  factory UserApi(Dio dio, {String? baseUrl}) = _UserApi;
+
+  /// 내 정보 조회 — 세션 유효성 검사에 사용한다(401 시 미인증).
+  @GET(_me)
+  Future<MeResponse> getMe();
+
+  /// 프로필 사진 업로드 — multipart/form-data(필드명 `image`).
+  /// 응답의 `data.profileImageUrl` 을 이후 표시에 사용한다.
+  @POST(_profileImage)
+  @MultiPart()
+  Future<ProfileImageResponse> uploadProfileImage(
+    @Part(name: 'image') File image,
+  );
+
+  /// 학생 검색 — [name] 은 부분 일치, [studentNumber] 는 전방 일치.
+  /// 둘 다 생략하면 전체 학생을 페이지네이션해 반환한다. ADMIN 은 결과에서 제외된다.
+  @GET(_search)
+  Future<SearchUsersResponse> searchUsers({
+    @Query('name') String? name,
+    @Query('studentNumber') String? studentNumber,
+    @Query('page') int page = 0,
+    @Query('size') int size = 20,
+    @Query('sort') String sort = 'studentNumber,asc',
+  });
+}

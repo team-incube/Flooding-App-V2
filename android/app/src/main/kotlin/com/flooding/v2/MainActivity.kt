@@ -1,4 +1,4 @@
-package com.example.project_setting
+package com.flooding.v2
 
 import io.flutter.embedding.android.FlutterActivity
 

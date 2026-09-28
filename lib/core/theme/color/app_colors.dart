@@ -18,6 +18,7 @@ class AppColors {
   static const Color lightSub3 = Color(0xFFE2E2EE);
   static const Color lightSub4 = Color(0xFFF2F2F4);
   static const Color lightMainText = Color(0xFF292E3D);
+  static const Color lightHintText = Color(0xFFBABACC);
 
   // Dark mode
   static const Color darkBackground = Color(0xFF1F1E2B);

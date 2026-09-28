@@ -1,88 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_radius.dart';
-import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/theme/color/app_colors.dart';
 import '../../../../core/theme/icon/app_icon.dart';
 import '../../../../core/theme/text_style/app_text_style.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_progress_bar.dart';
-import '../../../../core/widgets/primary_action_button.dart';
-import 'card_header.dart';
+import '../../../../core/widgets/card_header.dart';
+import '../../../massage/presentation/widgets/massage_count_card.dart';
+import '../../../song/presentation/widgets/wake_music_card.dart';
+import '../../../study/presentation/widgets/study_count_card.dart';
+import '../../domain/usecases/get_next_period_usecase.dart';
+import '../bloc/timetable_bloc.dart';
+import '../bloc/timetable_state.dart';
 
 /// 홈 섹션 본문(시간표·자습신청·안마의자·기상음악 카드).
 ///
 /// [HomePage] 본문에 드로어로 갈아끼워지는 섹션. 기상음악 URL 입력 컨트롤러를
 /// 직접 소유해, 호스트 페이지가 상태를 들고 있을 필요 없이 자기완결적으로 동작한다.
-class HomeView extends StatefulWidget {
+class HomeView extends StatelessWidget {
   const HomeView({super.key});
-
-  @override
-  State<HomeView> createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<HomeView> {
-  final TextEditingController _musicUrlController = TextEditingController();
-
-  @override
-  void dispose() {
-    _musicUrlController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.s24,
-          0,
-          AppSpacing.s24,
-          AppSpacing.s24,
-        ),
         child: Column(
           children: [
-            const _ScheduleCard(
-              period: '3 교시',
-              subject: 'SQL활용',
-              teacher: '이주원',
+            BlocBuilder<TimetableBloc, TimetableState>(
+              builder: (context, state) => _ScheduleCard(state: state),
             ),
-            const SizedBox(height: AppSpacing.s16),
-            _RequestCountCard(
-              icon: AppIcon.book,
-              title: '자습신청',
-              current: 4,
-              total: 50,
-              onWarningPressed: () {
-                // Todo: 자습신청 안내 기능 구현
-              },
-              onSeeAllPressed: () {
-                // Todo: 자습신청 전체보기 기능 구현
-              },
-              onActionPressed: () {
-                // Todo: 자습신청 기능 구현
-              },
-            ),
-            const SizedBox(height: AppSpacing.s16),
-            _RequestCountCard(
-              icon: AppIcon.chair,
-              title: '안마의자 신청',
-              current: 4,
-              total: 5,
-              onWarningPressed: () {
-                // Todo: 안마의자 신청 안내 기능 구현
-              },
-              onSeeAllPressed: () {
-                // Todo: 안마의자 신청 전체보기 기능 구현
-              },
-              onActionPressed: () {
-                // Todo: 안마의자 신청 기능 구현
-              },
-            ),
-            const SizedBox(height: AppSpacing.s16),
-            _WakeMusicCard(controller: _musicUrlController, requestedCount: 12),
+            SizedBox(height: AppSpacing.s16),
+            const StudyCountCard(),
+            SizedBox(height: AppSpacing.s16),
+            const MassageCountCard(),
+            SizedBox(height: AppSpacing.s16),
+            const WakeMusicCard(),
           ],
         ),
       ),
@@ -91,26 +46,45 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class _ScheduleCard extends StatelessWidget {
-  const _ScheduleCard({
-    required this.period,
-    required this.subject,
-    required this.teacher,
-  });
+  const _ScheduleCard({required this.state});
 
-  final String period;
-  final String subject;
-  final String teacher;
+  final TimetableState state;
 
   @override
   Widget build(BuildContext context) {
+    final period = state.period;
+    final (
+      String periodLabel,
+      String subject,
+      String? teacher,
+    ) = switch (state.scheduleStatus) {
+      ScheduleStatus.initial ||
+      ScheduleStatus.loading => ('', '불러오는 중...', null),
+      ScheduleStatus.error => (
+        '',
+        state.scheduleError ?? '시간표를 불러오지 못했어요.',
+        null,
+      ),
+      ScheduleStatus.loaded => switch (state.periodStatus) {
+        NextPeriodStatus.found when period != null => (
+          '${period.period} 교시',
+          period.subject,
+          // 담당 교사 미배정 시 NEIS 응답에 teacher 가 없을 수 있다.
+          period.teacher,
+        ),
+        NextPeriodStatus.dayOver => ('', '오늘 일과가 끝났어요', null),
+        _ => ('', '오늘 예정된 수업이 없어요', null),
+      },
+    };
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const CardHeader(icon: AppIcon.calendar, title: '시간표'),
-          const SizedBox(height: AppSpacing.s8),
+          SizedBox(height: AppSpacing.s8),
           Container(
-            padding: const EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.s24,
               vertical: AppSpacing.s16,
             ),
@@ -122,214 +96,32 @@ class _ScheduleCard extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  period,
-                  style: AppTextStyle.text2.copyWith(
+                  periodLabel,
+                  style: AppTextStyle.text3.copyWith(
                     color: AppColors.lightSub1,
                   ),
                 ),
                 const Spacer(),
                 Text(
                   subject,
-                  style: AppTextStyle.text3.copyWith(
+                  style: AppTextStyle.text4.copyWith(
                     color: AppColors.lightSub1,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.s4),
-                Text(
-                  teacher,
-                  style: AppTextStyle.caption1.copyWith(
-                    color: AppColors.lightSub2,
+                if (teacher != null) ...[
+                  SizedBox(width: AppSpacing.s4),
+                  Text(
+                    teacher,
+                    style: AppTextStyle.caption1.copyWith(
+                      color: AppColors.lightSub2,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _RequestCountCard extends StatelessWidget {
-  const _RequestCountCard({
-    required this.icon,
-    required this.title,
-    required this.current,
-    required this.total,
-    required this.onWarningPressed,
-    required this.onSeeAllPressed,
-    required this.onActionPressed,
-  });
-
-  final AppIconBuilder icon;
-  final String title;
-  final int current;
-  final int total;
-  final VoidCallback onWarningPressed;
-  final VoidCallback onSeeAllPressed;
-  final VoidCallback onActionPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CardHeader(icon: icon, title: title),
-              const SizedBox(width: AppSpacing.s6),
-              IconButton(
-                onPressed: onWarningPressed,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                splashRadius: AppSize.s18,
-                icon: AppIcon.warning(size: AppSize.s18),
-              ),
-              const Spacer(),
-              _SeeAllLink(onPressed: onSeeAllPressed),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          Center(
-            child: Text(
-              '$current/$total',
-              style: AppTextStyle.title1.copyWith(
-                color: AppColors.lightMainText,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          AppProgressBar(current: current, total: total),
-          const SizedBox(height: AppSpacing.s8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: PrimaryActionButton(
-              label: '신청 불가',
-              enabled: false,
-              onPressed: onActionPressed,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _WakeMusicCard extends StatelessWidget {
-  const _WakeMusicCard({
-    required this.controller,
-    required this.requestedCount,
-  });
-
-  final TextEditingController controller;
-  final int requestedCount;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      borderRadius: AppRadius.s16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const CardHeader(icon: AppIcon.speaker, title: '기상음악 신청'),
-              const SizedBox(width: AppSpacing.s6),
-              Text(
-                '신청 음악',
-                style: AppTextStyle.caption1.copyWith(
-                  color: AppColors.lightSub1,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.s4),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$requestedCount',
-                      style: AppTextStyle.caption1.copyWith(
-                        color: AppColors.lightP1,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '개',
-                      style: AppTextStyle.caption1.copyWith(
-                        color: AppColors.lightSub1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          Container(
-            height: AppSize.s52,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
-            decoration: BoxDecoration(
-              color: AppColors.lightBgSurface,
-              borderRadius: BorderRadius.circular(AppRadius.s8),
-              border: Border.all(color: AppColors.lightSub2),
-            ),
-            alignment: Alignment.centerLeft,
-            child: TextField(
-              controller: controller,
-              style: AppTextStyle.text3.copyWith(
-                color: AppColors.lightMainText,
-              ),
-              decoration: InputDecoration(
-                isCollapsed: true,
-                border: InputBorder.none,
-                hintText: 'URL을 입력해주세요',
-                hintStyle: AppTextStyle.text3.copyWith(
-                  color: AppColors.lightSub2,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          const PrimaryActionButton(
-            label: '신청하기',
-            enabled: false,
-            expand: true,
-            verticalPadding: AppSpacing.s14,
-            horizontalPadding: AppSpacing.s32,
-            borderRadius: AppRadius.s8,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SeeAllLink extends StatelessWidget {
-  const _SeeAllLink({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '전체보기',
-          style: AppTextStyle.caption1.copyWith(color: AppColors.lightSub2),
-        ),
-        const SizedBox(width: AppSpacing.s4),
-        IconButton(
-          onPressed: onPressed,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-          splashRadius: AppSize.s14,
-          icon: AppIcon.chevronRight(
-            size: AppSize.s14,
-            color: AppColors.lightSub2,
-          ),
-        ),
-      ],
     );
   }
 }

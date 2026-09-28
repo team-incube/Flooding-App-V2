@@ -66,7 +66,7 @@ class _SongRecommendationSheetState extends State<SongRecommendationSheet> {
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           itemCount: widget.songs.length,
-          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.s24),
+          separatorBuilder: (_, _) => SizedBox(height: AppSpacing.s24),
           itemBuilder: (context, index) => _SongCard(
             song: widget.songs[index],
             selected: _selected == index,
@@ -95,7 +95,7 @@ class _Header extends StatelessWidget {
         Row(
           children: [
             AppIcon.sparkle(color: AppColors.lightSub2),
-            const SizedBox(width: AppSpacing.s4),
+            SizedBox(width: AppSpacing.s4),
             Text(
               '오늘의 노래 추천',
               style: AppTextStyle.title3.copyWith(
@@ -104,7 +104,7 @@ class _Header extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.s8),
+        SizedBox(height: AppSpacing.s8),
         Text(
           '※ 이전에 신청한 곡을 기반으로 노래를 추천해요',
           style: AppTextStyle.caption1.copyWith(color: AppColors.lightSub2),
@@ -135,7 +135,7 @@ class _SongCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Thumbnail(song: song, selected: selected),
-          const SizedBox(height: AppSpacing.s10),
+          SizedBox(height: AppSpacing.s10),
           Text(
             song.title,
             maxLines: 2,
@@ -199,7 +199,7 @@ class _DurationBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.s6,
         vertical: AppSpacing.s2,
       ),

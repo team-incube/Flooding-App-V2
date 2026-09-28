@@ -1,0 +1,6 @@
+# iOS
+app_identifier("com.flooding.v2")
+team_id("UB2797YAAH")
+
+# Android
+package_name("com.flooding")

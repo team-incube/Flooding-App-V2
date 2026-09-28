@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [
+      "node",
+      "@wdio/globals/types",
+      "@wdio/mocha-framework",
+      "wdio-flutter-by-service"
+    ]
+  },
+  "include": ["test/**/*.ts", "wdio.conf.ts"]
+}

@@ -15,41 +15,48 @@ class PrimaryActionButton extends StatelessWidget {
     this.onPressed,
     this.enabled = true,
     this.expand = false,
-    this.horizontalPadding = AppSpacing.s16,
-    this.verticalPadding = AppSpacing.s10,
-    this.borderRadius = AppRadius.s6,
+    this.horizontalPadding,
+    this.verticalPadding,
+    this.borderRadius,
+    this.backgroundColor,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool enabled;
   final bool expand;
-  final double horizontalPadding;
-  final double verticalPadding;
-  final double borderRadius;
+  final double? horizontalPadding;
+  final double? verticalPadding;
+  final double? borderRadius;
+
+  /// 배경색을 [enabled] 여부와 무관하게 강제 지정한다. 미지정 시 기존처럼
+  /// [enabled]에 따라 lightP1/lightP3 중 하나를 쓴다.
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final background = enabled ? AppColors.lightP1 : AppColors.lightP3;
+    final background =
+        backgroundColor ?? (enabled ? AppColors.lightP1 : AppColors.lightP3);
 
     Widget content = Text(
       label,
-      style: AppTextStyle.caption1.copyWith(color: AppColors.lightSub4),
+      style: AppTextStyle.text4.copyWith(color: AppColors.lightSub4),
     );
     if (expand) {
       content = Center(child: content);
     }
 
+    final resolvedBorderRadius = borderRadius ?? AppRadius.s6;
     final button = Material(
       color: background,
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(resolvedBorderRadius),
       child: InkWell(
         onTap: enabled ? onPressed : null,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(resolvedBorderRadius),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
+            horizontal: horizontalPadding ?? AppSpacing.s16,
+            vertical: verticalPadding ?? AppSpacing.s10,
           ),
           child: content,
         ),

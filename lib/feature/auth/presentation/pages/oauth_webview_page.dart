@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../core/theme/color/app_colors.dart';
+import '../../../../core/widgets/app_loading_indicator.dart';
 
 /// authorize 콜백 결과(code/state 또는 error).
 class OAuthCallback {
@@ -97,7 +98,7 @@ class _OAuthWebViewPageState extends State<OAuthWebViewPage> {
           WebViewWidget(controller: _controller),
           if (_isLoading)
             const Center(
-              child: CircularProgressIndicator(color: AppColors.lightP1),
+              child: AppLoadingIndicator(),
             ),
         ],
       ),
