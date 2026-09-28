@@ -1,0 +1,31 @@
+name: Promote - Android to Production
+
+# 이미 Play Store 비공개 테스트(alpha) 트랙에 올라간 빌드를, 새로 빌드하지 않고
+# 그대로 프로덕션 트랙으로 승격시킨다. 승격 = 프로덕션 배포이므로 사람이 직접
+# 버튼을 눌러야만 실행되게 workflow_dispatch 전용으로 둔다(push 트리거 없음).
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote alpha release to production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Promote to production
+        env:
+          SUPPLY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+        run: bundle exec fastlane android promote_to_production
