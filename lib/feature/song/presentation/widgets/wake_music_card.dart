@@ -131,6 +131,19 @@ class _WakeMusicCardState extends State<WakeMusicCard> {
                 alignment: Alignment.centerLeft,
                 child: TextField(
                   controller: _musicUrlController,
+                  // 포커스 시 커서 기준으로 스크롤되므로, 아래 신청 버튼까지
+                  // 키보드 위로 올라오도록 하단 여백을 늘린다
+                  // (입력창 나머지 절반 + 간격 + 버튼 + 카드 하단 여백).
+                  scrollPadding: EdgeInsets.only(
+                    left: AppSpacing.s20,
+                    top: AppSpacing.s20,
+                    right: AppSpacing.s20,
+                    bottom:
+                        AppSize.s52 / 2 +
+                        AppSpacing.s8 +
+                        AppSize.s52 +
+                        AppSpacing.s16,
+                  ),
                   style: AppTextStyle.text3.copyWith(
                     color: AppColors.lightMainText,
                   ),
