@@ -101,22 +101,37 @@ class _ScheduleCard extends StatelessWidget {
                     color: AppColors.lightSub1,
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  subject,
-                  style: AppTextStyle.text4.copyWith(
-                    color: AppColors.lightSub1,
-                  ),
-                ),
-                if (teacher != null) ...[
-                  SizedBox(width: AppSpacing.s4),
-                  Text(
-                    teacher,
-                    style: AppTextStyle.caption1.copyWith(
-                      color: AppColors.lightSub2,
+                SizedBox(width: AppSpacing.s8),
+                // 과목명이 길면 남은 폭에 맞게 글자를 줄여 한 줄 안에 넣는다.
+                // Align 으로 느슨한 제약을 줘야 짧을 때 원래 크기를 유지한다.
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            subject,
+                            style: AppTextStyle.text4.copyWith(
+                              color: AppColors.lightSub1,
+                            ),
+                          ),
+                          if (teacher != null) ...[
+                            SizedBox(width: AppSpacing.s4),
+                            Text(
+                              teacher,
+                              style: AppTextStyle.caption1.copyWith(
+                                color: AppColors.lightSub2,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
