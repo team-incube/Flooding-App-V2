@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/network/auth_interceptor.dart' show SessionExpiredException;
 import '../../../core/network/dio_client.dart';
 import 'datagsm_auth_service.dart' show AuthException;
 import 'datasources/flooding_auth_api.dart';
@@ -53,7 +54,9 @@ class FloodingAuthService {
 
   /// refresh token 으로 토큰을 재발급한다.
   ///
-  /// refresh token 이 유효하지 않으면(401) [AuthException] 으로 변환한다.
+  /// refresh token 이 유효하지 않으면(401) [SessionExpiredException] 을 던진다.
+  /// 그 외 실패(네트워크·5xx·403)는 [DioException] 을 그대로 던져, 인터셉터가
+  /// 토큰을 지우지 않고 원인별로 처리하게 한다.
   Future<SigninData> reissue({required String refreshToken}) async {
     try {
       final response = await _api.reissue(
@@ -66,9 +69,9 @@ class FloodingAuthService {
       return data;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        throw const AuthException('세션이 만료되었습니다. 다시 로그인해 주세요.');
+        throw const SessionExpiredException();
       }
-      throw const AuthException('토큰 재발급에 실패했습니다.');
+      rethrow;
     }
   }
 }
