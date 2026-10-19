@@ -16,21 +16,27 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     : _repository = repository,
       super(const SchoolState()) {
     on<SchoolEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        reservationsRequested: (refresh) =>
-            _onReservationsRequested(emit, refresh: refresh),
-        reservationCreated: (floor, tableNumber, periods, reason, members) =>
-            _onReservationCreated(
-              emit,
-              floor: floor,
-              tableNumber: tableNumber,
-              periods: periods,
-              reason: reason,
-              members: members,
-            ),
-        reservationDeleted: (reservationId) =>
-            _onReservationDeleted(emit, reservationId),
-      );
+      switch (event) {
+        case SchoolReservationsRequested(:final refresh):
+          await _onReservationsRequested(emit, refresh: refresh);
+        case SchoolReservationCreated(
+          :final floor,
+          :final tableNumber,
+          :final periods,
+          :final reason,
+          :final members,
+        ):
+          await _onReservationCreated(
+            emit,
+            floor: floor,
+            tableNumber: tableNumber,
+            periods: periods,
+            reason: reason,
+            members: members,
+          );
+        case SchoolReservationDeleted(:final reservationId):
+          await _onReservationDeleted(emit, reservationId);
+      }
     });
   }
 

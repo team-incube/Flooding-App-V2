@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/get_members_usecase.dart';
@@ -23,12 +21,14 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
              : MemberListState.loaded(memberList: initialMembers),
        ) {
     on<MemberListEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        load: () => _onLoad(emit),
-        filter: (grade, classNb, gender) =>
-            _onFilter(emit, grade, classNb, gender),
-        toggleAttendance: (userId) => _onToggleAttendance(userId, emit),
-      );
+      switch (event) {
+        case MemberListLoad():
+          await _onLoad(emit);
+        case MemberListFilter(:final grade, :final classNb, :final gender):
+          _onFilter(emit, grade, classNb, gender);
+        case MemberListToggleAttendance(:final userId):
+          _onToggleAttendance(userId, emit);
+      }
     });
   }
 
@@ -38,7 +38,7 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
   Future<void> _onLoad(Emitter<MemberListState> emit) async {
     // 아직 보여줄 목록이 없을 때(initial)만 인디케이터를 띄운다. 시드/재조회는
     // 기존 목록을 유지한 채 값만 갱신해 깜빡임을 막는다.
-    final isInitial = state.maybeWhen(initial: () => true, orElse: () => false);
+    final isInitial = state is MemberListInitial;
     if (isInitial) emit(const MemberListState.loading());
     try {
       _allMembers = await _getMembers();
@@ -63,15 +63,14 @@ class MemberListBloc extends Bloc<MemberListEvent, MemberListState> {
     _allMembers = _allMembers.map((m) {
       return m.id == userId ? m.copyWith(isAttended: !m.isAttended) : m;
     }).toList();
-    state.maybeWhen(
-      filtered: (list) {
-        final updated = list.map((m) {
-          return m.id == userId ? m.copyWith(isAttended: !m.isAttended) : m;
-        }).toList();
-        emit(MemberListState.filtered(memberList: updated));
-      },
-      orElse: () => emit(MemberListState.loaded(memberList: _allMembers)),
-    );
+    if (state case MemberListFiltered(memberList: final list)) {
+      final updated = list.map((m) {
+        return m.id == userId ? m.copyWith(isAttended: !m.isAttended) : m;
+      }).toList();
+      emit(MemberListState.filtered(memberList: updated));
+    } else {
+      emit(MemberListState.loaded(memberList: _allMembers));
+    }
   }
 
   void _onFilter(
