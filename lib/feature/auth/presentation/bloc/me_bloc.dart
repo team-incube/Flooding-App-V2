@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/user_service.dart';
@@ -15,11 +13,14 @@ class MeBloc extends Bloc<MeEvent, MeState> {
     : _userService = userService ?? UserService(),
       super(const MeState.initial()) {
     on<MeEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        requested: () => _onRequested(emit),
-        provided: (me) async => emit(MeState.loaded(me: me)),
-        cleared: () async => emit(const MeState.initial()),
-      );
+      switch (event) {
+        case MeRequested():
+          await _onRequested(emit);
+        case MeProvided(:final me):
+          emit(MeState.loaded(me: me));
+        case MeCleared():
+          emit(const MeState.initial());
+      }
     });
   }
 

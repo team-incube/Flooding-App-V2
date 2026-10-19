@@ -5,18 +5,18 @@ import '../../../../core/enum/gender.dart';
 part 'member_list_event.freezed.dart';
 
 @freezed
-class MemberListEvent with _$MemberListEvent {
+sealed class MemberListEvent with _$MemberListEvent {
   MemberListEvent._();
 
-  factory MemberListEvent.load() = _Load;
+  factory MemberListEvent.load() = MemberListLoad;
 
   factory MemberListEvent.filter({
     int? grade,
     int? classNb,
     Gender? gender,
-  }) = _Filter;
+  }) = MemberListFilter;
 
   /// 특정 멤버의 출석 상태를 로컬에서 즉시 토글한다(낙관적 업데이트용).
   factory MemberListEvent.toggleAttendance({required int userId}) =
-      _ToggleAttendance;
+      MemberListToggleAttendance;
 }

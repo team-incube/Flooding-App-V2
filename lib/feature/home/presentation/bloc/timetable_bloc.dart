@@ -19,12 +19,10 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
   TimetableBloc({required GetNextPeriodUseCase getNextPeriod, required MeBloc meBloc})
     : _getNextPeriod = getNextPeriod,
       super(const TimetableState()) {
-    on<TimetableEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        scheduleRequested: (grade, classNumber) =>
-            _onScheduleRequested(emit, grade, classNumber),
-      );
-    });
+    on<TimetableEvent>(
+      (event, emit) =>
+          _onScheduleRequested(emit, event.grade, event.classNumber),
+    );
 
     _requestFor(meBloc.state);
     _meSubscription = meBloc.stream.listen(_requestFor);
@@ -34,9 +32,14 @@ class TimetableBloc extends Bloc<TimetableEvent, TimetableState> {
   late final StreamSubscription<MeState> _meSubscription;
 
   void _requestFor(MeState meState) {
-    final me = meState.whenOrNull(loaded: (me) => me);
-    if (me == null) return;
-    add(TimetableEvent.scheduleRequested(grade: me.grade, classNumber: me.classNumber));
+    if (meState case MeLoaded(:final me)) {
+      add(
+        TimetableEvent.scheduleRequested(
+          grade: me.grade,
+          classNumber: me.classNumber,
+        ),
+      );
+    }
   }
 
   Future<void> _onScheduleRequested(

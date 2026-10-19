@@ -83,7 +83,10 @@ class _SongDetailViewState extends State<SongDetailView> {
   Widget build(BuildContext context) {
     // 로그인한 사용자 id — 신청자 userId 가 이 값과 같은 곡에 취소 버튼을 노출한다.
     final myUserId = context.select<MeBloc, int?>(
-      (bloc) => bloc.state.maybeWhen(loaded: (me) => me.id, orElse: () => null),
+      (bloc) => switch (bloc.state) {
+        MeLoaded(:final me) => me.id,
+        _ => null,
+      },
     );
     return MultiBlocListener(
       listeners: [

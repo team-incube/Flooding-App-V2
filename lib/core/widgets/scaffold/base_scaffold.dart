@@ -64,7 +64,7 @@ class BaseScaffold extends StatelessWidget {
       // 기본 앱바의 햄버거 버튼으로 여는 공통 메뉴 드로어.
       endDrawer: BlocBuilder<MeBloc, MeState>(
         builder: (context, state) {
-          final me = state.whenOrNull(loaded: (me) => me);
+          final me = state is MeLoaded ? state.me : null;
 
           return MenuDrawer(
             name: me?.name ?? '익명',

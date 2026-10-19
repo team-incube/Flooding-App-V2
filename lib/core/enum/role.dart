@@ -15,12 +15,12 @@ enum Role {
 }
 
 extension AccessRole on BuildContext {
-  Role get role => watch<MeBloc>().state.maybeWhen(
-    loaded: (me) =>
-        Role.values.where((r) => r.value == me.role).firstOrNull ??
-        Role.generalStudent,
-    orElse: () => Role.generalStudent,
-  );
+  Role get role => switch (watch<MeBloc>().state) {
+    MeLoaded(:final me) =>
+      Role.values.where((r) => r.value == me.role).firstOrNull ??
+          Role.generalStudent,
+    _ => Role.generalStudent,
+  };
 
   /// 사감(기숙사 관리자) 전용 기능 접근 권한 — `admin`/`dormitoryManager` 모두 허용.
   bool get isManager => role == Role.admin || role == Role.dormitoryManager;
