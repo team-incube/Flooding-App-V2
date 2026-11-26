@@ -32,9 +32,11 @@ class _SongDetailViewState extends State<SongDetailView> {
     super.initState();
     // 셸 진입 시 이미 1회 로드되므로, 화면 진입의 재조회는 인디케이터 없이
     // 값만 갱신한다(refresh) — 홈에서 신청한 곡이 바로 반영되도록.
-    context.read<MusicBloc>().add(
-      const MusicEvent.listRequested(refresh: true),
-    );
+    // 셸 레벨 MusicBloc 은 화면을 나가도 검색어를 보관하므로, 빈 입력창으로
+    // 다시 진입했을 때 이전 검색 필터가 남지 않도록 초기화한다.
+    context.read<MusicBloc>()
+      ..add(const MusicEvent.searched(''))
+      ..add(const MusicEvent.listRequested(refresh: true));
   }
 
   @override
