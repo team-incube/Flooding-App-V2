@@ -19,7 +19,8 @@ concurrency:
 
 jobs:
   appium-ui-test:
-    runs-on: ubuntu-latest
+    # ubuntu-latest 가 26.04 로 바뀌며 기본 JDK 25·wdio xvfb 래퍼로 실패해 24.04 로 고정한다.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -42,6 +43,12 @@ jobs:
             echo "::notice::FVM 설정 파일 없음, stable 채널 최신 버전 사용"
           fi
           echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
