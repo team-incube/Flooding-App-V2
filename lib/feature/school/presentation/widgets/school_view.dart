@@ -67,7 +67,10 @@ class _SchoolViewState extends State<SchoolView> {
     // 기숙사 관리자·어드민은 모든 예약을, 일반 사용자는 본인 학번이 신청자
     // 목록에 있는 예약만 삭제할 수 있다.
     final mySchoolNb = context.select<MeBloc, int?>(
-      (bloc) => bloc.state.maybeWhen(loaded: (me) => me.studentNumber, orElse: () => null),
+      (bloc) => switch (bloc.state) {
+        MeLoaded(:final me) => me.studentNumber,
+        _ => null,
+      },
     );
     final canManageAll = context.isManager;
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -29,6 +30,16 @@ ResponseBody _body(int statusCode) {
       Headers.contentTypeHeader: [Headers.jsonContentType],
     },
   );
+}
+
+/// `exp` 가 이미 지난, 서명 없는 테스트용 JWT.
+String _expiredJwt() {
+  String segment(Map<String, dynamic> json) =>
+      base64Url.encode(utf8.encode(jsonEncode(json))).replaceAll('=', '');
+  final exp = DateTime.now().subtract(const Duration(minutes: 1));
+  final header = segment({'alg': 'none'});
+  final payload = segment({'exp': exp.toUtc().millisecondsSinceEpoch ~/ 1000});
+  return '$header.$payload.';
 }
 
 void main() {
@@ -108,13 +119,13 @@ void main() {
       expect(events, ['expired']);
     });
 
-    test('401 + refresh 실패 시 세션을 종료한다', () async {
+    test('401 + refresh 만료(SessionExpiredException) 시 세션을 종료한다', () async {
       dio = Dio()..httpClientAdapter = _FakeAdapter((options) => _body(401));
       dio.interceptors.add(
         AuthInterceptor(
           accessTokenProvider: () async => 'expired-token',
           refreshTokenProvider: () async => 'refresh-token',
-          onRefresh: (_) async => throw Exception('refresh 실패'),
+          onRefresh: (_) async => throw const SessionExpiredException(),
           onSessionExpired: () async => events.add('expired'),
           retryClient: dio,
         ),
@@ -123,6 +134,156 @@ void main() {
       await expectLater(dio.get<dynamic>('/ping'), throwsA(isA<DioException>()));
 
       expect(events, ['expired']);
+    });
+
+    test('401 + refresh 네트워크 오류면 세션을 유지하고 네트워크 오류를 넘긴다', () async {
+      dio = Dio()..httpClientAdapter = _FakeAdapter((options) => _body(401));
+      dio.interceptors.add(
+        AuthInterceptor(
+          accessTokenProvider: () async => 'expired-token',
+          refreshTokenProvider: () async => 'refresh-token',
+          onRefresh: (_) async => throw DioException(
+            requestOptions: RequestOptions(path: '/auth/reissue'),
+            type: DioExceptionType.connectionError,
+          ),
+          onSessionExpired: () async => events.add('expired'),
+          retryClient: dio,
+        ),
+      );
+
+      await expectLater(
+        dio.get<dynamic>('/ping'),
+        throwsA(
+          isA<DioException>()
+              .having((e) => e.type, 'type', DioExceptionType.connectionError)
+              .having((e) => e.requestOptions.path, 'path', '/ping'),
+        ),
+      );
+
+      expect(events, isEmpty);
+    });
+
+    test('401 + refresh 403 이면 세션을 유지하고 403 을 넘긴다', () async {
+      dio = Dio()..httpClientAdapter = _FakeAdapter((options) => _body(401));
+      final reissueOptions = RequestOptions(path: '/auth/reissue');
+      dio.interceptors.add(
+        AuthInterceptor(
+          accessTokenProvider: () async => 'expired-token',
+          refreshTokenProvider: () async => 'refresh-token',
+          onRefresh: (_) async => throw DioException(
+            requestOptions: reissueOptions,
+            response: Response(requestOptions: reissueOptions, statusCode: 403),
+            type: DioExceptionType.badResponse,
+          ),
+          onSessionExpired: () async => events.add('expired'),
+          retryClient: dio,
+        ),
+      );
+
+      await expectLater(
+        dio.get<dynamic>('/ping'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'statusCode',
+            403,
+          ),
+        ),
+      );
+
+      expect(events, isEmpty);
+    });
+
+    test('refresh 는 성공했는데 재시도 요청이 실패하면 세션을 유지한다', () async {
+      var currentAccessToken = 'expired-token';
+      dio = Dio()
+        ..httpClientAdapter = _FakeAdapter((options) {
+          final auth = options.headers['Authorization'];
+          return _body(auth == 'Bearer new-token' ? 500 : 401);
+        });
+      dio.interceptors.add(
+        AuthInterceptor(
+          accessTokenProvider: () async => currentAccessToken,
+          refreshTokenProvider: () async => 'refresh-token',
+          onRefresh: (_) async => currentAccessToken = 'new-token',
+          onSessionExpired: () async => events.add('expired'),
+          retryClient: dio,
+        ),
+      );
+
+      await expectLater(
+        dio.get<dynamic>('/ping'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'statusCode',
+            500,
+          ),
+        ),
+      );
+
+      expect(events, isEmpty);
+    });
+
+    test('요청 전 선제 갱신이 refresh 만료면 세션을 종료하고 401 로 거절한다', () async {
+      var sent = false;
+      dio = Dio()
+        ..httpClientAdapter = _FakeAdapter((options) {
+          sent = true;
+          return _body(200);
+        });
+      dio.interceptors.add(
+        AuthInterceptor(
+          accessTokenProvider: () async => _expiredJwt(),
+          refreshTokenProvider: () async => 'refresh-token',
+          onRefresh: (_) async => throw const SessionExpiredException(),
+          onSessionExpired: () async => events.add('expired'),
+          retryClient: dio,
+        ),
+      );
+
+      await expectLater(
+        dio.get<dynamic>('/ping'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'statusCode',
+            401,
+          ),
+        ),
+      );
+
+      expect(events, ['expired']);
+      expect(sent, isFalse);
+    });
+
+    test('요청 전 선제 갱신이 네트워크 오류면 세션을 유지한다', () async {
+      dio = Dio()..httpClientAdapter = _FakeAdapter((options) => _body(200));
+      dio.interceptors.add(
+        AuthInterceptor(
+          accessTokenProvider: () async => _expiredJwt(),
+          refreshTokenProvider: () async => 'refresh-token',
+          onRefresh: (_) async => throw DioException(
+            requestOptions: RequestOptions(path: '/auth/reissue'),
+            type: DioExceptionType.connectionTimeout,
+          ),
+          onSessionExpired: () async => events.add('expired'),
+          retryClient: dio,
+        ),
+      );
+
+      await expectLater(
+        dio.get<dynamic>('/ping'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.connectionTimeout,
+          ),
+        ),
+      );
+
+      expect(events, isEmpty);
     });
 
     test('동시에 여러 요청이 401 을 받아도 갱신은 1회만 수행한다(single-flight)', () async {

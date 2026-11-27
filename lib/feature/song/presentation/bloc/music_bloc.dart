@@ -17,16 +17,27 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     : _repository = repository,
       super(const MusicState()) {
     on<MusicEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        listRequested: (refresh, date, sort) =>
-            _onListRequested(emit, refresh: refresh, date: date, sort: sort),
-        applied: (musicUrl) => _onApplied(emit, musicUrl),
-        searched: (query) => _onSearched(emit, query),
-        likeToggled: (musicId) => _onLikeToggled(emit, musicId),
-        cancelRequested: (musicId) => _onCancelRequested(emit, musicId),
-        subscriptionStarted: () => _onSubscriptionStarted(),
-        sseReceived: (sseEvent) => _onSseReceived(emit, sseEvent),
-      );
+      switch (event) {
+        case MusicListRequested(:final refresh, :final date, :final sort):
+          await _onListRequested(
+            emit,
+            refresh: refresh,
+            date: date,
+            sort: sort,
+          );
+        case MusicApplied(:final musicUrl):
+          await _onApplied(emit, musicUrl);
+        case MusicSearched(:final query):
+          _onSearched(emit, query);
+        case MusicLikeToggled(:final musicId):
+          await _onLikeToggled(emit, musicId);
+        case MusicCancelRequested(:final musicId):
+          await _onCancelRequested(emit, musicId);
+        case MusicSubscriptionStarted():
+          await _onSubscriptionStarted();
+        case MusicSseReceived(event: final sseEvent):
+          _onSseReceived(emit, sseEvent);
+      }
     });
   }
 
@@ -325,9 +336,9 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     // (다시 오늘로 돌아오면 listRequested 로 최신 목록을 새로 받는다.)
     if (!_isViewingToday) return;
 
-    event.when(
+    switch (event) {
       // 구독 직후 오늘 전체 목록 — 신선한 조회처럼 목록을 교체한다.
-      listInitialized: (musics) {
+      case MusicSseListInitialized(:final musics):
         _allMusics = musics;
         emit(
           state.copyWith(
@@ -337,9 +348,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
             listError: null,
           ),
         );
-      },
       // 신청 1건 — 이미 있으면 갱신, 없으면 추가(타 사용자 신청도 실시간 반영).
-      applied: (music) {
+      case MusicSseApplied(:final music):
         final exists = _allMusics.any((m) => m.id == music.id);
         _allMusics = exists
             ? _replaceMusic(_allMusics, music.id, music)
@@ -350,9 +360,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
             totalCount: _allMusics.length,
           ),
         );
-      },
       // 취소 1건 — 목록에서 제거(이미 없으면 무시).
-      cancelled: (musicId) {
+      case MusicSseCancelled(:final musicId):
         if (_allMusics.every((m) => m.id != musicId)) return;
         _allMusics = [
           for (final m in _allMusics)
@@ -364,9 +373,8 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
             totalCount: _allMusics.length,
           ),
         );
-      },
       // 좋아요 수 변경 — 총계만 서버 값으로 갱신(개인별 isLiked 는 유지).
-      likeUpdated: (musicId, likeCount) {
+      case MusicSseLikeUpdated(:final musicId, :final likeCount):
         final index = _allMusics.indexWhere((m) => m.id == musicId);
         if (index == -1) return;
         _allMusics = _replaceMusic(
@@ -375,8 +383,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
           _allMusics[index].copyWith(likeCount: likeCount),
         );
         emit(state.copyWith(musics: _applyFilter(_allMusics, state.query)));
-      },
-    );
+    }
   }
 
   @override

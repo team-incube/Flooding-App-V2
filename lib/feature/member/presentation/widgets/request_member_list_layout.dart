@@ -54,12 +54,11 @@ class RequestMemberListLayout extends StatelessWidget {
 
     return BlocBuilder<MemberListBloc, MemberListState>(
       builder: (context, state) {
-        final memberList =
-            state.whenOrNull(
-              loaded: (list, _) => list,
-              filtered: (list) => list,
-            ) ??
-            [];
+        final memberList = switch (state) {
+          MemberListLoaded(:final memberList) ||
+          MemberListFiltered(:final memberList) => memberList,
+          _ => const <MemberModel>[],
+        };
 
         return SafeArea(
           top: false,
@@ -207,8 +206,7 @@ class _MemberGridLayoutState extends State<_MemberGridLayout> {
 
     // 서버 재조회 완료(fromServer: true) 시 모든 pending 을 해제한다.
     return BlocListener<MemberListBloc, MemberListState>(
-      listenWhen: (_, curr) =>
-          curr.whenOrNull(loaded: (_, fromServer) => fromServer) ?? false,
+      listenWhen: (_, curr) => curr is MemberListLoaded && curr.fromServer,
       listener: (_, __) {
         if (_pendingIds.isNotEmpty) setState(() => _pendingIds.clear());
       },

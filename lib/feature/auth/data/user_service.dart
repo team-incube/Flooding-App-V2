@@ -19,6 +19,9 @@ enum SessionCheck {
   /// `/users/me` 401 — 토큰 만료/무효, 재로그인 필요.
   unauthorized,
 
+  /// `/users/me` 403 — 인증은 됐지만 접근 권한 없음.
+  forbidden,
+
   /// 연결 실패·타임아웃 — 서버에 닿지 못함(오프라인 가능).
   networkError,
 
@@ -113,6 +116,9 @@ class UserService implements SessionValidator {
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         return (check: SessionCheck.unauthorized, me: null);
+      }
+      if (e.response?.statusCode == 403) {
+        return (check: SessionCheck.forbidden, me: null);
       }
       return (
         check: e.toApiException().isNetwork

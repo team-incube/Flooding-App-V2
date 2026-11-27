@@ -6,7 +6,7 @@ import '../../domain/models/music_sse_event.dart';
 part 'music_event.freezed.dart';
 
 @freezed
-class MusicEvent with _$MusicEvent {
+sealed class MusicEvent with _$MusicEvent {
   /// 기상음악 목록을 (재)조회한다.
   ///
   /// [refresh] 가 true 면 재조회로 간주해 로딩 인디케이터를 띄우지 않고
@@ -16,26 +16,26 @@ class MusicEvent with _$MusicEvent {
     @Default(false) bool refresh,
     DateTime? date,
     MusicSort? sort,
-  }) = _ListRequested;
+  }) = MusicListRequested;
 
   /// [musicUrl] 로 기상음악을 신청한다.
-  const factory MusicEvent.applied(String musicUrl) = _Applied;
+  const factory MusicEvent.applied(String musicUrl) = MusicApplied;
 
   /// 노래 제목·신청자 이름으로 목록을 검색(필터)한다.
   ///
   /// 빈 문자열이면 전체 목록을 표시한다. 검색어는 상태에 보관돼
   /// 재조회(신청 후 새로고침 등)에도 동일 필터가 유지된다.
-  const factory MusicEvent.searched(String query) = _Searched;
+  const factory MusicEvent.searched(String query) = MusicSearched;
 
   /// [musicId] 곡의 좋아요를 토글한다(현재 상태 기준으로 좋아요/취소).
-  const factory MusicEvent.likeToggled(int musicId) = _LikeToggled;
+  const factory MusicEvent.likeToggled(int musicId) = MusicLikeToggled;
 
   /// [musicId] 곡의 기상음악 신청을 취소한다(본인 신청 곡만).
-  const factory MusicEvent.cancelRequested(int musicId) = _CancelRequested;
+  const factory MusicEvent.cancelRequested(int musicId) = MusicCancelRequested;
 
   /// 기상음악 실시간(SSE) 구독을 시작한다. 연결이 끊기면 자동 재연결한다.
-  const factory MusicEvent.subscriptionStarted() = _SubscriptionStarted;
+  const factory MusicEvent.subscriptionStarted() = MusicSubscriptionStarted;
 
   /// (내부) SSE로 수신한 [event] 를 목록에 반영한다.
-  const factory MusicEvent.sseReceived(MusicSseEvent event) = _SseReceived;
+  const factory MusicEvent.sseReceived(MusicSseEvent event) = MusicSseReceived;
 }

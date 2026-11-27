@@ -98,7 +98,10 @@ class AuthController extends ChangeNotifier {
   /// 앱 시작 시 1회 호출해 초기 인증 상태를 결정한다.
   ///
   /// 저장된 토큰이 없으면 미인증. 토큰이 있으면 `/users/me` 로 세션 유효성을
-  /// 검사해, 401 이면 토큰을 비우고 미인증(로그인 화면)으로 보낸다.
+  /// 검사한다. 검사 요청은 [AuthInterceptor] 를 거치므로 access token 이
+  /// 만료됐으면 refresh 를 먼저 시도하고, 그래도 401(refresh 만료)이면 토큰을
+  /// 비우고 미인증(로그인 화면)으로 보낸다. 403 이면 토큰은 유지한 채 권한
+  /// 오류 메시지와 함께 로그인 화면으로 보낸다.
   Future<void> bootstrap() async {
     final accessToken = await _tokenStorage.readAccessToken();
     if (accessToken == null) {
@@ -110,6 +113,10 @@ class AuthController extends ChangeNotifier {
     if (result.check == SessionCheck.unauthorized) {
       await _tokenStorage.clear();
       _set(AuthStatus.unauthenticated);
+      return;
+    }
+    if (result.check == SessionCheck.forbidden) {
+      _fail(ApiException.forbiddenMessage);
       return;
     }
     if (result.check == SessionCheck.networkError) {
@@ -138,6 +145,10 @@ class AuthController extends ChangeNotifier {
       final result = await _sessionValidator.validateSession();
       if (result.check == SessionCheck.unauthorized) {
         await expireSession();
+        return;
+      }
+      if (result.check == SessionCheck.forbidden) {
+        _fail(ApiException.forbiddenMessage);
         return;
       }
       if (result.check == SessionCheck.valid ||

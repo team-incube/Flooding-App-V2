@@ -5,14 +5,14 @@ import '../../data/models/homebase_member.dart';
 part 'school_event.freezed.dart';
 
 @freezed
-class SchoolEvent with _$SchoolEvent {
+sealed class SchoolEvent with _$SchoolEvent {
   /// 오늘 홈베이스 예약 목록을 (재)조회한다.
   ///
   /// [refresh] 가 true 면 재조회로 간주해 로딩 인디케이터를 띄우지 않고
   /// 기존 목록을 유지한 채 값만 갱신한다(최초 조회만 인디케이터 노출).
   const factory SchoolEvent.reservationsRequested({
     @Default(false) bool refresh,
-  }) = _ReservationsRequested;
+  }) = SchoolReservationsRequested;
 
   /// [floor]·[tableNumber] 좌석에 [periods] 교시로 홈베이스를 예약한다.
   ///
@@ -24,8 +24,8 @@ class SchoolEvent with _$SchoolEvent {
     required Set<int> periods,
     required String reason,
     required List<HomebaseMember> members,
-  }) = _ReservationCreated;
+  }) = SchoolReservationCreated;
 
   const factory SchoolEvent.reservationDeleted({required int reservationId}) =
-      _ReservationDeleted;
+      SchoolReservationDeleted;
 }

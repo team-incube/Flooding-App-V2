@@ -95,7 +95,9 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
     // 이후의 상태 "변화"에만 반응한다) 첫 프레임 뒤에 현재 상태도 한 번 확인한다.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<MeBloc>().state.whenOrNull(loaded: _applyDefaultFloor);
+      if (context.read<MeBloc>().state case MeLoaded(:final me)) {
+        _applyDefaultFloor(me);
+      }
     });
   }
 
@@ -174,8 +176,9 @@ class _HomeBaseSeatSelectCardState extends State<HomeBaseSeatSelectCard> {
     );
 
     return BlocListener<MeBloc, MeState>(
-      listener: (context, state) =>
-          state.whenOrNull(loaded: _applyDefaultFloor),
+      listener: (context, state) {
+        if (state case MeLoaded(:final me)) _applyDefaultFloor(me);
+      },
       child: widget.showCard ? AppCard(child: content) : content,
     );
   }

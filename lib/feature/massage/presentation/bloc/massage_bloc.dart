@@ -26,14 +26,16 @@ class MassageBloc extends Bloc<MassageEvent, MassageState> {
        _clock = clock,
        super(MassageState(actionStatus: _openStatusFor(policy, clock))) {
     on<MassageEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        applicantsRequested: (refresh) =>
-            _onApplicantsRequested(emit, refresh: refresh),
-        filtered: (grade, classNb, gender) =>
-            _onFiltered(emit, grade, classNb, gender),
-        actionEvaluated: () => _onActionEvaluated(emit),
-        actionSubmitted: () => _onActionSubmitted(emit),
-      );
+      switch (event) {
+        case MassageApplicantsRequested(:final refresh):
+          await _onApplicantsRequested(emit, refresh: refresh);
+        case MassageFiltered(:final grade, :final classNb, :final gender):
+          _onFiltered(emit, grade, classNb, gender);
+        case MassageActionEvaluated():
+          _onActionEvaluated(emit);
+        case MassageActionSubmitted():
+          await _onActionSubmitted(emit);
+      }
     });
 
     // 신청 시작/마감 시각이 실시간으로 지나면 버튼 활성 상태가 저절로 바뀌도록

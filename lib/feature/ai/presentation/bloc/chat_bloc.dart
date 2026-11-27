@@ -16,9 +16,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({required AiRepository repository})
     : _repository = repository,
       super(const ChatState()) {
-    on<ChatEvent>((event, emit) async {
-      await event.when(messageSent: (text) => _onMessageSent(text, emit));
-    });
+    on<ChatEvent>((event, emit) => _onMessageSent(event.text, emit));
   }
 
   final AiRepository _repository;

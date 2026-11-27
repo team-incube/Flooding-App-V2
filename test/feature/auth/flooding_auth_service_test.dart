@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flooding_v2/core/network/auth_interceptor.dart'
+    show SessionExpiredException;
 import 'package:flooding_v2/feature/auth/data/datagsm_auth_service.dart'
     show AuthException;
 import 'package:flooding_v2/feature/auth/data/datasources/flooding_auth_api.dart';
@@ -111,15 +113,34 @@ void main() {
       expect(api.lastReissue?.refreshToken, 'oldRT');
     });
 
-    test('401(유효하지 않은 refresh)은 AuthException 으로 변환한다', () async {
+    test('401(유효하지 않은 refresh)은 SessionExpiredException 으로 변환한다', () async {
       final service = FloodingAuthService(
         api: _FakeFloodingAuthApi(error: _http(401)),
       );
 
       expect(
         () => service.reissue(refreshToken: 'bad'),
-        throwsA(isA<AuthException>()),
+        throwsA(isA<SessionExpiredException>()),
       );
+    });
+
+    test('401 외 실패(403·5xx)는 DioException 을 그대로 던진다', () async {
+      for (final status in [403, 500]) {
+        final service = FloodingAuthService(
+          api: _FakeFloodingAuthApi(error: _http(status)),
+        );
+
+        await expectLater(
+          () => service.reissue(refreshToken: 'rt'),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.response?.statusCode,
+              'statusCode',
+              status,
+            ),
+          ),
+        );
+      }
     });
   });
 }

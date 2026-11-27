@@ -5,22 +5,23 @@ import '../models/member_model.dart';
 part 'member_list_state.freezed.dart';
 
 @freezed
-class MemberListState with _$MemberListState {
+sealed class MemberListState with _$MemberListState {
   const MemberListState._();
 
-  const factory MemberListState.initial() = _Initial;
+  const factory MemberListState.initial() = MemberListInitial;
 
-  const factory MemberListState.loading() = _Loading;
+  const factory MemberListState.loading() = MemberListLoading;
 
   const factory MemberListState.loaded({
     required List<MemberModel> memberList,
     /// 서버에서 재조회한 결과면 true, 로컬 낙관적 업데이트면 false.
     @Default(false) bool fromServer,
-  }) = _Loaded;
+  }) = MemberListLoaded;
 
   const factory MemberListState.filtered({
     required List<MemberModel> memberList,
-  }) = _Filtered;
+  }) = MemberListFiltered;
 
-  const factory MemberListState.error({required String message}) = _Error;
+  const factory MemberListState.error({required String message}) =
+      MemberListError;
 }

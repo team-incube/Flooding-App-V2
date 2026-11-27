@@ -30,6 +30,9 @@ class ApiException implements Exception {
   /// 같은 문구를 쓰도록 단일 출처로 둔다.
   static const String networkMessage = '네트워크 연결을 확인해 주세요.';
 
+  /// 403(권한 부족) 시 노출하는 표준 메시지.
+  static const String forbiddenMessage = '접근 권한이 없어요.';
+
   /// 사용자에게 노출할 메시지. 서버 메시지가 있으면 그대로 쓰고,
   /// 없으면 상태 코드에 대한 일반적인 한국어 fallback 을 반환한다.
   String get message {
@@ -39,7 +42,7 @@ class ApiException implements Exception {
     return switch (statusCode) {
       400 => '요청을 처리할 수 없어요.',
       401 => '로그인이 필요해요.',
-      403 => '권한이 없어요.',
+      403 => forbiddenMessage,
       404 => '요청한 정보를 찾을 수 없어요.',
       409 => '이미 처리되었거나 처리할 수 없는 상태예요.',
       _ => '요청을 처리하지 못했어요.',

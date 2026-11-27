@@ -12,16 +12,16 @@ part 'music_sse_event.freezed.dart';
 /// - `music-cancelled`    → [MusicSseEvent.cancelled]       (취소 1건)
 /// - `music-like-updated` → [MusicSseEvent.likeUpdated]     (좋아요 수 변경)
 @freezed
-class MusicSseEvent with _$MusicSseEvent {
+sealed class MusicSseEvent with _$MusicSseEvent {
   /// 구독 직후 서버가 보내는 오늘의 전체 신청 목록(init).
   const factory MusicSseEvent.listInitialized(List<WakeUpMusic> musics) =
-      _ListInitialized;
+      MusicSseListInitialized;
 
   /// 곡이 새로 신청됨(music-applied) — 다른 사용자의 신청도 실시간 반영한다.
-  const factory MusicSseEvent.applied(WakeUpMusic music) = _Applied;
+  const factory MusicSseEvent.applied(WakeUpMusic music) = MusicSseApplied;
 
   /// 곡 신청이 취소됨(music-cancelled).
-  const factory MusicSseEvent.cancelled(int musicId) = _Cancelled;
+  const factory MusicSseEvent.cancelled(int musicId) = MusicSseCancelled;
 
   /// 곡의 좋아요 수가 변경됨(music-like-updated).
   ///
@@ -30,5 +30,5 @@ class MusicSseEvent with _$MusicSseEvent {
   const factory MusicSseEvent.likeUpdated({
     required int musicId,
     required int likeCount,
-  }) = _LikeUpdated;
+  }) = MusicSseLikeUpdated;
 }

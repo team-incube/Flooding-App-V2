@@ -164,6 +164,20 @@ void main() {
       expect(meBloc.addedEvents, isEmpty);
     });
 
+    test('403 이면 토큰은 유지하고 권한 오류와 함께 미인증(로그인으로)', () async {
+      final storage = _FakeTokenStorage(token: 'access');
+      final validator = _FakeSessionValidator(SessionCheck.forbidden);
+      final meBloc = _FakeMeBloc();
+      final controller = _controller(storage, validator, meBloc);
+
+      await controller.bootstrap();
+
+      expect(controller.status, AuthStatus.unauthenticated);
+      expect(controller.error, '접근 권한이 없어요.');
+      expect(storage.cleared, isFalse);
+      expect(meBloc.addedEvents, isEmpty);
+    });
+
     test('서버 5xx 등 판단 불가면 진입 허용(토큰 유지)', () async {
       final storage = _FakeTokenStorage(token: 'access');
       final validator = _FakeSessionValidator(SessionCheck.unknown);

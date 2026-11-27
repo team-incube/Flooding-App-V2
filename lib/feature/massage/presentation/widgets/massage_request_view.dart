@@ -42,18 +42,16 @@ class _MassageRequestViewState extends State<MassageRequestView> {
             textEditingController: searchController,
             hintText: '학생 이름, 학번을 입력해주세요',
           ),
-          emptyIcon: state.when(
-            initial: _loading,
-            loading: _loading,
+          emptyIcon: switch (state) {
+            MemberListInitial() || MemberListLoading() => _loading(),
             // 필터 결과만 비어 있는 경우.
-            filtered: (_) => NoMemberIcon(
+            MemberListFiltered() => NoMemberIcon(
               icon: AppIcon.chair(size: AppSize.s100),
               title: '조건에 맞는 학생이 없습니다.',
               subTitle: '필터 설정을 확인해 주세요.',
             ),
-            loaded: (_, __) => _emptyApplicants(),
-            error: (_) => _emptyApplicants(),
-          ),
+            MemberListLoaded() || MemberListError() => _emptyApplicants(),
+          },
         );
       },
     );

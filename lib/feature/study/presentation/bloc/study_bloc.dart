@@ -26,18 +26,25 @@ class StudyBloc extends Bloc<StudyEvent, StudyState> {
        _clock = clock,
        super(StudyState(actionStatus: _openStatusFor(policy, clock))) {
     on<StudyEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        applicantsRequested: (refresh) =>
-            _onApplicantsRequested(emit, refresh: refresh),
-        filtered: (grade, classNb, gender) =>
-            _onFiltered(emit, grade, classNb, gender),
-        actionEvaluated: () => _onActionEvaluated(emit),
-        actionSubmitted: () => _onActionSubmitted(emit),
-        checkInRequested: (userIds) =>
-            _onAttendanceAction(emit, userIds, _repository.checkIn, '체크인'),
-        checkOutRequested: (userIds) =>
-            _onAttendanceAction(emit, userIds, _repository.checkOut, '체크아웃'),
-      );
+      switch (event) {
+        case StudyApplicantsRequested(:final refresh):
+          await _onApplicantsRequested(emit, refresh: refresh);
+        case StudyFiltered(:final grade, :final classNb, :final gender):
+          _onFiltered(emit, grade, classNb, gender);
+        case StudyActionEvaluated():
+          _onActionEvaluated(emit);
+        case StudyActionSubmitted():
+          await _onActionSubmitted(emit);
+        case StudyCheckInRequested(:final userIds):
+          await _onAttendanceAction(emit, userIds, _repository.checkIn, '체크인');
+        case StudyCheckOutRequested(:final userIds):
+          await _onAttendanceAction(
+            emit,
+            userIds,
+            _repository.checkOut,
+            '체크아웃',
+          );
+      }
     });
 
     // 신청 시작/마감 시각이 실시간으로 지나면 버튼 활성 상태가 저절로 바뀌도록

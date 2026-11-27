@@ -7,10 +7,12 @@ class MemberSelectionBloc
     extends Bloc<MemberSelectionEvent, MemberSelectionState> {
   MemberSelectionBloc() : super(const MemberSelectionState()) {
     on<MemberSelectionEvent>((event, emit) {
-      event.whenOrNull(
-        check: (id, isAttended) => _onCheck(id, isAttended, emit),
-        clear: () => emit(const MemberSelectionState()),
-      );
+      switch (event) {
+        case MemberSelectionCheck(:final id, :final isAttended):
+          _onCheck(id, isAttended, emit);
+        case MemberSelectionClear():
+          emit(const MemberSelectionState());
+      }
     });
   }
 
