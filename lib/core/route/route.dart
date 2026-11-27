@@ -73,6 +73,19 @@ class _UnfocusOnRouteChange extends NavigatorObserver {
       _unfocusIfPage(newRoute);
 }
 
+/// 셸(공통 Scaffold) 안의 화면을 전환 시간 없이 즉시 교체하는 라우트.
+///
+/// 셸 안의 화면은 배경이 투명해, 전환 애니메이션이 있으면 이전·새 화면이
+/// 같은 자리에 겹쳐 그려져 깨져 보인다.
+GoRoute _shellRoute({
+  required String path,
+  required Widget Function(BuildContext, GoRouterState) builder,
+}) => GoRoute(
+  path: path,
+  pageBuilder: (context, state) =>
+      NoTransitionPage(key: state.pageKey, child: builder(context, state)),
+);
+
 /// 인증 상태에 따라 라우팅을 가드하는 go_router 를 생성한다.
 ///
 /// [auth] 를 `refreshListenable` 로 구독해 상태가 바뀌면 redirect 가
@@ -102,7 +115,7 @@ GoRouter createAppRouter(AuthController auth) {
     routes: [
       ShellRoute(
         routes: [
-          GoRoute(
+          _shellRoute(
             path: RoutePath.home,
             builder: (context, state) => BlocProvider(
               create: (ctx) => TimetableBloc(
@@ -116,15 +129,15 @@ GoRouter createAppRouter(AuthController auth) {
               child: const HomeView(),
             ),
           ),
-          GoRoute(
+          _shellRoute(
             path: RoutePath.dormitory,
             builder: (context, state) => const DormitoryView(),
           ),
-          GoRoute(
+          _shellRoute(
             path: RoutePath.school,
             builder: (context, state) => const SchoolView(),
           ),
-          GoRoute(
+          _shellRoute(
             path: RoutePath.schoolDetail,
             builder: (context, state) {
               final selection = state.extra;
@@ -138,7 +151,7 @@ GoRouter createAppRouter(AuthController auth) {
               );
             },
           ),
-          GoRoute(
+          _shellRoute(
             path: RoutePath.requestStudy,
             builder: (context, state) => MultiBlocProvider(
               providers: [
@@ -165,7 +178,7 @@ GoRouter createAppRouter(AuthController auth) {
               child: const StudyRequestView(),
             ),
           ),
-          GoRoute(
+          _shellRoute(
             path: RoutePath.requestMassage,
             builder: (context, state) => BlocProvider(
               create: (context) {
@@ -184,7 +197,7 @@ GoRouter createAppRouter(AuthController auth) {
               child: const MassageRequestView(),
             ),
           ),
-          GoRoute(
+          _shellRoute(
             path: RoutePath.songRequestDetail,
             builder: (context, state) => const SongDetailView(),
           ),
